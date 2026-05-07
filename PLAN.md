@@ -540,7 +540,7 @@ ship features that depend on a backend phase that has not yet merged to
 - [x] Phase 4 — Product Listing & Detail (commit: `feat(products): add product listing and detail pages`)
 - [x] Phase 5 — Cart (commit: `feat(cart): add cart with Zustand and free-shipping progress`)
 - [x] Phase 6 — Stripe Checkout flow (consumes backend Phase 6 + 7) (commit: `feat(checkout): add Stripe checkout flow`)
-- [ ] Phase 7 — Account & Order History (consumes backend Phase 8)
+- [x] Phase 7 — Account & Order History (consumes backend Phase 8) (commit: `feat(account): add order history, addresses, and settings`)
 - [ ] Phase 8 — Admin Panel + AI description generator (consumes backend Phase 8)
 - [ ] Phase 9 — Testing (Vitest + Playwright, 80 % coverage threshold)
 - [ ] Phase 10 — CI/CD + Vercel deploy (staging + prod)
@@ -1250,3 +1250,191 @@ ship features that depend on a backend phase that has not yet merged to
   static, `/checkout/success` ƒ-dynamic because of `searchParams`,
   6.91 kB / 209 kB first-load JS for the form page including the
   RHF/Zod weight).
+
+### Phase 7 — Account & Order History
+- **Auth-token plumbing: extended `apiFetch`, didn't fork.** Added an
+  optional `accessToken?: string` field to a new `ApiFetchInit`
+  superset of `RequestInit`. When present, the wrapper attaches
+  `Authorization: Bearer <token>`. Single header-injection point —
+  every authed call site reads the same code path. A sibling
+  `authedFetch` was rejected because it forces the call site to
+  remember which wrapper applies; the `accessToken` field is
+  impossible to forget without the type-checker complaining at the
+  exact line that needed it. `lib/supabase/access-token.ts` exposes
+  `getServerAccessToken()` so the orders / order-detail RSCs read the
+  token in one line. Client mutations (addresses) read it
+  per-mutation via the browser Supabase client so a token refresh
+  between mount and submit uses the new value.
+- **`getSession()` is correct here, even though Phase 2's middleware
+  uses `getUser()`.** The phase 2 note said "`getSession` returns the
+  cookie payload without verification and is unsafe server-side."
+  That's true for *trusting* the user — for *forwarding the token to
+  another service* (the backend), `getSession()` is the right call:
+  it gives us the raw access token without an extra Supabase round-
+  trip, and the backend will verify it itself when it boots a
+  service-role client. Documented inline in the `access-token.ts`
+  helper so the next reader doesn't try to "fix" it.
+- **Token never persisted.** Read fresh on every server render and
+  every client mutation. No localStorage, no sessionStorage. Supabase
+  owns refresh.
+- **Account chrome: server-rendered shell, two `'use client'` islands
+  for active state.** `app/account/layout.tsx` becomes a real layout
+  that calls `await createClient()` once for the user (sidebar avatar
+  / name / email render server-side) and wraps children in
+  `<AccountShell />`. The sidebar is server-rendered; only
+  `<AccountNavLinks />` and `<AccountBottomTabs />` are `'use
+  client'` so they can read `usePathname()`. Sign-out is a third
+  client island (`<AccountSignOutButton />`) so the spinner during
+  the Supabase round-trip lives next to the trigger.
+- **`isAccountLinkActive(pathname, link)` lives next to the nav-link
+  data, not inside the components.** Single matcher (`/account` ==
+  Orders, `/account/orders*` also == Orders, longer prefixes for
+  Addresses / Settings) so the desktop sidebar and the mobile
+  bottom-tabs can't drift.
+- **Sign-out is desktop-sidebar only.** Spec asked us to "pick one and
+  document"; mobile users still have the existing global navbar
+  `<AuthSlot />` dropdown (rendered inside `<MobileMenu />`'s
+  footer), so they aren't stranded. Keeping the bottom-tabs to three
+  entries (Orders / Addresses / Settings) keeps the touch targets
+  generous and matches the Admin spec's mobile pattern.
+- **Each page renders its own `<h1>`.** `<PageHeader />` is a small
+  server component that renders the Fraunces heading, optional
+  breadcrumb, optional right-aligned action (e.g. "Add a new
+  address"). The chrome stays thin — same separation Phase 4's
+  product detail uses.
+- **Orders list = Server Component, paginated by URL.** No client
+  state. `?page=` is parsed in the page, forwarded to `getOrders({
+  page, accessToken })`. The `<OrdersPagination />` component is a
+  fork of Phase 4's `<Pagination />` because that one was hard-coded
+  to `/products`; the new component takes a `basePath` prop so the
+  same shape can serve `/account` and the `/account/orders` alias
+  (and any future paginated list — wishlist, subscriptions, etc.)
+  without another fork. The product `<Pagination />` is intentionally
+  left alone — it's stable and not worth a refactor in this PR.
+- **`/account/orders` is an alias, not a redirect.** Both `/account`
+  and `/account/orders` render the orders list. `<SuccessContents />`
+  links customers to `/account/orders`; emails will too. 301'ing
+  would mean every email link costs an extra round-trip, and there's
+  no canonicalisation benefit since both URLs are reasonable
+  bookmarks. Documented in the alias page.
+- **Status pill colour map: `brand-*` / `warm-*` + one `amber-*`.**
+  Tailwind ships `amber-*` by default — not a custom colour, not a
+  gray, and visually distinct enough that "shipped" doesn't blend
+  into "paid" / "delivered". `cancelled` adds `line-through` to the
+  label (semantic + visual). Map lives in
+  `<OrderStatusPill />` so the next phase can reuse it on
+  `/admin/orders` (Phase 8) without duplicating the contract.
+- **`<OrderTracking />` visibility rules.** Render the strip when (a)
+  `trackingNumber` is set OR (b) the order is `shipped` /
+  `fulfilled` and tracking hasn't landed yet (microcopy: "Tracking
+  will appear here once it's available."). Earlier statuses don't
+  render a tracking strip at all — avoids the dead "no tracking yet"
+  panel on a freshly-paid order.
+- **Order detail reuses `<OrderSummaryCard />` verbatim.** Phase 6
+  designed it to be presentational + server-safe; nothing to change.
+  The "View in your account" CTA on the card still points at
+  `/account/orders/${order.id}` and now lands on a real page.
+- **Authorisation owned by the backend.** The detail page doesn't
+  scan all orders to check ownership — backend returns 404 for a
+  foreign order ID and we render `notFound()`. Keeps the page to one
+  request.
+- **Addresses CRUD: TanStack Query optimistic updates, server actions
+  rejected.** Server actions would force a `revalidatePath('/account/
+  addresses')` per mutation (a full RSC re-render), noisier and
+  slower than cache surgery. The mutation hooks
+  (`useCreateAddressMutation`, `useUpdateAddressMutation`,
+  `useDeleteAddressMutation`, `useSetDefaultAddressMutation`) follow
+  the standard `cancelQueries → snapshot → optimistic
+  setQueryData → onError rollback → onSettled invalidate` pattern.
+  Decision documented inline because Phase 14 / 16 / 17+ are going
+  to want the same shape.
+- **Optimistic delete promotes a remaining default.** When the
+  customer deletes the current default and there are remaining
+  addresses, both the optimistic cache update and the lib/api
+  fallback promote the most recently-created remaining entry to
+  default. Without this they'd see a brief "no default" state during
+  invalidation that could prompt a confused click.
+- **`<AddressBook />` owns top-level state; `<AddressCard />` owns
+  edit-in-place state.** Per-card edit state lives inside the card so
+  multiple `<AddressForm />`s can render simultaneously (the
+  top-level Add panel and an Edit panel inside a card) without
+  colliding on `useState`. `useId()` namespaces every form-input ID
+  for the same reason.
+- **`<ConfirmDialog />` mirrors `<MobileMenu />`'s a11y pattern.**
+  `role="dialog"`, `aria-modal="true"`, hand-rolled focus trap,
+  Escape closes, focus returns to the previously-focused element on
+  close, scroll-lock toggles `document.body.style.overflow`. Initial
+  focus lands on **Cancel** (least destructive default), so a
+  reflexive Enter doesn't immediately delete.
+- **Address fallback (`pawsupply-addresses-dev-v1`) is
+  localStorage, not sessionStorage.** Different from the checkout
+  snapshot — saved addresses must survive a tab close. The fallback
+  also propagates the "single default" invariant: setting one
+  address as default flips every other entry's `isDefault` to false.
+- **Settings form: Supabase Auth direct, no backend hop.** The form
+  diffs `name` and `email` against the server-rendered initial
+  values and only sends what changed. Name change calls
+  `supabase.auth.updateUser({ data: { name } })` → followed by
+  `router.refresh()` so the sidebar avatar / header re-render with
+  the new name. Email change calls `supabase.auth.updateUser({
+  email })` and flips the form into a "Check your inbox" panel
+  mirroring Phase 2's `SignupForm.checkEmail` state.
+- **Email-change confirmation copy notes both inboxes.** Supabase's
+  default Auth setup sends confirmation links to the new address
+  AND, for paranoid configurations, the old one. The "Check your
+  inbox" panel says "you may also need to confirm from your previous
+  inbox" so a customer doesn't get stuck staring at a confirmation
+  link in only one mailbox.
+- **`user_metadata.name` not `user_metadata.full_name`.** Phase 2's
+  signup writes `data: { name }`; the `<AuthSlot />` initially read
+  `full_name` (a Google-OAuth convention). The settings form reads
+  and writes `name` to match the signup flow — `<AuthSlot />`'s
+  initial-letter avatar still falls back to the email so existing
+  users without `name` set still render correctly.
+- **No `useOrders` hook.** Spec said "or omit the hook and call the
+  lib function directly from the RSC — pick one and justify." The
+  RSCs that need orders call `getOrders` / `getOrderById` directly.
+  A hook would only add a re-export — there's no React state to
+  manage at the server boundary, and a hook in a non-RSC consumer
+  would force the orders endpoint into a client request with the
+  associated round-trip + token-handling boilerplate. Re-evaluate
+  once a client-rendered surface (e.g. an "in-flight orders" widget
+  on the homepage post-sign-in) needs the same data.
+- **`OrderListResponse` and `Address` live in `types/account.ts`,
+  not `types/order.ts`.** The order-summary shape is a backend
+  contract; `OrderListResponse` is a frontend convenience wrapper
+  that pairs the order shape with a pagination envelope. Co-locating
+  with the new `Address` type kept `types/order.ts` to its existing
+  Phase 6 surface (only adds the optional `trackingNumber` /
+  `trackingUrl` fields).
+- **`formatDate(iso, opts?)`** uses `Intl.DateTimeFormat` (no new
+  dep), returns `''` on unparseable input rather than throwing —
+  matches `formatPrice`'s defensive style. Defaults to "Mar 14,
+  2026" via the `{ month: 'short', day: 'numeric', year: 'numeric'
+  }` preset.
+- **Two seeded placeholder orders** in `lib/placeholder/orders.ts`:
+  one paid (no tracking), one shipped (with tracking number + URL).
+  Plus the pending-checkout snapshot from Phase 6 if present, so the
+  "view in your account" link from `/checkout/success` lands on a
+  real, rendered detail page in dev. IDs are prefixed `ord_dev_seed_*`
+  so the per-order detail fallback can recognise them
+  deterministically without colliding with Phase 6's
+  `ord_dev_<timestamp>` synthesis.
+- **`amber-*` is a Tailwind default.** I confirmed the design system
+  rules don't proscribe Tailwind defaults beyond "never `gray-*`",
+  and `amber-*` is the most readable tracking-pill colour against
+  the warm-50 background while remaining legible inside the orders
+  list. Open to swapping in for a custom warm-orange in a follow-up
+  if the brand wants to keep the palette purer.
+- **No middleware change.** The Phase 2 surface is locked.
+- **No new dependencies.** Verified against `package.json` — the
+  account surface uses only `react-hook-form`, `@hookform/resolvers`,
+  `zod`, `@tanstack/react-query`, `lucide-react`, `@supabase/ssr`,
+  `@supabase/supabase-js`. All present from Phase 1.
+- **All gates green** before commit: `pnpm type-check` (0 errors),
+  `pnpm lint` (0 warnings), `pnpm format:check`, `pnpm build` (17
+  routes total — five new ƒ-dynamic account routes:
+  `/account` 857 B / 96.8 kB, `/account/addresses` 8.9 kB / 213 kB
+  (heaviest because of TanStack Query + RHF + the dialog),
+  `/account/orders` 857 B / 96.8 kB, `/account/orders/[id]` 869 B /
+  102 kB, `/account/settings` 2.96 kB / 198 kB).
