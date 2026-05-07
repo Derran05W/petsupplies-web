@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: `Your orders · ${brand.name}`,
 };
 
-interface AccountPageProps {
+interface OrdersPageProps {
   searchParams: { page?: string };
 }
 
@@ -21,17 +21,15 @@ function parsePage(raw: string | undefined): number {
 }
 
 /**
- * `/account` — order history list (Phase 7 home for the customer hub).
- * Server component: fetches the access token from the request-scoped
- * Supabase client and forwards it to `getOrders`. URL-driven `?page=`
- * pagination — no client-side state.
- *
- * The middleware already enforces auth on `/account/*`, so we don't
- * branch on `user === null` here; if the access-token read returns
- * `undefined`, `getOrders` will surface a backend 401 (or fall through
- * to the dev placeholder when the backend is unreachable).
+ * `/account/orders` — alias for `/account` so deep links from emails
+ * (e.g. order confirmation, abandoned cart) and from
+ * `<SuccessContents />`'s "View your orders" CTA both land somewhere
+ * sensible. We render the same content rather than 301'ing because both
+ * URLs are reasonable bookmarks for the customer.
  */
-export default async function AccountPage({ searchParams }: AccountPageProps) {
+export default async function OrdersAliasPage({
+  searchParams,
+}: OrdersPageProps) {
   const page = parsePage(searchParams.page);
   const accessToken = await getServerAccessToken();
   const data = await getOrders(accessToken ? { page, accessToken } : { page });
@@ -42,7 +40,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         heading="Your orders"
         description="Everything you've ordered, with status and tracking when available."
       />
-      <OrdersList data={data} basePath="/account" />
+      <OrdersList data={data} basePath="/account/orders" />
     </>
   );
 }
