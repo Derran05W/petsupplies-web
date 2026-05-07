@@ -7,10 +7,10 @@ interface Category {
 
 const CATEGORIES: Category[] = [
   { label: 'All', href: '/products' },
-  { label: 'Dogs', href: '/products?pet=dog' },
-  { label: 'Cats', href: '/products?pet=cat' },
-  { label: 'Birds', href: '/products?pet=bird' },
-  { label: 'Small animals', href: '/products?pet=small-animal' },
+  { label: 'Dogs', href: '/products?petType=dog' },
+  { label: 'Cats', href: '/products?petType=cat' },
+  { label: 'Birds', href: '/products?petType=bird' },
+  { label: 'Small animals', href: '/products?petType=small-animal' },
 ];
 
 export function CategoryStrip() {
