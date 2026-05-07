@@ -1,30 +1,43 @@
 'use client';
 
-import { useState } from 'react';
-import { Minus, Plus, ShoppingBag } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Check, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { useCartActions, useCartHasHydrated } from '@/hooks/useCart';
+import { type Product } from '@/types/product';
 import { cn } from '@/lib/utils';
 
 interface QuantitySelectorProps {
-  inStock: boolean;
-  stockCount: number;
+  product: Product;
 }
 
+const ADDED_FEEDBACK_MS = 1500;
+
 /**
- * Quantity stepper + "Add to cart" button. Phase 5 wires the click handler
- * to the Zustand cart store. For now it just keeps local quantity state
- * so the UI is fully interactive.
+ * Quantity stepper + "Add to cart" CTA on the PDP.
  *
  * Constraints:
  *   - min quantity = 1
- *   - max quantity = `stockCount` (clamped on every increment)
- *   - whole component disabled when `!inStock`
+ *   - max quantity = `product.stockCount`
+ *   - whole component disabled when `!product.inStock`
+ *   - Add button disabled until the cart store has rehydrated, so a
+ *     pre-hydration click can't race the persisted state and create a
+ *     duplicate add when localStorage finally loads.
+ *   - Successful add flips a 1.5s "Added!" confirmation on the button.
  */
-export function QuantitySelector({
-  inStock,
-  stockCount,
-}: QuantitySelectorProps) {
+export function QuantitySelector({ product }: QuantitySelectorProps) {
+  const { add } = useCartActions();
+  const hasHydrated = useCartHasHydrated();
   const [quantity, setQuantity] = useState(1);
+  const [justAdded, setJustAdded] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const { inStock, stockCount } = product;
   const max = Math.max(1, stockCount);
   const decDisabled = !inStock || quantity <= 1;
   const incDisabled = !inStock || quantity >= max;
@@ -37,6 +50,21 @@ export function QuantitySelector({
     if (!Number.isFinite(next)) return;
     setQuantity(Math.max(1, Math.min(max, next)));
   };
+
+  const handleAdd = () => {
+    if (!inStock || !hasHydrated) return;
+    add(product, quantity);
+    setJustAdded(true);
+    if (timerRef.current !== null) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setJustAdded(false), ADDED_FEEDBACK_MS);
+  };
+
+  const buttonDisabled = !inStock || !hasHydrated;
+  const buttonLabel = !inStock
+    ? 'Out of stock'
+    : justAdded
+      ? 'Added!'
+      : 'Add to cart';
 
   return (
     <div className="flex flex-col gap-4">
@@ -92,16 +120,25 @@ export function QuantitySelector({
 
       <button
         type="button"
-        disabled={!inStock}
+        onClick={handleAdd}
+        disabled={buttonDisabled}
+        aria-live="polite"
         className={cn(
           'inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 font-body text-sm font-medium transition-colors sm:w-auto sm:min-w-[14rem]',
           inStock
-            ? 'bg-brand-400 text-white hover:bg-brand-500'
+            ? justAdded
+              ? 'bg-brand-500 text-white'
+              : 'bg-brand-400 text-white hover:bg-brand-500'
             : 'cursor-not-allowed bg-warm-200 text-warm-600',
+          !hasHydrated && inStock ? 'opacity-70' : '',
         )}
       >
-        <ShoppingBag size={16} aria-hidden />
-        {inStock ? 'Add to cart' : 'Out of stock'}
+        {justAdded ? (
+          <Check size={16} aria-hidden />
+        ) : (
+          <ShoppingBag size={16} aria-hidden />
+        )}
+        {buttonLabel}
       </button>
     </div>
   );

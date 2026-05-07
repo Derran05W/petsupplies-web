@@ -1,25 +1,33 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Menu, Search } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 import { cn } from '@/lib/utils';
+import { CartDrawer } from '@/components/cart/CartDrawer';
+import { CartLiveRegion } from '@/components/cart/CartLiveRegion';
+import { CartIcon } from './CartIcon';
 import { MobileMenu } from './MobileMenu';
+import { NavLinks } from './NavLinks';
+import { AuthSlot } from './AuthSlot';
 
-interface NavbarShellProps {
-  /** Desktop nav-link cluster (NavLinks). */
-  links: ReactNode;
-  /** Always-visible cart icon island. */
-  cart: ReactNode;
-  /** Auth state slot (Sign in link or account chip). */
-  auth: ReactNode;
-}
-
-export function NavbarShell({ links, cart, auth }: NavbarShellProps) {
+/**
+ * Top-level navbar wrapper. Owns:
+ *   - sticky-shadow scroll state
+ *   - mobile menu open / close + focus return to hamburger
+ *   - cart drawer open / close + focus return to cart icon
+ *   - the always-mounted CartLiveRegion (so add / remove announcements
+ *     work from any shop page surface)
+ *
+ * Stays a client component because of all the local UI state.
+ */
+export function NavbarShell() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const hamburgerRef = useRef<HTMLButtonElement | null>(null);
+  const cartIconRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     function handleScroll() {
@@ -33,6 +41,11 @@ export function NavbarShell({ links, cart, auth }: NavbarShellProps) {
   function closeMobile() {
     setMobileOpen(false);
     hamburgerRef.current?.focus();
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+    cartIconRef.current?.focus();
   }
 
   return (
@@ -57,7 +70,7 @@ export function NavbarShell({ links, cart, auth }: NavbarShellProps) {
             aria-label="Primary"
             className="hidden lg:flex lg:flex-1 lg:justify-center"
           >
-            {links}
+            <NavLinks />
           </nav>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
@@ -68,8 +81,13 @@ export function NavbarShell({ links, cart, auth }: NavbarShellProps) {
             >
               <Search size={18} aria-hidden />
             </button>
-            {cart}
-            <div className="hidden lg:block">{auth}</div>
+            <CartIcon
+              ref={cartIconRef}
+              onOpenDrawer={() => setDrawerOpen(true)}
+            />
+            <div className="hidden lg:block">
+              <AuthSlot />
+            </div>
             <button
               ref={hamburgerRef}
               type="button"
@@ -85,6 +103,8 @@ export function NavbarShell({ links, cart, auth }: NavbarShellProps) {
       </header>
 
       <MobileMenu open={mobileOpen} onClose={closeMobile} />
+      <CartDrawer open={drawerOpen} onClose={closeDrawer} />
+      <CartLiveRegion />
     </>
   );
 }

@@ -94,10 +94,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               {product.description}
             </p>
 
-            <QuantitySelector
-              inStock={product.inStock}
-              stockCount={product.stockCount}
-            />
+            <QuantitySelector product={product} />
 
             <p className="inline-flex items-center gap-2 font-body text-xs text-warm-600">
               <Truck size={14} aria-hidden className="text-brand-600" />
