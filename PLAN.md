@@ -522,7 +522,54 @@ jobs:
 
 ---
 
-## Build Phases
+## Phase Tracker
+
+Tick each phase as it lands. Each phase ends with: tests pass, lint clean,
+type-check clean, committed, this tracker updated.
+
+The frontend phases mirror the backend's MVP / Differentiation / Scale
+groupings so the two repos can ship together. A frontend phase **must not**
+ship features that depend on a backend phase that has not yet merged to
+`staging`.
+
+### MVP — Launch-blocking phases (must ship before public launch)
+
+- [x] Phase 1 — Scaffold & Design System (commit: `chore: initial scaffold with design system`)
+- [x] Phase 2 — Auth (Supabase + role-based middleware) (commit: `feat(auth): add Supabase auth with role-based middleware`)
+- [x] Phase 3 — Core Layout & Homepage (commit: `feat(layout): add navbar, footer, and homepage`)
+- [ ] Phase 4 — Product Listing & Detail (consumes backend Phase 4)
+- [ ] Phase 5 — Cart (matches backend Phase 5 free-shipping threshold)
+- [ ] Phase 6 — Stripe Checkout flow (consumes backend Phase 6 + 7)
+- [ ] Phase 7 — Account & Order History (consumes backend Phase 8)
+- [ ] Phase 8 — Admin Panel + AI description generator (consumes backend Phase 8)
+- [ ] Phase 9 — Testing (Vitest + Playwright, 80 % coverage threshold)
+- [ ] Phase 10 — CI/CD + Vercel deploy (staging + prod)
+
+🚀 **MVP launch milestone — Phase 10 ships a buyable site.**
+
+### Differentiation — Features that beat Shopify generics
+
+- [ ] Phase 11 — Email-driven UX hooks (resubscribe links, unsubscribe pages, transactional landing pages)
+- [ ] Phase 12 — Discount Codes (input field at cart + checkout, percentage / fixed / free-shipping)
+- [ ] Phase 13 — Reviews & Ratings (verified-purchase stars on PDP, write-a-review flow)
+- [ ] Phase 14 — Wishlist (heart icon on cards, `/account/wishlist`)
+- [ ] Phase 15 — Pet Profiles (species, breed, age, weight, dietary needs in `/account/pets`)
+- [ ] Phase 16 — Subscribe & Save ⭐ (Stripe Subscriptions cadence selector on PDP, `/account/subscriptions`)
+- [ ] Phase 17 — Abandoned Cart Recovery (persist cart to user, deep-link from email)
+- [ ] Phase 18 — Back-in-Stock Alerts (notify-me button on out-of-stock PDP)
+
+### Scale — Operations & growth
+
+- [ ] Phase 19 — Product Variants (size / flavor selector; refactors Cart + Checkout)
+- [ ] Phase 20 — Bundle / Multi-buy Discounts (badge on cards, auto-applied tier savings in cart)
+- [ ] Phase 21 — Admin Dashboard (extended analytics, customer drill-down, fulfilment workflow)
+- [ ] Phase 22 — Returns / Refunds (`/account/orders/[id]/return` RMA flow)
+- [ ] Phase 23 — Loyalty Points / Store Credit (balance widget, redeem at checkout)
+- [ ] Phase 24 — Live Shipping Rates (real-time rate quote at checkout via backend)
+
+---
+
+## Build Phases — Detail
 
 ### Phase 1 — Scaffold & Design System
 - `pnpm create next-app@latest petsupplies-web --typescript --tailwind --app --src-dir no --import-alias "@/*"`
@@ -541,8 +588,8 @@ jobs:
 
 ### Phase 2 — Auth
 - Configure `@supabase/ssr`
-- Create `lib/supabase/client.ts`, `server.ts`
-- Build `middleware.ts` — protect `/account/*` and `/admin/*`
+- Create `lib/supabase/client.ts`, `server.ts`, `middleware.ts`
+- Build root `middleware.ts` — protect `/account/*` and `/admin/*`
   - `/admin/*` checks `user.user_metadata.role === 'ADMIN'`, redirect non-admins to `/`
 - Build `/login` and `/signup` — Fraunces heading, DM Sans form, React Hook Form + Zod, Google OAuth
 - Build `api/auth/callback/route.ts`
@@ -559,53 +606,156 @@ jobs:
 - Commit: `feat(layout): add navbar, footer, and homepage`
 
 ### Phase 4 — Product Listing & Detail
-- Define `types/product.ts`
-- Create `lib/api/client.ts`
-- Build `useProducts` hook
+- Define `types/product.ts` (mirror backend Prisma types — multi-image, category, search facets)
+- Create `lib/api/client.ts` — typed fetch wrapper with `NEXT_PUBLIC_API_URL`
+- Build `useProducts` hook (React Query)
 - Build `ProductCard`, `ProductSkeleton`, `CategoryStrip`, `ProductGrid`
-- Build `/products` listing with filter sidebar
-- Build `/products/[slug]` detail — two-column, accordion for nutritional info
+- Build `/products` listing — filter sidebar (category, price, pet type), search box, sort dropdown, pagination
+- Build `/products/[slug]` detail — two-column, image gallery, accordion for nutritional info
 - Commit: `feat(products): add product listing and detail pages`
 
 ### Phase 5 — Cart
-- Zustand store `lib/store/cart.ts`
+- Zustand store `lib/store/cart.ts` with persistence (localStorage for guests)
 - Build `CartDrawer`, `CartItem`, `CartSummary`
+- Free-shipping progress bar — read threshold from `NEXT_PUBLIC_FREE_SHIPPING_THRESHOLD_CENTS`
 - Build `/cart` full page (mobile)
-- Wire "Add to cart" + badge animation on cart icon
-- Commit: `feat(cart): add cart with Zustand`
+- Wire "Add to cart" + badge bounce animation on cart icon
+- Commit: `feat(cart): add cart with Zustand and free-shipping progress`
 
 ### Phase 6 — Checkout & Stripe
 - Create `lib/stripe/client.ts`
-- Build `/checkout` → calls API → redirects to Stripe
-- Build `/checkout/success`
+- Build `/checkout` — collects shipping address, calls backend `POST /checkout`, redirects to Stripe Checkout
+- Build `/checkout/success` — reads `?session_id=`, polls/queries backend for order, clears cart
+- Build `/checkout/cancel` — friendly cancel state, returns user to cart
 - Commit: `feat(checkout): add Stripe checkout flow`
 
 ### Phase 7 — Account
-- Build `/account` — order history
-- Build `/account/settings` — update name/email
-- Commit: `feat(account): add order history and settings`
+- Build `/account` — order history list (server component, calls backend `/orders`)
+- Build `/account/orders/[id]` — order detail (status, tracking, line items, shipping address snapshot)
+- Build `/account/addresses` — list + CRUD
+- Build `/account/settings` — update name / email
+- Commit: `feat(account): add order history, addresses, and settings`
 
 ### Phase 8 — Admin Panel
-- Build `app/admin/layout.tsx` — sidebar, role guard
-- Build `app/admin/page.tsx` — dashboard (order count, revenue, low stock alerts)
+- Build `app/admin/layout.tsx` — sidebar, role guard (middleware already enforces; layout adds bottom-tab nav for mobile)
+- Build `app/admin/page.tsx` — dashboard (order count, revenue, low-stock alerts)
 - Build `lib/supabase/storage.ts` — upload helper
-- Build `ImageUploader.tsx` — drag-and-drop to Supabase Storage
-- Build `AiDescriptionBtn.tsx` — calls API, streams into textarea
+- Build `ImageUploader.tsx` — drag-and-drop multi-image to Supabase Storage
+- Build `AiDescriptionBtn.tsx` — calls backend, streams into textarea
 - Build `ProductForm.tsx` — all fields + image uploader + AI button
 - Build `/admin/products`, `/admin/products/new`, `/admin/products/[id]/edit`
-- Build `/admin/orders` — full table, click-to-expand detail
+- Build `/admin/orders` — table + detail drawer with status update + tracking number entry (backend Phase 8 endpoints)
 - Commit: `feat(admin): add admin panel with AI description generator`
 
 ### Phase 9 — Testing
-- Unit tests: `ProductCard`, `CartItem`, `AiDescriptionBtn`, utils
-- Playwright e2e: homepage, add to cart, checkout (Stripe test mode), auth
+- Unit tests: `ProductCard`, `CartItem`, `AiDescriptionBtn`, `cart` store, `cn` util
+- Playwright e2e: homepage, add to cart, checkout (Stripe test mode), auth, admin role gate
+- Hit 80 % coverage threshold (lines / statements / functions); 70 % branches
 - Commit: `test: add unit and e2e test coverage`
 
 ### Phase 10 — CI/CD & Deploy
-- Add `.github/workflows/ci.yml`
-- Connect repo to Vercel
-- Set environment variables for preview and production
+- Wire `.github/workflows/ci.yml` (already scaffolded) — lint, typecheck, unit, build, e2e
+- Connect repo to Vercel — preview per PR, prod on `main`
+- Configure Vercel env vars for **preview** (Supabase staging + `https://petsupplies-api-staging-production.up.railway.app`) and **production** (Supabase prod + Railway prod API)
+- Add `staging` long-lived branch tracking the staging Vercel project (matches backend's `staging` branch convention)
 - Commit: `ci: add GitHub Actions CI/CD pipeline`
+
+🚀 **MVP launch milestone — Phase 10 ships a buyable site.**
+
+---
+
+### Phase 11 — Email-driven UX hooks
+- `/email/unsubscribe` page — token-based one-click unsubscribe (calls backend)
+- `/email/preferences` — granular email preference toggles
+- Deep-link handlers for transactional emails (order detail, abandoned cart resume, back-in-stock CTA)
+- Email-safe shareable order detail page (signed token, no auth required)
+- Commit: `feat(email): add unsubscribe and email landing pages`
+
+### Phase 12 — Discount Codes
+- Discount code input on `/cart` and `/checkout` — debounced backend validation
+- Display savings line in `CartSummary` and Stripe Checkout
+- Auto-apply free-shipping codes (suppress threshold progress bar when active)
+- Show backend error messages (expired, min-spend, ineligible)
+- Commit: `feat(discounts): coupon input on cart and checkout`
+
+### Phase 13 — Reviews & Ratings
+- Star-rating chip on `ProductCard` (avg + count)
+- Review list + write-review form on PDP (verified-purchase only)
+- `useReviews` hook (paginated, sort by helpful / recent)
+- `/account/orders/[id]` → "Leave a review" CTA per delivered line item
+- Commit: `feat(reviews): add product reviews and ratings`
+
+### Phase 14 — Wishlist
+- Heart icon on `ProductCard` + PDP — optimistic toggle, requires auth
+- `/account/wishlist` page — grid + "Move to cart"
+- Wishlist count badge in nav
+- Commit: `feat(wishlist): add wishlist with optimistic updates`
+
+### Phase 15 — Pet Profiles
+- `/account/pets` — list + add / edit / delete
+- `PetProfileForm` — species (Dog / Cat / Bird / Small Animal), breed, birthday, weight, dietary needs (multiselect)
+- Pet-aware product recommendations on homepage when signed in
+- "For your pets" filter chip on `/products`
+- Commit: `feat(pets): add pet profiles with personalised recommendations`
+
+### Phase 16 — Subscribe & Save ⭐
+- Subscribe-vs-one-time toggle on PDP with cadence selector (4 / 6 / 8 weeks) and discount badge
+- `/account/subscriptions` — list, pause, skip-next, change cadence, cancel
+- Subscription status pill in `/account` nav
+- Checkout flow handles mixed subscription + one-time carts (backend creates Stripe Subscription)
+- Commit: `feat(subscriptions): add subscribe and save with cadence management`
+
+### Phase 17 — Abandoned Cart Recovery
+- Persist guest cart to backend on first sign-in (cart merge)
+- Persist signed-in cart server-side (existing Zustand store gains hydrate-from-server)
+- `/cart?recover=<token>` — backend resolves token to a previously-abandoned cart
+- Deep-link from recovery email lands signed-in users straight on `/checkout`
+- Commit: `feat(cart): add server-side cart persistence and recovery deep-link`
+
+### Phase 18 — Back-in-Stock Alerts
+- "Notify me when back in stock" button on out-of-stock PDPs
+- `/account/notifications` — manage active alerts
+- Email deep-link handler resolves to PDP with stock confirmed
+- Commit: `feat(notifications): add back-in-stock alert subscriptions`
+
+---
+
+### Phase 19 — Product Variants
+- Refactor `types/product.ts` — `ProductVariant` (size / flavor / weight)
+- Variant selector on `ProductCard` (compact) and PDP (full radio group)
+- Refactor `cart` store — line key becomes `variantId` not `productId`
+- Refactor `CheckoutForm`, order detail rendering
+- Commit: `feat(variants): add product variants across cart and checkout`
+
+### Phase 20 — Bundle / Multi-buy Discounts
+- Bundle badge on `ProductCard` ("Buy 2, save 10%")
+- Tier-savings banner in `CartSummary` ("Add 1 more to save $5")
+- `/products?bundle=...` filter
+- Commit: `feat(bundles): add bundle discount UI`
+
+### Phase 21 — Admin Dashboard (extended)
+- Charts: revenue over time, top products, low-stock heatmap (Recharts)
+- Customer drill-down: `/admin/customers/[id]` — orders, LTV, subscriptions
+- Fulfilment workflow: bulk-mark-shipped + tracking CSV upload
+- Commit: `feat(admin): extend dashboard with analytics and fulfilment`
+
+### Phase 22 — Returns / Refunds
+- `/account/orders/[id]/return` — multi-step RMA flow (select items, reason, photo upload)
+- `/admin/returns` — review queue, approve/reject/refund
+- Status pill on order detail when return is in progress
+- Commit: `feat(returns): add RMA flow for customers and admin`
+
+### Phase 23 — Loyalty Points / Store Credit
+- Balance widget in nav for signed-in users
+- "Redeem points" toggle in `CartSummary` and `/checkout`
+- `/account/rewards` — earnings history + tier status
+- Commit: `feat(loyalty): add points balance and redemption`
+
+### Phase 24 — Live Shipping Rates
+- Replace flat-rate logic at `/checkout` — call backend for live rates after address entry
+- Carrier + service-level selector (Standard / Expedited / Overnight)
+- Show estimated delivery date per option
+- Commit: `feat(shipping): add live shipping rates at checkout`
 
 ---
 
@@ -625,3 +775,153 @@ jobs:
 - **Image uploads** go to Supabase Storage. Only the resulting public URL is stored in Postgres.
 - **AI description generation** is server-side only. Frontend calls `petsupplies-api`, which calls Anthropic. API key never touches the frontend.
 - **Hero image**: use `public/images/hero-placeholder.jpg` until the real pet photo is provided. The image slot should be easy to swap — one file replacement, no code changes needed.
+
+---
+
+## Per-phase notes (deviations from plan, surprises, follow-ups)
+
+### Phase 1 — Scaffold & Design System
+- Kept legacy `.eslintrc.json` + `.eslintignore` rather than ESLint 9 flat
+  config — `eslint-config-next` 14 still ships its presets in the legacy
+  format, and `next lint` resolves them transparently. Revisit when
+  bumping to Next 15 / ESLint 9.
+- `tsconfig.json` enables `noUncheckedIndexedAccess`, `noUnusedLocals`,
+  `noUnusedParameters`, and `useUnknownInCatchVariables`. Every file
+  authored later must work under these — `process.env.X` always returns
+  `string | undefined`, so use `!` non-null after a top-level guard.
+- Font axes: Fraunces is loaded with `style: ['normal', 'italic']` and
+  `axes: ['SOFT', 'WONK']`. Don't add weight axes — `next/font` complains
+  if `weight` is combined with variable axes.
+- `lucide-react` resolves to v1.x in this repo (peer-of-React selection
+  quirk in pnpm). Icon names + size prop API are unchanged for the icons
+  we use, but if v2 is needed later, audit imports.
+
+### Phase 2 — Auth
+- **`getUser()` not `getSession()`** in middleware. Supabase docs are
+  explicit: `getSession` returns the cookie payload without verification
+  and is unsafe server-side. `getUser` round-trips to Supabase Auth so
+  the JWT is validated.
+- **Cookie copy on redirect.** `NextResponse.redirect()` does **not**
+  inherit cookies set on the previous `NextResponse.next()`. We
+  explicitly `response.cookies.getAll().forEach(set on redirect)`,
+  otherwise the user appears signed out on the next request and the
+  middleware enters a redirect loop.
+- **Server Component cookie writes.** `createServerClient` for `app/`
+  server components wraps `cookieStore.set` in `try/catch` because RSC
+  render contexts throw if you mutate cookies. Cookies are actually
+  written by the middleware path and the OAuth callback route — server
+  components only ever *read*.
+- **PKCE flow + matcher.** `@supabase/ssr` defaults to PKCE. The
+  `code_verifier` cookie is set by `signInWithOAuth` in the browser and
+  read by the callback route during `exchangeCodeForSession`. Middleware
+  matcher **must** exclude `/api/auth/callback` so we don't run
+  `getUser()` and reshuffle cookies before the exchange runs.
+- **`?next=` open-redirect guard.** The callback route validates that
+  `next` starts with `/`. Without this, an attacker could craft an OAuth
+  link that lands users on `https://evil.com/...`.
+- **Already-signed-in users on `/login` or `/signup`.** Server-component
+  pages call `getUser()` and `redirect()` to `/account` (or
+  `?redirect=` target). Avoids a confusing logged-in-on-login-page
+  state. The `<Suspense>` boundary inside the page is required because
+  `LoginForm` / `SignupForm` use `useSearchParams`, and without
+  `<Suspense>` Next 14 errors during `pnpm build` static generation.
+- **Email confirmation flow.** Supabase staging defaults to requiring
+  email confirmation, so `signUp` returns `{ user, session: null }`
+  rather than a session. `SignupForm` detects this and shows a "Check
+  your email" panel. Pass `emailRedirectTo` so the confirmation link
+  lands on our callback route.
+- **`router.refresh()` after sign-in / sign-out.** Required so RSC tree
+  and middleware re-evaluate with the new cookie state without a hard
+  reload. The `useAuth` hook fires `refresh()` only on `SIGNED_IN` and
+  `SIGNED_OUT` events, not on every `TOKEN_REFRESHED` (would cause
+  unnecessary churn).
+- **`user_metadata.role` is user-mutable.** The plan specifies
+  `user_metadata.role`, so we follow it. A `TODO(security)` comment
+  marks the middleware line; harden to `app_metadata.role` once the
+  backend Phase 8 admin endpoint can set it server-side.
+- **Supabase Dashboard one-time setup** (out of code, documented in PR
+  body): add `http://localhost:3000/api/auth/callback`,
+  `https://<vercel-preview>/api/auth/callback`, and
+  `https://<prod-domain>/api/auth/callback` to **Authentication → URL
+  Configuration → Redirect URLs**, and enable **Authentication →
+  Providers → Google** with client ID + secret.
+- **Anon key in `.env.local`.** `NEXT_PUBLIC_SUPABASE_URL` is filled
+  with the staging URL; `NEXT_PUBLIC_SUPABASE_ANON_KEY` is intentionally
+  blank in this commit — implementer must paste the key locally and add
+  it as a GitHub Actions secret + Vercel env var before Phase 10.
+- All five gates passed locally on the Phase 2 commit:
+  `pnpm type-check`, `pnpm lint` (0 warnings), husky pre-commit (lint-
+  staged ran `eslint --fix` + `prettier --write` on 18 files),
+  commitlint accepted the conventional message.
+
+### Phase 3 — Core Layout & Homepage
+- **Old `app/page.tsx` deleted, replaced by `app/(shop)/page.tsx`.**
+  Next.js route groups co-locate at `/`, so the shop layout
+  (`(shop)/layout.tsx` with `<Navbar />` + `<Footer />`) wraps the
+  homepage automatically. The pre-existing `app/(auth)/layout.tsx`
+  continues to wrap `/login` and `/signup` without conflict because
+  route groups don't collide on segment paths.
+- **Sticky-shadow + mobile-menu state lives in `<NavbarShell />`**, a
+  small `'use client'` wrapper. `<Navbar />` itself stays a server
+  component and just composes the shell with `NavLinks`, `CartIcon`,
+  and `AuthSlot` islands — keeping the client bundle lean.
+- **Active nav links derive from `usePathname()`.** `NAV_LINKS` for
+  pet categories use querystring hrefs (e.g. `/products?pet=dog`),
+  so the matcher compares the path portion only. `aria-current="page"`
+  is set whenever the path matches.
+- **Cart icon is `'use client'` even though count is hard-coded 0.**
+  The component accepts `count` via prop today; in Phase 5 the parent
+  flips to `useCart()` from Zustand without changing this component.
+  Putting the client boundary here now means we don't churn the
+  Navbar tree later.
+- **`brand.social.*` is `as const` empty string.** That literal type
+  narrows truthy branches to `never`, which broke the type-predicate
+  filter approach. Footer now coerces to `string` once and pushes
+  conditionally into a typed `SocialLink[]`. Whenever Phase 11+ wires
+  real handles, just set `brand.social.instagram = '...'` — Footer
+  will render the icon link automatically.
+- **Hero `<Image>` uses `placeholder="blur"` with an inline 1×1
+  warm-100 JPEG `blurDataURL`.** The slot has `bg-warm-100` so even
+  if `public/images/hero-placeholder.jpg` is missing the layout still
+  paints in brand colors. `next/image` reads files from `public/` at
+  request-time, not build-time, so `pnpm build` succeeds without the
+  asset. A `public/images/README.md` documents the expected file
+  spec (1600×1200, 4:3, real lifestyle photo) for the single-file
+  swap when the photo lands.
+- **Italic accent on the Hero `<h1>` is computed from `brand.tagline`.**
+  Last word + terminator is split off and wrapped in
+  `<em className="italic text-brand-400">`, so renaming the brand or
+  changing the tagline keeps the visual treatment without code edits.
+- **MobileMenu focus trap is hand-rolled** (no extra dep). `useEffect`
+  registers a `keydown` listener that wraps Tab between the first and
+  last focusable elements inside the panel, plus closes on `Escape`.
+  Scroll-lock toggles `document.body.style.overflow = 'hidden'` and
+  restores the previous value on unmount, so navigating mid-open via
+  the auth slot can't leave the page locked.
+- **Closing the mobile menu returns focus to the hamburger button.**
+  `<NavbarShell />` keeps a ref on the trigger and re-focuses it after
+  any close (backdrop, ESC, link tap, or X button). Standard a11y
+  expectation for dialog-style overlays.
+- **`AuthSlot` shows a sized placeholder while `useAuth` loads.**
+  Prevents the navbar from shifting between "Sign in" → initial chip
+  on first hydration. The signed-in dropdown closes on click-outside
+  (mousedown listener), ESC, and selecting either menu item. The
+  dropdown is also rendered inside `MobileMenu`'s footer so signed-out
+  mobile users have a sign-in entry point.
+- **`lucide-react` is v1.x** (per Phase 1's note). All icons used
+  (`Menu`, `X`, `Search`, `ShoppingBag`, `Truck`, `Stethoscope`,
+  `Undo2`, `LucideIcon` type) exist and accept the same `size` prop
+  used elsewhere in the auth components.
+- **`formatPrice(cents, currency)` lives in `lib/utils/format.ts`**
+  rather than `lib/utils.ts` to keep `cn` colocation tidy. Phase 4
+  will reuse this from the product detail page and Phase 5 from the
+  cart summary. Defaults to USD until backend Phase 6 introduces
+  multi-currency.
+- **Stale `.next/types` cache surfaced after deleting `app/page.tsx`.**
+  Removed `.next/` once before re-running `pnpm type-check`. Worth
+  remembering for future page-route deletions — Next 14 doesn't
+  invalidate the typed-routes manifest on file removal.
+- **All gates green** locally before commit: `pnpm type-check`,
+  `pnpm lint` (0 warnings), `pnpm format:check`, `pnpm build` (9
+  static + dynamic routes, homepage prerendered, 5.84 kB / 102 kB
+  first-load JS).
