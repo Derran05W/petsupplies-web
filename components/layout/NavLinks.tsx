@@ -11,10 +11,10 @@ export interface NavLink {
 
 export const NAV_LINKS: NavLink[] = [
   { href: '/', label: 'Home' },
-  { href: '/products?pet=dog', label: 'Dogs' },
-  { href: '/products?pet=cat', label: 'Cats' },
-  { href: '/products?pet=bird', label: 'Birds' },
-  { href: '/products?pet=small-animal', label: 'Small animals' },
+  { href: '/products?petType=dog', label: 'Dogs' },
+  { href: '/products?petType=cat', label: 'Cats' },
+  { href: '/products?petType=bird', label: 'Birds' },
+  { href: '/products?petType=small-animal', label: 'Small animals' },
 ];
 
 function isActive(pathname: string, href: string): boolean {
