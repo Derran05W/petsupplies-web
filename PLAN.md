@@ -537,7 +537,7 @@ ship features that depend on a backend phase that has not yet merged to
 - [x] Phase 1 — Scaffold & Design System (commit: `chore: initial scaffold with design system`)
 - [x] Phase 2 — Auth (Supabase + role-based middleware) (commit: `feat(auth): add Supabase auth with role-based middleware`)
 - [x] Phase 3 — Core Layout & Homepage (commit: `feat(layout): add navbar, footer, and homepage`)
-- [ ] Phase 4 — Product Listing & Detail (consumes backend Phase 4)
+- [x] Phase 4 — Product Listing & Detail (commit: `feat(products): add product listing and detail pages`)
 - [ ] Phase 5 — Cart (matches backend Phase 5 free-shipping threshold)
 - [ ] Phase 6 — Stripe Checkout flow (consumes backend Phase 6 + 7)
 - [ ] Phase 7 — Account & Order History (consumes backend Phase 8)
@@ -925,3 +925,97 @@ ship features that depend on a backend phase that has not yet merged to
   `pnpm lint` (0 warnings), `pnpm format:check`, `pnpm build` (9
   static + dynamic routes, homepage prerendered, 5.84 kB / 102 kB
   first-load JS).
+
+### Phase 4 — Product Listing & Detail
+- **All filter/search/sort/pagination state lives in the URL.** No
+  `useState` for any of these. The page server component reads
+  `searchParams`, calls `getProducts(filters)`, and ships fully-rendered
+  HTML; client islands (`FilterSidebar`, `FilterDrawer`, `SearchBox`,
+  `SortDropdown`, `Pagination`) only mutate the URL via
+  `router.replace`. Result: shareable URLs, working back button, no
+  hydration mismatch, and SSR pre-renders with filters applied.
+- **Suspense + a per-filters key.** The listing page wraps the async
+  grid in `<Suspense key={JSON.stringify(filters)} fallback={<ProductSkeletonGrid />}>`.
+  The key ensures the skeleton paints whenever any filter changes — Next
+  otherwise reuses the existing rendered children across navigations
+  with the same component tree, and the skeleton would never show.
+- **`ProductFilters` is single-value per param.** Spec shows checkbox
+  UI for category and pet type but the typed `ProductFilters` interface
+  is singular. We honour the typed contract: clicking an active option
+  unsets the param. CSV-style multi-select can come later if/when the
+  backend exposes it. Document this for backend Phase 4.
+- **Price filter uses two number inputs, not a slider.** Sliders need a
+  third-party dep (e.g. radix-ui), and we're under "no new
+  dependencies". Two inputs are accessible-by-default (real labels,
+  keyboard-friendly), and we still post to the URL on `onChange` —
+  effectively a debounced live filter via React's batched updates +
+  Next's request coalescing.
+- **`React.cache` for `getProductBySlug`.** With `cache: 'no-store'`,
+  Next does **not** dedupe `fetch` calls — so `generateMetadata` and
+  the page default export would each hit the API. Wrapping the function
+  in `React.cache` shares one Promise across the per-request render.
+- **Backend-not-ready fallback in `lib/api/products.ts`.** Catches
+  `ApiError` with `status === 0` (network unreachable) and falls back
+  to filtering / sorting / paginating `FEATURED_PRODUCTS` in-process.
+  Returns shaped exactly like the live `ProductListResponse` so the
+  rest of the page tree is unaware. A
+  `// TODO(phase 4): remove fallback once backend phase 4 is on staging`
+  comment marks every fallback path so it's grep-discoverable when
+  the backend is ready.
+- **`ApiError.isNetworkError` getter.** Cleaner than scattering
+  `err.status === 0` checks. Status 0 is reserved exclusively for the
+  "fetch threw" case in our wrapper.
+- **`QueryClientProvider` wraps the root layout.** Phase 4 itself
+  doesn't render any client component that calls `useProducts`, but
+  Phase 5+ will (cart-driven invalidation), and wiring the provider now
+  means the hook is callable from anywhere without a tree-edit later.
+  Defaults: 30s `staleTime`, no `refetchOnWindowFocus`, retry once.
+- **`ProductCard` accepts `product: Product`** instead of destructured
+  fields. Phase 3's narrow shape was a placeholder; the full Product
+  type now flows through. Also adds a "Sale" badge when
+  `compareAtPriceCents > priceCents`, an "Out of stock" badge when
+  `!inStock`, and an optional star-rating chip when `rating` is
+  present.
+- **Placeholder catalogue expanded to 8 products** spanning every
+  category (food / treats / accessories / healthcare) and every pet
+  type (dog / cat / bird / small-animal). Two have full
+  `nutritionalInfo`, two have a `compareAtPriceCents` (sale price),
+  and one is `inStock: false` so the empty/disabled states are
+  exercised by default.
+- **`CategoryStrip` and `NavLinks` query param renamed** from `?pet=`
+  to `?petType=` to match the typed `ProductFilters.petType` field.
+  Single source of truth: only the filter parser cares about the
+  param name, but the URL stays human-readable.
+- **Mobile filter drawer modeled on the existing `MobileMenu`.** Same
+  scroll-lock + Esc-to-close + focus-on-open pattern, but slides up
+  from the bottom (`translate-y-full → translate-y-0`) to match the
+  mobile bottom-sheet convention. Active filter count renders as a
+  brand-400 badge on the trigger.
+- **`SortDropdown` uses a native `<select>`.** No portal, no headless
+  UI lib, no hydration weirdness, free keyboard / SR / mobile-picker
+  behaviour. Same justification will apply to any phase that adds
+  another low-frequency picker.
+- **`SearchBox` uses `setTimeout`-debounced effects, not
+  `useDeferredValue`.** `useDeferredValue` defers *render*, not URL
+  updates — debouncing the navigation itself is what we actually want
+  (don't spam the API on every keystroke). 350ms timer, cleaned up on
+  unmount and on re-keystroke.
+- **`<details>`/`<summary>` for the nutritional accordion.** Zero JS,
+  full a11y for free. Server component. The `[&::-webkit-details-marker]:hidden`
+  selector is required to suppress Safari's default disclosure
+  triangle.
+- **Pagination renders `<Link>` not `<button>`.** Each page is a real
+  URL — nicer for SEO crawlers, middle-click works, and keeping it as
+  Link lets Next prefetch on hover. `aria-current="page"` on the
+  active page.
+- **EMFILE during local manual smoke test.** `pnpm dev` repeatedly
+  emitted `Watchpack Error (watcher): Error: EMFILE: too many open
+  files, watch` and 404'd every route. Production build (`pnpm build`)
+  succeeded cleanly with all routes registered, including
+  `/products` (3.88 kB / 114 kB) and `/products/[slug]` (2.13 kB /
+  112 kB). Future agents on the same machine should `ulimit -n 65536`
+  before running `pnpm dev` if they hit this. Build remains the
+  canonical gate.
+- **All gates green** before commit: `pnpm type-check` (0 errors),
+  `pnpm lint` (0 warnings), `pnpm format:check`, `pnpm build` (10
+  routes total, 4 prerendered + 6 dynamic).
