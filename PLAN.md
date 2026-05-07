@@ -539,7 +539,7 @@ ship features that depend on a backend phase that has not yet merged to
 - [x] Phase 3 — Core Layout & Homepage (commit: `feat(layout): add navbar, footer, and homepage`)
 - [x] Phase 4 — Product Listing & Detail (commit: `feat(products): add product listing and detail pages`)
 - [x] Phase 5 — Cart (commit: `feat(cart): add cart with Zustand and free-shipping progress`)
-- [ ] Phase 6 — Stripe Checkout flow (consumes backend Phase 6 + 7)
+- [x] Phase 6 — Stripe Checkout flow (consumes backend Phase 6 + 7) (commit: `feat(checkout): add Stripe checkout flow`)
 - [ ] Phase 7 — Account & Order History (consumes backend Phase 8)
 - [ ] Phase 8 — Admin Panel + AI description generator (consumes backend Phase 8)
 - [ ] Phase 9 — Testing (Vitest + Playwright, 80 % coverage threshold)
@@ -1138,3 +1138,115 @@ ship features that depend on a backend phase that has not yet merged to
   `pnpm lint` (0 warnings), `pnpm format:check`, `pnpm build` (11
   routes total — `/cart` is now prerendered as static, 1.05 kB / 117 kB
   first-load JS).
+
+### Phase 6 — Stripe Checkout
+- **Hosted Stripe Checkout (redirect), not Embedded.** The spec wording
+  "redirects to Stripe Checkout" pointed both ways, but hosted wins on
+  PCI scope (Stripe owns the card-entry page entirely), bundle weight
+  (`@stripe/stripe-js` is NOT loaded on `/checkout` at all in this
+  phase), and SSR ergonomics (the `/checkout` page tree stays mostly
+  server-rendered — only the form, summary, and success-page poll need
+  `'use client'`). Backend creates the session, returns
+  `{ url, sessionId }`, frontend does `window.location.href = url`.
+  `lib/stripe/client.ts` is therefore minimal — `getStripePublishableKey()`
+  only — with a documented future home for the lazy `loadStripe` once a
+  real Elements / Embedded Checkout consumer arrives (Phase 16's
+  Subscribe & Save cadence picker is the first likely customer).
+- **POST shape is intentionally minimal.** The frontend sends only
+  `{ productId, quantity }[]` plus email + shipping address +
+  optional `clientReferenceId` (Supabase `user.id`). The cart's snapshot
+  `priceCents` is **never** trusted server-side — backend Phase 6
+  re-validates against the live Product table before creating the Stripe
+  session, and Stripe's returned line totals are the source of truth for
+  what the customer actually paid. Pricing displayed on `/checkout` is
+  the local snapshot so the page renders instantly without a round trip.
+- **Backend-not-ready fallback (mirrors Phase 4).** When `apiFetch`
+  throws an `ApiError` with `isNetworkError`, `createCheckoutSession`
+  writes the cart + form snapshot to `sessionStorage` under
+  `pawsupply-pending-checkout-v1` and returns a sentinel
+  `{ url: '/checkout/success?session_id=cs_test_placeholder', sessionId: 'cs_test_placeholder' }`.
+  The success-page hook recognises that ID and synthesises an
+  `OrderSummary` from the snapshot. One `console.warn` per session.
+  Every fallback path is tagged
+  `// TODO(phase 6): remove fallback once backend phase 6 + 7 are on staging`
+  for grep-discoverability.
+- **Polling state machine on `/checkout/success`.** The Stripe webhook
+  is the source of truth for "order created" but lands later than the
+  redirect, so the page polls `GET /orders/by-checkout-session/:id`
+  every 1500 ms via TanStack Query's `refetchInterval`, capped at 30 s
+  by a wall-clock `setTimeout` that flips a `timedOut` state to disable
+  the query. State machine:
+  `idle → polling → confirmed | timeout | error`. Only `confirmed`
+  clears the cart — `timeout` and `error` leave the cart intact so the
+  customer can retry without losing context. The `useEffect` that fires
+  `clear()` on `confirmed` is guarded by a `useRef<boolean>` flag so
+  React Strict Mode's double-mount in dev doesn't try to clear twice.
+  The timer effect captures `Date.now()` once into a ref so subsequent
+  re-runs (every poll) compute the remaining window correctly rather
+  than restarting the 30 s budget.
+- **Cart side effects.** `clear()` runs ONLY on the success page after
+  confirmation. Browser-back from Stripe's checkout page lands on
+  `/checkout` with the cart intact (verified). `/checkout/cancel`
+  intentionally does not call `clear()` — the cancel copy is "Your cart
+  is still saved." for exactly that reason. Re-visiting
+  `/checkout/success?session_id=...` after the cart has been cleared
+  still renders the order summary (the order data comes from the
+  backend / sessionStorage snapshot, not the cart store).
+- **`/checkout` is gated client-side, never server-redirect.** A
+  `<CheckoutClient />` island reads `useCartHasHydrated()` and
+  `useCartLines()` and switches between `<CheckoutSkeleton />` (pre-
+  hydration), `<EmptyCheckout />` (rehydrated, zero lines), and the
+  form + summary grid. Server-redirecting to `/cart` on empty would
+  loop because `/cart` reads the same client-only store and renders
+  its own empty panel — there's no server signal we can branch on.
+- **Empty-cart skeleton matches form height.** The skeleton's stacked
+  fieldset placeholders + summary card mirror the rendered grid so the
+  hydration swap doesn't cause a layout shift. Different from Phase 5's
+  drawer skeleton — the page surface is much taller.
+- **Form composition.** RHF + `zodResolver(checkoutFormSchema)` (which
+  extends `shippingAddressSchema` with `email`). All inputs reuse the
+  Phase 2 chrome
+  (`border border-warm-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-brand-400`).
+  Every input gets `aria-invalid` + `aria-describedby` pointing at a
+  sibling `<p role="alert" id="{name}-error">` per WAI-ARIA Authoring
+  Practices. Top-of-form `role="alert"` summary on submit failure
+  (network / 4xx). Submit button is disabled until
+  `useCartHasHydrated()` so a pre-hydration click is impossible. A
+  small lock icon + "Secure payment via Stripe" microcopy lives below
+  the button.
+- **Country = native `<select>`.** No portal, no dependency. Three
+  options for v1 (US / CA / GB). Documenting the longer Stripe-supported
+  list as a Phase 7+ follow-up. Postal-code regex is permissive
+  (`/^[A-Za-z0-9 \-]{3,10}$/`) — Stripe re-validates per country on
+  session creation.
+- **Email pre-fill via `setValue`, not `defaultValues`.** Reading
+  `useAuth()` and writing into `defaultValues` would race — the form
+  initialises before Supabase resolves the user. We register with empty
+  defaults and then `setValue('email', user.email)` once `user.email`
+  arrives, with `shouldValidate: false` so the customer doesn't see a
+  validation flash. Field stays editable in case they want to ship to a
+  different recipient.
+- **Signed-out customers see "Have an account? Sign in".** Plain
+  `<Link>` to `/login?redirect=/checkout` beneath the email input.
+  Mirrors the auth-form chrome and preserves the redirect contract from
+  Phase 2.
+- **`/checkout/cancel` is zero-JS.** Pure server component reusing the
+  centered-card chrome from `<AuthCard />`. Heading, subcopy, two CTAs.
+- **`/checkout` is NOT in `middleware.ts`.** Confirmed: the matcher
+  only intercepts `/account/*` and `/admin/*`, and the Phase 2 surface
+  is locked. Guest checkout works as required.
+- **Suppressed `eslint no-console` for the fallback warning.** Single
+  inline disable on the `console.warn` in `createCheckoutSession`. The
+  warn is intentional dev-mode signalling, not stray instrumentation.
+- **No new dependencies.** Verified against `package.json` —
+  `@stripe/stripe-js@9.4.0` and `@stripe/react-stripe-js@6.3.0` are
+  both present from Phase 1's scaffold but neither is imported in this
+  phase (we use plain `window.location.href` for the redirect).
+  `react-hook-form`, `@hookform/resolvers`, `zod`,
+  `@tanstack/react-query` were already in the tree.
+- **All gates green** before commit: `pnpm type-check` (0 errors),
+  `pnpm lint` (0 warnings), `pnpm format:check`, `pnpm build` (14
+  routes total — `/checkout` and `/checkout/cancel` prerendered as
+  static, `/checkout/success` ƒ-dynamic because of `searchParams`,
+  6.91 kB / 209 kB first-load JS for the form page including the
+  RHF/Zod weight).
