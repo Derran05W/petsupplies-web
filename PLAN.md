@@ -538,7 +538,7 @@ ship features that depend on a backend phase that has not yet merged to
 - [x] Phase 2 — Auth (Supabase + role-based middleware) (commit: `feat(auth): add Supabase auth with role-based middleware`)
 - [x] Phase 3 — Core Layout & Homepage (commit: `feat(layout): add navbar, footer, and homepage`)
 - [x] Phase 4 — Product Listing & Detail (commit: `feat(products): add product listing and detail pages`)
-- [ ] Phase 5 — Cart (matches backend Phase 5 free-shipping threshold)
+- [x] Phase 5 — Cart (commit: `feat(cart): add cart with Zustand and free-shipping progress`)
 - [ ] Phase 6 — Stripe Checkout flow (consumes backend Phase 6 + 7)
 - [ ] Phase 7 — Account & Order History (consumes backend Phase 8)
 - [ ] Phase 8 — Admin Panel + AI description generator (consumes backend Phase 8)
@@ -1019,3 +1019,122 @@ ship features that depend on a backend phase that has not yet merged to
 - **All gates green** before commit: `pnpm type-check` (0 errors),
   `pnpm lint` (0 warnings), `pnpm format:check`, `pnpm build` (10
   routes total, 4 prerendered + 6 dynamic).
+
+### Phase 5 — Cart
+- **Snapshot, not refetch.** Each `CartLine` snapshots only the fields
+  the cart UI renders (`id`, `slug`, `name`, `priceCents`, `imageUrl`,
+  `category`, `petType`, `stockCount`, `quantity`, `addedAt`) at the
+  moment of add, so a reload doesn't refetch the catalogue and a
+  product being unpublished server-side doesn't blank the cart row.
+  `stockCount` is also snapshotted so increments inside the cart UI can
+  clamp without hitting the backend; checkout (Phase 6) will
+  re-validate against live stock. Line key is `productId` for now —
+  Phase 19's variants will refactor to `variantId`. A
+  `TODO(phase 19): line key becomes variantId` comment marks the spot.
+- **SSR / hydration via per-island gating.** `persist` reads
+  `localStorage`, which doesn't exist on the server. We add a
+  `hasHydrated` boolean flipped to `true` from `persist`'s
+  `onRehydrateStorage`, and every consumer (`CartIcon` badge,
+  `CartContents`, `CartDrawer`'s "Cart (n)" header) reads it before
+  rendering count-dependent UI. The empty navbar / shop-tree continues
+  to SSR — only the count-bearing nodes render placeholders until the
+  store rehydrates. We deliberately avoided
+  `dynamic(..., { ssr: false })` on the navbar because that would cost
+  SSR for the rest of it.
+- **Custom SSR-safe `PersistStorage` adapter.** `createJSONStorage`
+  itself works fine on the server (returns `undefined` if `localStorage`
+  isn't there), but I wanted the storage shape strongly typed against
+  `Pick<CartState, 'lines'>` for `partialize`. The hand-rolled
+  `ssrSafeStorage` returns `null` on the server side and JSON-roundtrips
+  on the client. Same end result as `createJSONStorage` with cleaner
+  generics.
+- **`subscribeWithSelector` middleware ordering.** With Zustand v5, the
+  composition order is `subscribeWithSelector(persist(creator, opts))`
+  — the outer middleware sees the store last. That ordering matters
+  because we want the persisted hydration callback to run before any
+  selective subscribers are created. Reversing the order works at
+  runtime but generates noisier types.
+- **Drawer (desktop) + full page (mobile) split.** `CartIcon` renders
+  both presentations and toggles via Tailwind's `lg:` breakpoint
+  (`hidden lg:inline-flex` on the desktop button, `lg:hidden` on the
+  mobile `<Link href="/cart">`). One DOM tree, two presentations,
+  zero JS resize listeners. UI state (drawer open) lives in
+  `NavbarShell` via plain `useState` — explicitly NOT in the persisted
+  cart store. UI state ≠ cart data and would otherwise leak to
+  localStorage and cause the drawer to "remember" being open.
+- **Shared `<CartContents />`.** Both the drawer body and the `/cart`
+  page render the same `<CartContents variant="drawer" | "page" />`,
+  so the two surfaces never drift. The drawer wraps it with dialog
+  chrome; the page wraps it with a heading + breadcrumbs.
+- **Bounce trigger via `bumpCounter`, not derived timestamps.** The
+  store keeps an integer counter that's incremented inside `add()`.
+  `CartIcon` subscribes via `useCartBumpCounter`, refs the previous
+  value, and toggles `.animate-cart-bounce` for 600ms when it changes.
+  Internal `+ / -` from the cart UI does NOT bump the counter — that
+  would fire constantly while the user is just adjusting quantities.
+  An alternative `lastAddAt` timestamp was rejected: timestamps could
+  trip on initial hydration when the persisted value differs from the
+  in-memory `0`. The integer bump is deterministic per `add()` call.
+- **`@keyframes cart-bounce` lives in `app/globals.css`.** No
+  framer-motion, no react-spring, no new deps. The `.animate-cart-bounce`
+  utility runs once per class toggle and is removed via `setTimeout` so
+  it can re-fire on the next add.
+- **`<CartLiveRegion />` for SR announcements.** Hidden polite live
+  region mounted in `NavbarShell` (so it survives across drawer / page
+  transitions). Subscribes to `bumpCounter` and `lastRemovedAt`, and
+  uses the standard "blank then set" pattern (clear then `setTimeout`)
+  to force re-announcement when the same string fires twice.
+- **Add button gated on `hasHydrated`.** PDP's "Add to cart" is
+  disabled until the cart store has rehydrated. Otherwise an
+  early-render click could land before the persisted state arrives,
+  potentially creating a duplicate add when the persisted line for the
+  same product finally appears. A 1.5s "Added!" confirmation flips on
+  the button after a successful add (icon swaps to a checkmark).
+- **Drawer accessibility cloned from `MobileMenu`.** Same
+  `role="dialog"` + `aria-modal="true"` + scroll-lock + ESC handling +
+  focus trap pattern. On open the close button is focused; on close
+  focus returns to the cart icon trigger via a ref forwarded by
+  `CartIcon` and held by `NavbarShell`. The trap query selector
+  matches `a[href]`, `button:not([disabled])`, `input:not([disabled])`,
+  and `[tabindex]:not([tabindex="-1"])` — Phase 3's mobile menu only
+  needed `a` + `button`, but the drawer has the qty stepper inputs
+  too.
+- **`CartIcon` `forwardRef`s only its desktop button.** The mobile
+  link variant is rendered alongside but doesn't need a ref because
+  there's no drawer to return focus to on mobile (the cart is a real
+  navigation). Passing `ref` through a `forwardRef` to the inner
+  `<button>` keeps `NavbarShell`'s focus-return contract simple.
+- **Quantity stepper inside `<CartItem />` is inlined, not extracted.**
+  The PDP's `<QuantitySelector />` carries extra concerns (the
+  "Only N left" microcopy, the tied "Add to cart" button with its
+  hydration gating). The cart-row stepper has different sizing and
+  per-line aria labels (`Decrease quantity for ${name}`). A shared
+  `<QuantityStepper />` was considered and deferred — when Phase 19
+  adds variant pickers we'll likely re-evaluate and extract a base
+  primitive then.
+- **Free-shipping threshold via env var.** `lib/config/shipping.ts`
+  reads `NEXT_PUBLIC_FREE_SHIPPING_THRESHOLD_CENTS` and defaults to
+  `5000` (matches the static "$50" copy on the Phase 3 hero). The
+  helper guards against missing / non-numeric / non-positive values.
+  `useFreeShippingProgress()` returns `{ thresholdCents, subtotalCents,
+  remainingCents, progress, qualifies }` and feeds the
+  `<FreeShippingProgress />` bar in two compactness modes (full in
+  `<CartSummary />`, single-line in the drawer header).
+- **`migrate` no-op + `version: 1`.** Persisted shape is the wrapped
+  `Pick<CartState, 'lines'>`. The `migrate` function is a no-op cast
+  for v1; bump `version` and add a real case here when the persisted
+  shape changes (Phase 19 variants will be the first such case).
+  `noUnusedParameters` in `tsconfig` forces the `_version` underscore
+  prefix.
+- **Zustand v5 selector hooks are stable references.** Each action
+  function is read individually via `useCartStore(selector)`, then
+  combined into a single `useMemo` object in `useCartActions`. Action
+  references on the Zustand store are stable for the lifetime of the
+  store, so consumers don't re-render on action identity changes.
+- **No new dependencies.** Verified against `package.json` —
+  `zustand@5.0.13` was already there from Phase 1's scaffold. No
+  framer-motion, no react-aria, no headless-ui added.
+- **All gates green** before commit: `pnpm type-check` (0 errors),
+  `pnpm lint` (0 warnings), `pnpm format:check`, `pnpm build` (11
+  routes total — `/cart` is now prerendered as static, 1.05 kB / 117 kB
+  first-load JS).
