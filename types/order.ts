@@ -54,4 +54,13 @@ export interface OrderSummary {
   totalCents: number;
   currency: string;
   createdAt: string;
+  /**
+   * Carrier-agnostic tracking number, set by the backend when the order
+   * has been shipped (Phase 8 admin order endpoints write this). Optional
+   * because Phase 6 callers populated `OrderSummary` immediately after
+   * checkout, before any tracking exists.
+   */
+  trackingNumber?: string;
+  /** Optional URL to the carrier's tracking page. */
+  trackingUrl?: string;
 }

@@ -48,21 +48,39 @@ function getBaseUrl(): string {
   return url.replace(/\/$/, '');
 }
 
+export interface ApiFetchInit extends RequestInit {
+  /**
+   * Supabase access token. When provided, attached as
+   * `Authorization: Bearer <token>` so the backend can identify the
+   * caller. Server-side callers read it via
+   * `(await createClient()).auth.getSession()`; client-side callers
+   * read it via the same browser client. NEVER persisted (no
+   * localStorage / sessionStorage) — Supabase owns refresh.
+   */
+  accessToken?: string;
+}
+
 export async function apiFetch<T>(
   path: string,
-  init?: RequestInit,
+  init?: ApiFetchInit,
 ): Promise<T> {
   const url = `${getBaseUrl()}${path.startsWith('/') ? path : `/${path}`}`;
+  const { accessToken, headers: initHeaders, ...restInit } = init ?? {};
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    ...(initHeaders as Record<string, string> | undefined),
+  };
+  if (accessToken && accessToken.length > 0) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
 
   let response: Response;
   try {
     response = await fetch(url, {
-      ...init,
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...init?.headers,
-      },
+      ...restInit,
+      headers,
     });
   } catch (_err) {
     throw new ApiError('Network error: backend unreachable', 0);
