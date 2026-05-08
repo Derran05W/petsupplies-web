@@ -541,7 +541,7 @@ ship features that depend on a backend phase that has not yet merged to
 - [x] Phase 5 — Cart (commit: `feat(cart): add cart with Zustand and free-shipping progress`)
 - [x] Phase 6 — Stripe Checkout flow (consumes backend Phase 6 + 7) (commit: `feat(checkout): add Stripe checkout flow`)
 - [x] Phase 7 — Account & Order History (consumes backend Phase 8) (commit: `feat(account): add order history, addresses, and settings`)
-- [ ] Phase 8 — Admin Panel + AI description generator (consumes backend Phase 8)
+- [x] Phase 8 — Admin Panel + AI description generator (consumes backend Phase 8) (commit: `feat(admin): add admin panel with AI description generator`)
 - [ ] Phase 9 — Testing (Vitest + Playwright, 80 % coverage threshold)
 - [ ] Phase 10 — CI/CD + Vercel deploy (staging + prod)
 
@@ -1438,3 +1438,200 @@ ship features that depend on a backend phase that has not yet merged to
   (heaviest because of TanStack Query + RHF + the dialog),
   `/account/orders` 857 B / 96.8 kB, `/account/orders/[id]` 869 B /
   102 kB, `/account/settings` 2.96 kB / 198 kB).
+
+### Phase 8 — Admin Panel + AI description generator
+
+- **Admin chrome mirrors `<AccountShell />` shape, not a shared
+  primitive.** Both surfaces have a server layout that fetches the
+  user once, a server shell composing a server sidebar and the main
+  area, plus a `'use client'` mobile bottom-tab nav. Considered
+  extracting `<SectionShell />`; rejected because the two surfaces
+  diverge on nav data, role label ("Admin" pill in the sidebar vs
+  no equivalent on the customer side), the admin banner above each
+  page, and the disabled-placeholder semantics. Three knobs is the
+  threshold for intentional duplication; documenting the decision
+  here so a future "let's DRY this up" PR has the rejection
+  context.
+- **Defensive role guard in `app/admin/layout.tsx`.** Middleware
+  already enforces `role === 'ADMIN'`; the layout re-checks
+  `user.user_metadata.role` and `redirect()`s on mismatch. Two
+  reasons: (a) protects against a future matcher refactor that
+  bypasses `/admin` accidentally, (b) gets the type-checker on side
+  for the `<AdminShell user>` prop being non-null below.
+- **`<AdminBanner />`: warm-100 strip above every admin page heading.**
+  The same Supabase session signs both the customer and admin
+  surfaces; a small `Shield` icon + "Admin" label makes "you're on
+  the admin surface" instantly obvious. Cheap insurance against the
+  "I thought I was on `/products`" class of accidental edit.
+- **Customers + Analytics are disabled placeholders, not pages.**
+  Spec mandates the sidebar shape (Dashboard / Products / Orders /
+  Customers / Analytics), but Customers and Analytics belong to
+  Phase 21+. They render as non-link `<li>` items with a
+  `Coming soon` badge so the shape's visible without shipping the
+  pages. The mobile bottom-tab filters them out — no point eating
+  a third of the touch-target budget on a disabled tab.
+- **Sign-out is a thin `<AdminSignOutButton />` wrapper, not a reuse
+  of `<AccountSignOutButton />`.** Both buttons hit the same
+  `useAuth().signOut()` flow today, but kept separate so an
+  admin-specific copy ("End admin session") or styling doesn't have
+  to retroactively touch the customer surface.
+- **Dashboard is pure RSC, no real-time refresh.** Reads stats once
+  per request from `getDashboardStats({ accessToken })`. Real-time
+  refresh would need a client island + `useQuery` interval, and the
+  dashboard is a hub, not a live monitor — disproportionate
+  complexity for this phase. Documented for the next "ooh, make it
+  live" PR.
+- **`AdminProduct = Product & { isPublished: boolean }`.** `Product`
+  already carries `inStock` / `stockCount` / `tags` / `description`
+  / `images` — the only admin-only field is the active/draft
+  toggle, so we extend rather than fork. Keeps the table from
+  needing a transform layer and matches the backend Phase 8
+  contract one-to-one.
+- **Dev fallback uses two localStorage stores.**
+  `pawsupply-admin-products-dev-v1` is seeded from
+  `FEATURED_PRODUCTS` on first read so the table isn't empty before
+  backend Phase 8 lands. `pawsupply-admin-order-overrides-dev-v1`
+  holds per-order overrides keyed by order id (status, tracking
+  number, tracking URL). Both are tagged TODO(phase 8).
+- **Admin order overrides are visible on the customer surface.**
+  Phase 7's `lib/api/orders.ts` is a sealed surface, but the dev-
+  fallback path picked up a tiny additive merge: `applyOrderOverride()`
+  is called on the seeded + synthesised orders before they're
+  returned. **Production path is untouched** — overrides only
+  apply on the network-error branch. Net effect: setting an order
+  shipped + adding a tracking number on `/admin/orders` makes that
+  same number visible on `/account/orders/[id]` in the same browser
+  session, without any backend round-trip in dev.
+- **AI streaming uses bare `fetch`, not `apiFetch`.** `apiFetch`
+  consumes `response.json()` at the bottom — fundamentally
+  incompatible with `response.body!.pipeThrough(new
+  TextDecoderStream())`. `lib/api/admin/ai.ts` duplicates the
+  base-URL read (factored into a private `getApiBaseUrl()` helper
+  inside the same file) and attaches the `Authorization: Bearer`
+  header itself. Refactoring `apiFetch` to expose the underlying
+  `Response` would force every existing caller to juggle a
+  discriminated return type — not worth it for one streaming
+  endpoint.
+- **AI fallback is async-iterable, not a one-shot string.** `lib/
+  admin/ai-fallback.ts` exports `streamFallbackDescription({...})`
+  that yields 60–80 char chunks every 80 ms, honouring an
+  `AbortSignal`. Six lorem-ipsum-style templates keyed off
+  `${category}_${petType}` with a generic fallback. The generated
+  text reads close enough to a real product blurb that the dev
+  experience demos the streaming UX honestly.
+- **`<AiDescriptionBtn />` cancellation.** Each invocation creates
+  an `AbortController`. The textarea-side island wires the button
+  to a Cancel state while streaming. Component unmount also fires
+  the abort, so navigating away mid-stream doesn't keep the
+  connection open. The aria-live status region announces
+  "Generating description…" → "Description generated." for SR
+  users.
+- **Optimistic order updates touch two cache keys.**
+  `useUpdateAdminOrderMutation` walks every active
+  `['admin', 'orders', 'list', ...]` cache entry (the page +
+  filter tuples vary, so iterating is cheaper than guessing) and
+  also the per-order detail cache. On error we restore both
+  snapshots. On success the response replaces both — and
+  `onSettled` invalidates the root key so the eventual server
+  state is the source of truth.
+- **Status update vs tracking edit are separate forms.** Splits
+  the drawer's two write paths so updating only the status doesn't
+  require blanking tracking, and vice versa. Each form has its own
+  inline success message via `aria-live="polite"`. Status select
+  values derive from `OrderStatus` literal members so a backend
+  enum drift surfaces as a TS error, not a runtime mismatch.
+- **Status `'shipped'` without a tracking number is a warning, not
+  a blocker.** Inline amber banner in the status form when the
+  selection would create that combination. Confirmed the customer-
+  facing `<OrderTracking />` already renders the "Tracking will
+  appear here once it's available" microcopy in that state, so the
+  warning is honest about what the customer sees.
+- **Drawer is a sibling of `<ConfirmDialog />`, not a reuse.** The
+  a11y contract is identical (`role="dialog"`, `aria-modal="true"`,
+  focus-trap on open, focus-return on close, ESC closes,
+  scroll-lock toggles `document.body.style.overflow`); the geometry
+  isn't (right-aligned + full-height on desktop, bottom-sheet on
+  mobile, vs centered for ConfirmDialog). Deliberately copied the
+  trap pattern by hand rather than introducing a `<Drawer />`
+  primitive that would force `<ConfirmDialog />` to take a
+  `placement?` prop.
+- **Drawer open state lives in the URL.** `?selected=<orderId>` is
+  the source of truth — so a deep link reopens the drawer, the
+  Back button closes it, and middleware-side rendering doesn't
+  need to coordinate with React state. The view link in
+  `<AdminOrderRow />` builds an href that preserves any active
+  `status=` and `page=` filters.
+- **Image uploader: arrow-button reorder, no drag-sort dep.** Per
+  the spec. Each thumbnail's up/down buttons announce
+  "Move {alt} up" / "Move {alt} down" via `aria-label`. The first
+  image is implicitly primary on emit (`isPrimary` derived from
+  index), and alt text is required on every image — the schema
+  rejects empty alts so screen readers always have a label.
+- **Image upload fallback writes a base64 data URL.** When the
+  Supabase Storage bucket isn't provisioned (Supabase responds
+  with a "Bucket not found" error), `uploadProductImage()`
+  catches the error and returns the file as a `data:image/...`
+  URL with `path: 'data:fallback'`. Preferred to a hard error
+  because local dev needs to walk the form end-to-end without a
+  Storage round-trip; production code paths still hit the bucket
+  first. Single console warn per session, tagged TODO(phase 8).
+- **Storage path scheme: `${user.id}/${uuid}-${safeName}`.** Per-
+  user prefix simplifies the bucket policy ("authenticated ADMIN
+  users can only write into their own prefix"). The intended
+  Supabase Storage policy is documented in `lib/supabase/storage.ts`
+  and `.env.local.example` for the human running the one-time
+  Dashboard setup.
+- **No new env var.** Bucket name is hard-coded `'product-images'`
+  inside `lib/supabase/storage.ts`. The PLAN never references the
+  bucket name from outside this helper, so adding
+  `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET` would create three Vercel
+  env values and a GitHub secret to set for zero benefit.
+- **`<OrdersPagination />` grew an `extraQuery?` prop.** Phase 7
+  shipped it with a configurable `basePath` but no other params —
+  fine for `/account` because the orders list has no filters.
+  `/admin/products` (search + stock) and `/admin/orders` (status)
+  need to preserve their filters when paginating; an additive
+  `extraQuery?: Record<string, string | undefined>` does that
+  without forking the component or rewriting the existing call
+  sites (the prop defaults to undefined → original behaviour).
+- **`<PageHeader />`, `<OrderStatusPill />`, `<OrderSummaryCard />`,
+  `<ConfirmDialog />` reused verbatim via direct import.**
+  Confirmed `<OrderSummaryCard />` works with the
+  `AdminOrderSummary` shape because `AdminOrderSummary extends
+  OrderSummary`. The card has its own `<h1>` "Thank you for your
+  order"; rendering it inside the drawer means a heading-hierarchy
+  oddity (`h2` drawer title sits above the card's `h1`), but no
+  rendering bug — flagging for a future refactor that splits the
+  card into a presentational `<OrderReceiptBody />` + a separate
+  hero block.
+- **`<AuthSlot />`: single-line "Admin" link addition.** Renders
+  inside the signed-in dropdown when
+  `user.user_metadata.role === 'ADMIN'`. No structural refactor —
+  one conditional `<Link>` between Account and Sign out. Mobile
+  sign-out users still hit the same dropdown via `<MobileMenu />`.
+- **`/admin/products/[id]/edit?focus=description`.** The "AI"
+  shortcut on the products table links here; the form reads
+  `searchParams.get('focus')` and focuses the description textarea
+  on mount. Lets an admin land on the form with cursor-already-in-
+  place to hit "Generate with AI" without scrolling.
+- **No middleware change.** Phase 2 surface is locked. The role
+  gate already lives in middleware.
+- **No new dependencies.** Verified against `package.json` —
+  Phase 8 reuses `react-hook-form`, `@hookform/resolvers`, `zod`,
+  `@tanstack/react-query`, `lucide-react`, `@supabase/ssr`,
+  `@supabase/supabase-js`. The streaming endpoint uses the
+  platform `fetch`'s `ReadableStream` and `TextDecoderStream` —
+  no SSE / streaming dep needed.
+- **Live-preview card on the product form was descoped.** Spec
+  said "if it slips, document and ship the form full-width" — it
+  slipped. Single-column form with each section in its own
+  fieldset card. Phase 21+ can add a sticky preview when the
+  product detail surface stabilises.
+- **All gates green** before commit: `pnpm type-check` (0 errors),
+  `pnpm lint` (0 warnings), `pnpm format:check` (clean),
+  `pnpm build` (21 routes total — five new ƒ-dynamic admin
+  routes: `/admin` 869 B / 102 kB, `/admin/orders` 7.47 kB /
+  218 kB (heaviest — TanStack mutations + drawer + two forms),
+  `/admin/products` 1.57 kB / 112 kB,
+  `/admin/products/[id]/edit` 159 B / 222 kB,
+  `/admin/products/new` 159 B / 222 kB).
