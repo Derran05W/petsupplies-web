@@ -30,3 +30,22 @@ export function formatDate(
   if (Number.isNaN(date.getTime())) return '';
   return new Intl.DateTimeFormat('en-US', opts).format(date);
 }
+
+/**
+ * Map a stock count to a discrete state used by the admin dashboard
+ * "low stock" alert and the products table's stock cell.
+ *
+ * Threshold defaults to `LOW_STOCK_THRESHOLD` from `lib/admin/config.ts`
+ * (10) — pass an explicit value when a feature wants a different cliff
+ * (e.g. a per-product threshold in a future phase).
+ */
+export type StockBadgeState = 'in_stock' | 'low' | 'out';
+
+export function formatStockBadge(
+  stockCount: number,
+  threshold = 10,
+): StockBadgeState {
+  if (stockCount <= 0) return 'out';
+  if (stockCount <= threshold) return 'low';
+  return 'in_stock';
+}

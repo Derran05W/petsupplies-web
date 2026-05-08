@@ -3,6 +3,7 @@ import type { OrderListResponse } from '@/types/account';
 import { ApiError, apiFetch } from './client';
 import { PLACEHOLDER_ORDERS } from '@/lib/placeholder/orders';
 import { loadPendingCheckout } from '@/lib/checkout/storage';
+import { applyOrderOverride } from '@/lib/admin/storage';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -135,7 +136,13 @@ function getAllPlaceholderOrders(): OrderSummary[] {
   const orders: OrderSummary[] = [];
   if (pending) orders.push(pending);
   orders.push(...PLACEHOLDER_ORDERS);
-  return orders.sort(
+  // TODO(phase 8): when an admin updates an order in the dev-fallback
+  // surface, the override is written to localStorage; merge it here so
+  // the customer-facing order list / detail reflects the change without
+  // a backend round-trip. Production path is untouched — overrides are
+  // only ever read on the network-error branch.
+  const merged = orders.map((order) => applyOrderOverride(order));
+  return merged.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 }
@@ -160,10 +167,10 @@ function synthesisePlaceholderList(opts: {
 
 function findPlaceholderOrder(id: string): OrderSummary | null {
   const seed = PLACEHOLDER_ORDERS.find((order) => order.id === id);
-  if (seed) return seed;
+  if (seed) return applyOrderOverride(seed);
   if (id.startsWith('ord_dev_')) {
     const pending = synthesisePendingCheckoutOrder();
-    if (pending) return { ...pending, id };
+    if (pending) return applyOrderOverride({ ...pending, id });
   }
   return null;
 }

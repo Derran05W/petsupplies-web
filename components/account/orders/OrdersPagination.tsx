@@ -7,6 +7,14 @@ interface OrdersPaginationProps {
   totalPages: number;
   /** Base path (without query). The component appends `?page=N`. */
   basePath?: string;
+  /**
+   * Additional query parameters to preserve on every page link. Used by
+   * Phase 8's `/admin/products` (search + stock filters) and
+   * `/admin/orders` (status filter) so paginating doesn't drop the
+   * filter state. Defaults to no extras — matches the original
+   * Phase 7 behaviour for `/account` callers.
+   */
+  extraQuery?: Record<string, string | undefined>;
 }
 
 const MAX_NUMBERED_LINKS = 7;
@@ -40,11 +48,21 @@ export function OrdersPagination({
   currentPage,
   totalPages,
   basePath = '/account',
+  extraQuery,
 }: OrdersPaginationProps) {
   if (totalPages <= 1) return null;
 
-  const buildHref = (page: number): string =>
-    page <= 1 ? basePath : `${basePath}?page=${page}`;
+  const buildHref = (page: number): string => {
+    const params = new URLSearchParams();
+    if (extraQuery) {
+      for (const [key, value] of Object.entries(extraQuery)) {
+        if (value && value.length > 0) params.set(key, value);
+      }
+    }
+    if (page > 1) params.set('page', String(page));
+    const qs = params.toString();
+    return qs.length > 0 ? `${basePath}?${qs}` : basePath;
+  };
 
   const prevDisabled = currentPage <= 1;
   const nextDisabled = currentPage >= totalPages;

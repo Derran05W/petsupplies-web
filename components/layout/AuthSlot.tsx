@@ -70,6 +70,9 @@ export function AuthSlot({ className }: AuthSlotProps) {
       : null;
   const initial = getInitial(fullName ?? user.email);
   const displayName = fullName ?? user.email ?? 'Account';
+  const isAdmin =
+    (user.user_metadata as Record<string, unknown> | null)?.['role'] ===
+    'ADMIN';
 
   return (
     <div ref={wrapperRef} className={cn('relative', className)}>
@@ -100,6 +103,16 @@ export function AuthSlot({ className }: AuthSlotProps) {
           >
             Account
           </Link>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="block px-3 py-2 font-body text-sm text-warm-900 hover:bg-warm-100"
+            >
+              Admin
+            </Link>
+          )}
           <button
             type="button"
             role="menuitem"
