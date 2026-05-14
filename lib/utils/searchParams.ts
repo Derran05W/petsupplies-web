@@ -4,6 +4,7 @@ import {
   type ProductFilters,
   type ProductSort,
 } from '@/types/product';
+import type { ReviewSort } from '@/types/review';
 
 const VALID_CATEGORIES: ReadonlyArray<Category> = [
   'food',
@@ -24,6 +25,13 @@ const VALID_SORTS: ReadonlyArray<ProductSort> = [
   'price_asc',
   'price_desc',
   'newest',
+];
+
+const VALID_REVIEW_SORTS: ReadonlyArray<ReviewSort> = [
+  'recent',
+  'helpful',
+  'rating_desc',
+  'rating_asc',
 ];
 
 /**
@@ -109,4 +117,29 @@ export function activeFilterCount(filters: ProductFilters): number {
   if (typeof filters.maxPriceCents === 'number') n += 1;
   if (filters.search && filters.search.length > 0) n += 1;
   return n;
+}
+
+export interface ReviewListingParams {
+  page: number;
+  sort: ReviewSort;
+}
+
+/**
+ * PDP customer reviews pagination/sort query (`reviewsPage`, `reviewsSort`).
+ */
+export function parseReviewListingParams(
+  searchParams: Record<string, string | string[] | undefined>,
+): ReviewListingParams {
+  const pageRaw = firstParam(searchParams['reviewsPage']);
+  let page = Number.parseInt(pageRaw ?? '1', 10);
+  if (!Number.isFinite(page) || page < 1) page = 1;
+
+  const sortRaw = firstParam(searchParams['reviewsSort']);
+  const sort =
+    sortRaw &&
+    (VALID_REVIEW_SORTS as readonly string[]).includes(sortRaw as ReviewSort)
+      ? (sortRaw as ReviewSort)
+      : 'recent';
+
+  return { page, sort };
 }
