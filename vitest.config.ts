@@ -40,6 +40,8 @@ export default defineConfig({
         'lib/utils.ts',
         'lib/utils/format.ts',
         'lib/admin/ai-fallback.ts',
+        'lib/api/email.ts',
+        'lib/api/cart-recovery.ts',
       ],
       exclude: [
         '**/*.d.ts',

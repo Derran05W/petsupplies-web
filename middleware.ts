@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 
+// `/email/*` stays public — not listed in `isProtected` below.
 function isProtected(pathname: string): boolean {
   return pathname.startsWith('/account') || pathname.startsWith('/admin');
 }

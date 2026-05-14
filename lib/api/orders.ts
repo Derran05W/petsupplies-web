@@ -98,6 +98,27 @@ export async function getOrderById(
   }
 }
 
+/**
+ * GET `/orders/:id/shared?token=` — Phase 11 signed email links with no session.
+ *
+ * Returns `null` only on HTTP 404. Other failures (network, validation) propagate
+ * as `ApiError` — no placeholder reconciliation.
+ */
+export async function getSharedOrder(
+  orderId: string,
+  token: string,
+): Promise<OrderSummary | null> {
+  try {
+    return await apiFetch<OrderSummary>(
+      `/orders/${encodeURIComponent(orderId)}/shared?token=${encodeURIComponent(token)}`,
+      { cache: 'no-store' },
+    );
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) return null;
+    throw err;
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 /* Local fallback — runs only when the backend is unreachable.                */
 /* TODO(phase 7): remove once backend phase 8 is on staging.                  */

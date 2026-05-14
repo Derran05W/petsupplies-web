@@ -10,6 +10,9 @@
  *   - increment / decrement: mirror clamp behaviour, decrement at qty 1
  *     removes the line.
  *   - clear: empties.
+ *   - replaceLines: wholesale swap for email recovery; bumps animation
+ *     counter exactly once whenever the inbound snapshot carries items,
+ *     and mirrors `clear()` stamping `lastRemovedAt` when emptied.
  *   - selectors (subtotal, count) computed by reducing over `lines`.
  *   - persistence: the persist middleware writes the partialised
  *     `{ lines }` shape to the in-memory Storage stub.
@@ -28,7 +31,7 @@ import {
   oneFeaturedProduct,
   outOfStockProduct,
 } from '@/tests/fixtures/products';
-import { useCartStore } from '@/lib/store/cart';
+import { useCartStore, type CartLine } from '@/lib/store/cart';
 
 const STORAGE_KEY = 'pawsupply-cart-v1';
 
@@ -177,6 +180,75 @@ describe('useCartStore', () => {
       useCartStore.getState().clear();
 
       expect(useCartStore.getState().lines).toHaveLength(0);
+      expect(useCartStore.getState().lastRemovedAt).toBeGreaterThan(0);
+    });
+  });
+
+  describe('replaceLines', () => {
+    function buildLine(
+      seed: Partial<CartLine> & Pick<CartLine, 'productId'>,
+    ): CartLine {
+      const now = new Date().toISOString();
+      return {
+        slug: 'slug',
+        name: 'Thing',
+        priceCents: 500,
+        imageUrl: '',
+        category: 'food',
+        petType: 'dog',
+        stockCount: 99,
+        quantity: 1,
+        addedAt: now,
+        ...seed,
+      };
+    }
+
+    it('rewrites persisted lines wholesale', () => {
+      const incoming: CartLine[] = [
+        buildLine({ productId: 'recovery-1' }),
+        buildLine({
+          productId: 'recovery-2',
+          quantity: 4,
+          priceCents: 777,
+          name: 'Crunchies',
+        }),
+      ];
+
+      useCartStore.getState().replaceLines(incoming);
+
+      expect(useCartStore.getState().lines).toStrictEqual(incoming);
+    });
+
+    it('bumps `bumpCounter` once whenever the inbound snapshot carries items', () => {
+      const product = oneFeaturedProduct();
+
+      useCartStore.getState().add(product, 1);
+      const beforeBump = useCartStore.getState().bumpCounter;
+
+      useCartStore.getState().replaceLines([
+        buildLine({
+          productId: 'recovery-1',
+        }),
+        buildLine({
+          productId: 'recovery-2',
+        }),
+        buildLine({
+          productId: 'recovery-3',
+        }),
+      ]);
+
+      expect(useCartStore.getState().bumpCounter).toBe(beforeBump + 1);
+    });
+
+    it('does not bump `bumpCounter` yet still stamps `lastRemovedAt` when emptying', () => {
+      const product = oneFeaturedProduct();
+
+      useCartStore.getState().add(product, 2);
+      const beforeBump = useCartStore.getState().bumpCounter;
+
+      useCartStore.getState().replaceLines([]);
+
+      expect(useCartStore.getState().bumpCounter).toBe(beforeBump);
       expect(useCartStore.getState().lastRemovedAt).toBeGreaterThan(0);
     });
   });
