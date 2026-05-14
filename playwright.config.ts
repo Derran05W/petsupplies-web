@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const baseURL = process.env.BASE_URL ?? 'http://localhost:3000';
+const baseURLTrimmed = (process.env.BASE_URL ?? '').trim();
+const useRemote = baseURLTrimmed !== '';
+const baseURL = useRemote ? baseURLTrimmed : 'http://localhost:3000';
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -19,7 +21,7 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: process.env.BASE_URL
+  webServer: useRemote
     ? undefined
     : {
         command: 'pnpm dev',
