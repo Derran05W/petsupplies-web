@@ -60,6 +60,13 @@ export interface CartState {
   increment: (productId: string) => void;
   decrement: (productId: string) => void;
   clear: () => void;
+  /**
+   * Replaces persisted lines in one shot (Phase 11 email cart recovery).
+   * Bumps {@link bumpCounter} once when the new snapshot is non-empty.
+   * When the snapshot is empty, stamps {@link lastRemovedAt} — same semantics
+   * as {@link clear}.
+   */
+  replaceLines: (lines: CartLine[]) => void;
   _setHasHydrated: (value: boolean) => void;
 }
 
@@ -236,6 +243,17 @@ export const useCartStore = create<CartState>()(
         },
 
         clear: () => set({ lines: [], lastRemovedAt: Date.now() }),
+
+        replaceLines: (lines) =>
+          set((state) => {
+            const next = lines;
+            const empty = next.length === 0;
+            return {
+              lines: next,
+              bumpCounter: empty ? state.bumpCounter : state.bumpCounter + 1,
+              lastRemovedAt: empty ? Date.now() : state.lastRemovedAt,
+            };
+          }),
 
         _setHasHydrated: (value) => set({ hasHydrated: value }),
       }),
