@@ -16,9 +16,11 @@
  * `tests/fixtures/products.ts` so we don't pin to placeholder array
  * indices.
  */
-import { describe, expect, it } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { screen, within } from '@testing-library/react';
 import { ProductCard } from '@/components/product/ProductCard';
+import { renderWithQueryClient } from '@/tests/helpers/render';
 import {
   oneFeaturedProduct,
   outOfStockProduct,
@@ -27,12 +29,35 @@ import {
 } from '@/tests/fixtures/products';
 import { formatPrice } from '@/lib/utils/format';
 
+const push = vi.fn();
+
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: null,
+    loading: false,
+    signOut: vi.fn(),
+  }),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push,
+    replace: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  usePathname: () => '/products',
+}));
+
+beforeEach(() => {
+  push.mockReset();
+});
+
 describe('ProductCard', () => {
   describe('renders', () => {
     it('shows the product name as an h3 inside a link to /products/{slug}', () => {
       const product = oneFeaturedProduct();
 
-      render(<ProductCard product={product} />);
+      renderWithQueryClient(<ProductCard product={product} />);
 
       const heading = screen.getByRole('heading', {
         level: 3,
@@ -48,7 +73,7 @@ describe('ProductCard', () => {
       const expectedAlt =
         product.images.find((image) => image.isPrimary)?.alt ?? product.name;
 
-      render(<ProductCard product={product} />);
+      renderWithQueryClient(<ProductCard product={product} />);
 
       const image = screen.getByRole('img', { name: expectedAlt });
       expect(image).toBeInTheDocument();
@@ -57,7 +82,7 @@ describe('ProductCard', () => {
     it('renders the formatted price', () => {
       const product = oneFeaturedProduct();
 
-      render(<ProductCard product={product} />);
+      renderWithQueryClient(<ProductCard product={product} />);
 
       expect(
         screen.getByText(formatPrice(product.priceCents)),
@@ -70,7 +95,7 @@ describe('ProductCard', () => {
       const product = oneFeaturedProduct();
       expect(product.compareAtPriceCents).toBeDefined();
 
-      render(<ProductCard product={product} />);
+      renderWithQueryClient(<ProductCard product={product} />);
 
       expect(screen.getByText('Sale')).toBeInTheDocument();
       expect(
@@ -81,7 +106,7 @@ describe('ProductCard', () => {
     it('does NOT render the Sale badge when compareAtPriceCents is absent', () => {
       const product = productWithoutSale();
 
-      render(<ProductCard product={product} />);
+      renderWithQueryClient(<ProductCard product={product} />);
 
       expect(screen.queryByText('Sale')).not.toBeInTheDocument();
     });
@@ -91,7 +116,7 @@ describe('ProductCard', () => {
     it('renders the "Out of stock" badge and suppresses the Sale badge', () => {
       const product = outOfStockProduct();
 
-      render(<ProductCard product={product} />);
+      renderWithQueryClient(<ProductCard product={product} />);
 
       expect(screen.getByText('Out of stock')).toBeInTheDocument();
       expect(screen.queryByText('Sale')).not.toBeInTheDocument();
@@ -103,7 +128,7 @@ describe('ProductCard', () => {
       const product = oneFeaturedProduct();
       expect(product.rating).toBeDefined();
 
-      render(<ProductCard product={product} />);
+      renderWithQueryClient(<ProductCard product={product} />);
 
       const expectedAvg = product.rating!.avg.toFixed(1);
       const expectedCount = `(${product.rating!.count})`;
@@ -114,7 +139,9 @@ describe('ProductCard', () => {
     it('omits the rating chip when rating is undefined', () => {
       const product = productWithoutRating();
 
-      const { container } = render(<ProductCard product={product} />);
+      const { container } = renderWithQueryClient(
+        <ProductCard product={product} />,
+      );
 
       // The avg-formatted "X.X" text only appears in the rating chip;
       // assert no element matches a 1-decimal numeric text node.
@@ -129,7 +156,7 @@ describe('ProductCard', () => {
       // Wipe alts so the fallback chooses the product name.
       product.images = product.images.map((image) => ({ ...image, alt: '' }));
 
-      render(<ProductCard product={product} />);
+      renderWithQueryClient(<ProductCard product={product} />);
 
       expect(
         screen.getByRole('img', { name: product.name }),
@@ -140,11 +167,35 @@ describe('ProductCard', () => {
       const product = oneFeaturedProduct();
       product.images = [];
 
-      render(<ProductCard product={product} />);
+      renderWithQueryClient(<ProductCard product={product} />);
 
       expect(
         screen.getByRole('img', { name: product.name }),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('wishlist control', () => {
+    it('renders save-to-wishlist button', () => {
+      const product = oneFeaturedProduct();
+      renderWithQueryClient(<ProductCard product={product} />);
+      expect(
+        screen.getByRole('button', { name: /save to wishlist/i }),
+      ).toBeInTheDocument();
+    });
+
+    it('wishlist click redirects to login without following the product link', async () => {
+      const user = userEvent.setup();
+      const product = oneFeaturedProduct();
+      renderWithQueryClient(<ProductCard product={product} />);
+
+      await user.click(
+        screen.getByRole('button', { name: /save to wishlist/i }),
+      );
+
+      expect(push).toHaveBeenCalledWith(
+        expect.stringContaining('/login?redirect='),
+      );
     });
   });
 });

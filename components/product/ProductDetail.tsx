@@ -6,6 +6,7 @@ import { ImageGallery } from './ImageGallery';
 import { QuantitySelector } from './QuantitySelector';
 import { NutritionalAccordion } from './NutritionalAccordion';
 import { RatingStars } from '@/components/product/reviews/RatingStars';
+import { WishlistButton } from '@/components/wishlist/WishlistButton';
 
 interface ProductDetailProps {
   product: Product;
@@ -101,6 +102,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </p>
 
             <QuantitySelector product={product} />
+
+            <WishlistButton product={product} variant="inline" />
 
             <p className="inline-flex items-center gap-2 font-body text-xs text-warm-600">
               <Truck size={14} aria-hidden className="text-brand-600" />
