@@ -106,5 +106,19 @@ export async function apiFetch<T>(
     return undefined as T;
   }
 
-  return (await response.json()) as T;
+  // Guard against the backend URL accidentally resolving to a non-API
+  // server (e.g. the Next.js dev server) that returns an HTML page with
+  // a 200 status. Without this check, JSON.parse throws a SyntaxError
+  // that is not an ApiError, so callers' network-error fallbacks never
+  // fire and the error propagates uncaught.
+  const contentType = response.headers.get('content-type') ?? '';
+  if (!contentType.includes('application/json')) {
+    throw new ApiError('Backend returned a non-JSON response', 0);
+  }
+
+  try {
+    return (await response.json()) as T;
+  } catch {
+    throw new ApiError('Failed to parse backend response as JSON', 0);
+  }
 }

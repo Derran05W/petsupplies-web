@@ -3,24 +3,29 @@
 @tailwind utilities;
 
 :root {
-  /* Brand greens — warm and vibrant, not muted */
-  --color-brand-50: #edfaf2;
-  --color-brand-100: #c6f0d8;
-  --color-brand-200: #8cddb0;
-  --color-brand-300: #4dc480;
-  --color-brand-400: #25a85e;
-  --color-brand-500: #1a8c4e;
-  --color-brand-600: #136b3b;
-  --color-brand-700: #0d4d2a;
+  /* ── saharaDawn palette ─────────────────────────────────────────────
+   * Five source colours → two functional scales.
+   * To retheme: update these variables + tailwind.config.ts together.
+   * ─────────────────────────────────────────────────────────────────── */
 
-  /* Warm neutrals — off-white, not stark white */
-  --color-warm-50: #fdfbf7;
-  --color-warm-100: #f7f3ec;
-  --color-warm-200: #ede8df;
-  --color-warm-300: #d9d2c5;
-  --color-warm-400: #b8afa0;
-  --color-warm-600: #6b6059;
-  --color-warm-900: #1e1a16;
+  /* Brand scale — built around coral (#F16C43) */
+  --color-brand-50: #fef3ef;
+  --color-brand-100: #fcddd3;
+  --color-brand-200: #f9bba8;
+  --color-brand-300: #ffa47c; /* peach       */
+  --color-brand-400: #f16c43; /* coral        — primary action */
+  --color-brand-500: #d4522a;
+  --color-brand-600: #a4645a; /* terracotta   — links / brand text */
+  --color-brand-700: #7a3d35;
+
+  /* Warm scale — built around deepPlum (#612F3A) */
+  --color-warm-50: #fbf8f8;
+  --color-warm-100: #f4eced;
+  --color-warm-200: #e5d5d7;
+  --color-warm-300: #cababb;
+  --color-warm-400: #a37777; /* dustyRose    — placeholder / muted text */
+  --color-warm-600: #7a5458;
+  --color-warm-900: #612f3a; /* deepPlum     — primary text */
 }
 
 @layer base {

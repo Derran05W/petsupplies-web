@@ -177,8 +177,8 @@ export function FilterControls({
         <legend className="font-display text-base tracking-[-0.02em] text-warm-900">
           Price (USD)
         </legend>
-        <div className="flex items-center gap-2">
-          <label className="flex flex-1 flex-col gap-1">
+        <div className="flex flex-col gap-2">
+          <label className="flex flex-col gap-1">
             <span className="font-body text-xs text-warm-600">Min</span>
             <input
               type="number"
@@ -190,10 +190,10 @@ export function FilterControls({
               onChange={(event) =>
                 handlePriceChange('minPrice', event.target.value)
               }
-              className="rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
             />
           </label>
-          <label className="flex flex-1 flex-col gap-1">
+          <label className="flex flex-col gap-1">
             <span className="font-body text-xs text-warm-600">Max</span>
             <input
               type="number"
@@ -205,7 +205,7 @@ export function FilterControls({
               onChange={(event) =>
                 handlePriceChange('maxPrice', event.target.value)
               }
-              className="rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
             />
           </label>
         </div>

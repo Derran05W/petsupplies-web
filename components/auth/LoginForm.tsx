@@ -10,6 +10,7 @@ import { loginSchema, type LoginInput } from '@/lib/auth/schemas';
 import { AuthCard } from './AuthCard';
 import { AuthDivider } from './AuthDivider';
 import { GoogleButton } from './GoogleButton';
+import { AppleButton } from './AppleButton';
 import Link from 'next/link';
 import { brand } from '@/lib/config/brand';
 
@@ -124,7 +125,10 @@ export function LoginForm() {
       </form>
 
       <AuthDivider />
-      <GoogleButton redirectTarget={redirectTarget} />
+      <div className="flex flex-col gap-3">
+        <GoogleButton redirectTarget={redirectTarget} />
+        <AppleButton redirectTarget={redirectTarget} />
+      </div>
 
       <p className="mt-6 text-center font-body text-sm text-warm-600">
         New to {brand.name}?{' '}

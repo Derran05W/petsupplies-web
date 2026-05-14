@@ -17,11 +17,11 @@ const VALUES: BrandValue[] = [
     title: 'Vet approved',
     subtext: 'Recipes formulated alongside practising veterinarians.',
   },
-  {
-    Icon: Undo2,
-    title: 'Easy returns',
-    subtext: '30-day no-questions returns if your pet isn’t loving it.',
-  },
+  // {
+  //   Icon: Undo2,
+  //   title: 'Easy returns',
+  //   subtext: "30-day no-questions returns if your pet isn\u2019t loving it.",
+  // },
 ];
 
 export function BrandValues() {
