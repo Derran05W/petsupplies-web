@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { CATEGORY_LABEL, PET_TYPE_LABEL, type Product } from '@/types/product';
 import { formatPrice } from '@/lib/utils/format';
 import { RatingStars } from '@/components/product/reviews/RatingStars';
+import { WishlistButton } from '@/components/wishlist/WishlistButton';
 
 interface ProductCardProps {
   product: Product;
@@ -32,6 +33,7 @@ export function ProductCard({ product }: ProductCardProps) {
       className="group flex flex-col rounded-xl border border-warm-200 bg-white p-3 transition-all duration-200 hover:border-warm-300 hover:shadow-sm"
     >
       <div className="relative aspect-square overflow-hidden rounded-lg bg-warm-100">
+        <WishlistButton product={product} variant="overlay" />
         <Image
           src={imageUrl}
           alt={imageAlt}

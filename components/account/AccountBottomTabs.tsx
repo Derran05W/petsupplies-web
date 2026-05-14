@@ -24,7 +24,7 @@ export function AccountBottomTabs() {
       aria-label="Account navigation"
       className="sticky bottom-0 z-30 border-t border-warm-200 bg-warm-50/95 backdrop-blur-sm lg:hidden"
     >
-      <ul className="grid grid-cols-3">
+      <ul className="grid grid-cols-4">
         {ACCOUNT_NAV_LINKS.map((link) => {
           const Icon = link.icon;
           const active = isAccountLinkActive(pathname, link);
