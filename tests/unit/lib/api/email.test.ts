@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { EmailMarketingPreferences } from '@/types/types/email';
+import type { EmailMarketingPreferences } from '@/types/email';
 import {
   getEmailPreferences,
   patchEmailPreferences,

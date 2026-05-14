@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import type { EmailMarketingPreferences } from '@/types/types/email';
+import type { EmailMarketingPreferences } from '@/types/email';
 import { ApiError } from '@/lib/api/client';
 import { getEmailPreferences, patchEmailPreferences } from '@/lib/api/email';
 

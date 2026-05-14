@@ -1,7 +1,7 @@
 import type {
   EmailMarketingPreferences,
   EmailPreferencesResponse,
-} from '@/types/types/email';
+} from '@/types/email';
 import { apiFetch } from './client';
 
 export async function postEmailUnsubscribe(token: string): Promise<void> {
