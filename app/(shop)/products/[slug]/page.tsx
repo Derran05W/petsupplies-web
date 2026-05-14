@@ -1,12 +1,17 @@
 import { type Metadata } from 'next';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { brand } from '@/lib/config/brand';
 import { getProductBySlug } from '@/lib/api/products';
 import { ProductDetail } from '@/components/product/ProductDetail';
 import { RelatedProducts } from '@/components/product/RelatedProducts';
+import { ReviewsSection } from '@/components/product/reviews/ReviewsSection';
+import { ReviewSkeleton } from '@/components/product/reviews/ReviewSkeleton';
+import { parseReviewListingParams } from '@/lib/utils/searchParams';
 
 interface ProductDetailPageProps {
   params: { slug: string };
+  searchParams: Record<string, string | string[] | undefined>;
 }
 
 export async function generateMetadata({
@@ -34,17 +39,31 @@ export async function generateMetadata({
 
 export default async function ProductDetailPage({
   params,
+  searchParams,
 }: ProductDetailPageProps) {
   const product = await getProductBySlug(params.slug);
   if (!product) {
     notFound();
   }
 
+  const { page: reviewsPage, sort: reviewsSort } =
+    parseReviewListingParams(searchParams);
+
+  const reviewsSuspenseKey = `reviews-${product.slug}-${reviewsPage}-${reviewsSort}`;
+
   return (
     <>
       <ProductDetail product={product} />
       <div className="px-6 pb-20 md:px-8 lg:px-12">
         <div className="mx-auto max-w-7xl">
+          <Suspense fallback={<ReviewSkeleton />} key={reviewsSuspenseKey}>
+            <ReviewsSection
+              slug={product.slug}
+              page={reviewsPage}
+              sort={reviewsSort}
+              productRating={product.rating}
+            />
+          </Suspense>
           <RelatedProducts
             petType={product.petType}
             excludeSlug={product.slug}

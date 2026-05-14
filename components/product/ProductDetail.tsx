@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import { Star, Truck } from 'lucide-react';
+import { Truck } from 'lucide-react';
 import { CATEGORY_LABEL, PET_TYPE_LABEL, type Product } from '@/types/product';
 import { formatPrice } from '@/lib/utils/format';
 import { ImageGallery } from './ImageGallery';
 import { QuantitySelector } from './QuantitySelector';
 import { NutritionalAccordion } from './NutritionalAccordion';
+import { RatingStars } from '@/components/product/reviews/RatingStars';
 
 interface ProductDetailProps {
   product: Product;
@@ -63,11 +64,16 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </h1>
 
             {product.rating ? (
-              <div className="inline-flex w-fit items-center gap-1.5 rounded-md bg-warm-100 px-2.5 py-1.5 font-body text-sm text-warm-900">
-                <Star
+              <div
+                role="img"
+                aria-label={`Rated ${product.rating.avg.toFixed(1)} out of 5 stars based on ${product.rating.count} reviews`}
+                className="inline-flex w-fit items-center gap-1.5 rounded-md bg-warm-100 px-2.5 py-1.5 font-body text-sm text-warm-900"
+              >
+                <RatingStars
+                  variant="aggregate"
+                  value={product.rating.avg}
                   size={14}
-                  aria-hidden
-                  className="fill-brand-400 text-brand-400"
+                  announce={false}
                 />
                 <span className="font-medium">
                   {product.rating.avg.toFixed(1)}

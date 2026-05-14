@@ -1,8 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star } from 'lucide-react';
 import { CATEGORY_LABEL, PET_TYPE_LABEL, type Product } from '@/types/product';
 import { formatPrice } from '@/lib/utils/format';
+import { RatingStars } from '@/components/product/reviews/RatingStars';
 
 interface ProductCardProps {
   product: Product;
@@ -60,11 +60,15 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           </div>
           {product.rating ? (
-            <span className="inline-flex items-center gap-1 font-body text-xs text-warm-600">
-              <Star
+            <span
+              className="inline-flex items-center gap-1 font-body text-xs text-warm-600"
+              aria-label={`Rated ${product.rating.avg.toFixed(1)} out of 5 stars, ${product.rating.count} reviews`}
+            >
+              <RatingStars
+                variant="aggregate"
+                value={product.rating.avg}
                 size={12}
-                aria-hidden
-                className="fill-brand-400 text-brand-400"
+                announce={false}
               />
               {product.rating.avg.toFixed(1)}
               <span className="text-warm-400">({product.rating.count})</span>
