@@ -40,6 +40,8 @@ export default defineConfig({
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'test-anon-key',
           NEXT_PUBLIC_API_URL:
             process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001',
+          // Avoids EMFILE from file watchers on low-ulimit runners (e.g. some CI sandboxes).
+          ...(process.env.CI ? { WATCHPACK_POLLING: '1' } : {}),
         },
       },
 });
