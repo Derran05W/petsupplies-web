@@ -1,4 +1,4 @@
-import { Truck, Stethoscope, Undo2, type LucideIcon } from 'lucide-react';
+import { Truck, Stethoscope, type LucideIcon } from 'lucide-react';
 
 interface BrandValue {
   Icon: LucideIcon;
