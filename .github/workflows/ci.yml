@@ -103,6 +103,11 @@ jobs:
     needs: build
     env:
       BASE_URL: ${{ secrets.STAGING_FRONTEND_URL }}
+      # Match `build` job so Playwright’s inline `next build` embeds the same public config.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://ci-build-placeholder.supabase.co' }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'ci-placeholder-supabase-anon-key' }}
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_ci_placeholder' }}
+      NEXT_PUBLIC_API_URL: ${{ secrets.STAGING_API_URL || 'http://localhost:3001' }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
