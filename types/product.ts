@@ -1,3 +1,5 @@
+import type { ProductSubscriptionInfo } from './subscription';
+
 /**
  * Product types — mirrors the petsupplies-api Prisma schema for Phase 4.
  * Backend Phase 4 will expose `/products` and `/products/:slug` endpoints
@@ -50,6 +52,8 @@ export interface Product {
   tags: string[];
   rating?: Rating;
   createdAt: string;
+  /** Subscribe & Save eligibility + cadences (omit when unavailable). */
+  subscription?: ProductSubscriptionInfo;
 }
 
 export interface ProductListResponse {
