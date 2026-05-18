@@ -19,10 +19,6 @@ interface ConfirmDialogProps {
  * Hand-rolled confirmation dialog. Mirrors `<MobileMenu />`'s a11y
  * pattern (`role="dialog"`, `aria-modal="true"`, focus-trap on open,
  * focus-return on close, scroll-lock, Escape closes). No new dep.
- *
- * Focus on open lands on the cancel button (least destructive default
- * — pressing Enter does NOT immediately delete). Focus on close
- * returns to the element that was focused before the dialog opened.
  */
 export function ConfirmDialog({
   open,

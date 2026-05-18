@@ -24,7 +24,7 @@ import {
   useDeleteAdminProductMutation,
   useUpdateAdminProductMutation,
 } from '@/hooks/useAdminProducts';
-import { ConfirmDialog } from '@/components/account/addresses/ConfirmDialog';
+import { ConfirmDialog } from '@/components/account/ConfirmDialog';
 import { cn } from '@/lib/utils';
 import { ImageUploader } from './ImageUploader';
 import { AiDescriptionBtn } from './AiDescriptionBtn';
