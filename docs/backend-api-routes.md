@@ -60,6 +60,46 @@ Reference snapshot for aligning the storefront (`petsupplies-web`) with the back
 
 ---
 
+## Stock alerts (back in stock)
+
+All routes require a **logged-in user JWT**.
+
+| Method | Path                                | Purpose                    |
+| ------ | ----------------------------------- | -------------------------- |
+| GET    | `/users/me/stock-alerts`            | List active alerts         |
+| POST   | `/users/me/stock-alerts`            | Create alert for a product |
+| DELETE | `/users/me/stock-alerts/:productId` | Cancel alert               |
+
+### `POST /users/me/stock-alerts`
+
+**Request body (assumed storefront contract):**
+
+| Field       | Type   | Required |
+| ----------- | ------ | -------- |
+| `productId` | string | yes      |
+
+**Successful response:** JSON body normalised client-side into `StockAlert`:
+
+- `productId` — string
+- `product` — embedded `Product` (same camelCase shape as catalogue)
+- `createdAt` — ISO 8601 (also accepts snake_case `created_at` until backend is locked)
+
+**Duplicates:** Frontend treats **409 Conflict** like wishlist POST — synthesises `StockAlert` from the PDP `product` snapshot when `{ productId, product }` is known.
+
+**Typical errors:** `401`; `400` if product invalid or alert not allowed (e.g. already in stock) — PDP surfaces message and prompts refresh where appropriate.
+
+### `GET /users/me/stock-alerts`
+
+**Response:** bare `StockAlert[]` **or** `{ items: StockAlert[] }`; client normalises to an array.
+
+**Network unreachable:** storefront dev fallback returns `[]` with a one-shot console warning (`lib/api/stockAlerts.ts`).
+
+### `DELETE /users/me/stock-alerts/:productId`
+
+Idempotent — **404** ignored. **204** supported via `apiFetch`.
+
+---
+
 ## Checkout path note (one-time orders)
 
 The route inventory above lists `POST /checkout/session`. The storefront currently calls `POST /checkout` in `lib/api/checkout.ts` (legacy path). **Do not change the checkout module in Phase 16** — align the deployed API with either path and update this doc + `checkout.ts` together in a dedicated follow-up.

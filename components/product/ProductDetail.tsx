@@ -5,6 +5,7 @@ import { formatPrice } from '@/lib/utils/format';
 import { ImageGallery } from './ImageGallery';
 import { QuantitySelector } from './QuantitySelector';
 import { SubscribeAndSavePanel } from './SubscribeAndSavePanel';
+import { BackInStockPanel } from './BackInStockPanel';
 import { NutritionalAccordion } from './NutritionalAccordion';
 import { RatingStars } from '@/components/product/reviews/RatingStars';
 import { WishlistButton } from '@/components/wishlist/WishlistButton';
@@ -102,8 +103,27 @@ export function ProductDetail({ product }: ProductDetailProps) {
               {product.description}
             </p>
 
-            {product.subscription?.enabled ? (
+            {product.subscription?.enabled && product.inStock ? (
               <SubscribeAndSavePanel product={product} />
+            ) : product.subscription?.enabled && !product.inStock ? (
+              <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-white p-5 md:p-6">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-50 px-2.5 py-1 font-body text-xs font-medium text-brand-700">
+                    Subscribe &amp; Save — save{' '}
+                    {product.subscription.discountPercent}%
+                  </span>
+                </div>
+                <p className="font-body text-sm text-warm-600" role="status">
+                  This item is out of stock. Turn on alerts below—you can
+                  subscribe once it&apos;s available again.
+                </p>
+                <BackInStockPanel product={product} />
+              </div>
+            ) : !product.inStock ? (
+              <>
+                <QuantitySelector product={product} />
+                <BackInStockPanel product={product} />
+              </>
             ) : (
               <QuantitySelector product={product} />
             )}
