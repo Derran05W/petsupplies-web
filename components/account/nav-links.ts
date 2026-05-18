@@ -1,4 +1,5 @@
 import {
+  Bell,
   Heart,
   MapPin,
   Package,
@@ -44,6 +45,12 @@ export const ACCOUNT_NAV_LINKS: AccountNavLink[] = [
     label: 'Subscribe',
     icon: Repeat,
     match: '/account/subscriptions',
+  },
+  {
+    href: '/account/notifications',
+    label: 'Alerts',
+    icon: Bell,
+    match: '/account/notifications',
   },
   {
     href: '/account/pets',
