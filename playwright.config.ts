@@ -4,6 +4,13 @@ const baseURLTrimmed = (process.env.BASE_URL ?? '').trim();
 const useRemote = baseURLTrimmed !== '';
 const baseURL = useRemote ? baseURLTrimmed : 'http://localhost:3000';
 
+/** In CI, `next dev` can flake (font manifest / watcher races). Production server after build is stabler. */
+const isCi = process.env.CI === 'true';
+const localWebServerCommand = isCi
+  ? 'pnpm exec next build && pnpm exec next start -p 3000'
+  : 'pnpm dev';
+const localWebServerTimeout = isCi ? 300_000 : 120_000;
+
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
@@ -24,15 +31,13 @@ export default defineConfig({
   webServer: useRemote
     ? undefined
     : {
-        command: 'pnpm dev',
+        command: localWebServerCommand,
         url: 'http://localhost:3000',
         reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
-        // Placeholder Supabase env values — the e2e suite mocks every
-        // outbound Supabase request via page.route(), so the anon key
-        // only needs to be a non-empty string for the SSR client to
-        // construct. This avoids polluting `.env.local` (gitignored)
-        // with secret-shaped strings on every dev machine.
+        timeout: localWebServerTimeout,
+        // Placeholder Supabase env values — keeps SSR clients constructible without
+        // `.env.local` on every dev machine. Browser-side Supabase calls can still be
+        // mocked with `page.route()`; middleware/server `getUser()` is not intercepted.
         env: {
           NEXT_PUBLIC_SUPABASE_URL:
             process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://test.supabase.co',

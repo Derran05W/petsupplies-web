@@ -6,14 +6,17 @@ import {
   type UseMutationResult,
 } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
-import { adminUpdateOrder } from '@/lib/api/admin/orders';
+import { adminUpdateOrder, patchOrderTracking } from '@/lib/api/admin/orders';
 import type {
   AdminOrderListResponse,
   AdminOrderSummary,
+  AdminOrderTrackingInput,
   AdminOrderUpdateInput,
 } from '@/types/admin';
+import type { AdminFulfillmentQueueResponse } from '@/types/admin-fulfillment';
 
 const ADMIN_ORDERS_ROOT = ['admin', 'orders'] as const;
+const ADMIN_FULFILLMENT_ROOT = ['admin', 'fulfillment'] as const;
 
 async function getBrowserAccessToken(): Promise<string | undefined> {
   const supabase = createClient();
@@ -133,6 +136,156 @@ export function useUpdateAdminOrderMutation(): UseMutationResult<
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ADMIN_ORDERS_ROOT });
+      void queryClient.invalidateQueries({ queryKey: ADMIN_FULFILLMENT_ROOT });
+    },
+  });
+}
+
+const patchTrackingFields = (
+  order: AdminOrderSummary,
+  id: string,
+  input: AdminOrderTrackingInput,
+): AdminOrderSummary => {
+  if (order.id !== id) return order;
+  const next: AdminOrderSummary = { ...order };
+  if (input.trackingNumber !== undefined) {
+    if (input.trackingNumber === null || input.trackingNumber.length === 0) {
+      delete next.trackingNumber;
+    } else {
+      next.trackingNumber = input.trackingNumber;
+    }
+  }
+  if (input.trackingUrl !== undefined) {
+    if (input.trackingUrl === null || input.trackingUrl.length === 0) {
+      delete next.trackingUrl;
+    } else {
+      next.trackingUrl = input.trackingUrl;
+    }
+  }
+  return next;
+};
+
+/**
+ * PATCH /admin/orders/:id/tracking — optimistic updates match
+ * useUpdateAdminOrderMutation but only tracking fields.
+ */
+export function useUpdateOrderTrackingMutation(): UseMutationResult<
+  AdminOrderSummary,
+  Error,
+  { id: string; input: AdminOrderTrackingInput },
+  {
+    listSnapshots: Array<{
+      key: readonly unknown[];
+      data: AdminOrderListResponse | undefined;
+    }>;
+    detail: AdminOrderSummary | undefined;
+    fqSnapshots: Array<{
+      key: readonly unknown[];
+      data: AdminFulfillmentQueueResponse | undefined;
+    }>;
+  }
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, input }) => {
+      const accessToken = await getBrowserAccessToken();
+      return patchOrderTracking(id, input, accessToken ? { accessToken } : {});
+    },
+    onMutate: async ({ id, input }) => {
+      await queryClient.cancelQueries({ queryKey: ADMIN_ORDERS_ROOT });
+      await queryClient.cancelQueries({ queryKey: ADMIN_FULFILLMENT_ROOT });
+
+      const detailKey = [...ADMIN_ORDERS_ROOT, 'detail', id] as const;
+      const detail = queryClient.getQueryData<AdminOrderSummary>(detailKey);
+
+      const listEntries = queryClient.getQueriesData<AdminOrderListResponse>({
+        queryKey: [...ADMIN_ORDERS_ROOT, 'list'],
+      });
+      const listSnapshots = listEntries.map(([key, data]) => ({
+        key,
+        data,
+      }));
+
+      const fqEntries =
+        queryClient.getQueriesData<AdminFulfillmentQueueResponse>({
+          queryKey: [...ADMIN_FULFILLMENT_ROOT, 'queue'],
+        });
+      const fqSnapshots = fqEntries.map(([key, data]) => ({ key, data }));
+
+      const patch = (order: AdminOrderSummary): AdminOrderSummary =>
+        patchTrackingFields(order, id, input);
+
+      for (const [key, data] of listEntries) {
+        if (!data) continue;
+        queryClient.setQueryData<AdminOrderListResponse>(key, {
+          ...data,
+          orders: data.orders.map(patch),
+        });
+      }
+
+      for (const [key, data] of fqEntries) {
+        if (!data) continue;
+        queryClient.setQueryData(key, {
+          ...data,
+          orders: data.orders.map(patch),
+        });
+      }
+
+      if (detail) {
+        queryClient.setQueryData<AdminOrderSummary>(detailKey, patch(detail));
+      }
+
+      return { listSnapshots, detail, fqSnapshots };
+    },
+    onError: (_err, variables, context) => {
+      if (!context) return;
+      for (const snap of context.listSnapshots) {
+        queryClient.setQueryData(snap.key, snap.data);
+      }
+      for (const snap of context.fqSnapshots) {
+        queryClient.setQueryData(snap.key, snap.data);
+      }
+      if (context.detail) {
+        const detailKey = [
+          ...ADMIN_ORDERS_ROOT,
+          'detail',
+          variables.id,
+        ] as const;
+        queryClient.setQueryData(detailKey, context.detail);
+      }
+    },
+    onSuccess: (updated) => {
+      const detailKey = [...ADMIN_ORDERS_ROOT, 'detail', updated.id] as const;
+      queryClient.setQueryData(detailKey, updated);
+      const listEntries = queryClient.getQueriesData<AdminOrderListResponse>({
+        queryKey: [...ADMIN_ORDERS_ROOT, 'list'],
+      });
+      for (const [key, data] of listEntries) {
+        if (!data) continue;
+        queryClient.setQueryData<AdminOrderListResponse>(key, {
+          ...data,
+          orders: data.orders.map((order) =>
+            order.id === updated.id ? updated : order,
+          ),
+        });
+      }
+      const fqEntries =
+        queryClient.getQueriesData<AdminFulfillmentQueueResponse>({
+          queryKey: [...ADMIN_FULFILLMENT_ROOT, 'queue'],
+        });
+      for (const [key, data] of fqEntries) {
+        if (!data) continue;
+        queryClient.setQueryData(key, {
+          ...data,
+          orders: data.orders.map((order) =>
+            order.id === updated.id ? updated : order,
+          ),
+        });
+      }
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ADMIN_ORDERS_ROOT });
+      void queryClient.invalidateQueries({ queryKey: ADMIN_FULFILLMENT_ROOT });
     },
   });
 }

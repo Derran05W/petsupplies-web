@@ -1,6 +1,7 @@
 import type {
   AdminOrderListResponse,
   AdminOrderSummary,
+  AdminOrderTrackingInput,
   AdminOrderUpdateInput,
 } from '@/types/admin';
 import type { OrderStatus } from '@/types/order';
@@ -100,6 +101,43 @@ export async function adminUpdateOrder(
       warnFallback();
       setOrderOverride(id, {
         ...(input.status !== undefined ? { status: input.status } : {}),
+        ...(input.trackingNumber !== undefined
+          ? { trackingNumber: input.trackingNumber }
+          : {}),
+        ...(input.trackingUrl !== undefined
+          ? { trackingUrl: input.trackingUrl }
+          : {}),
+      });
+      const all = getAllAdminOrders();
+      const updated = all.find((o) => o.id === id);
+      if (!updated) throw new ApiError('Order not found', 404);
+      return updated;
+    }
+    throw err;
+  }
+}
+
+export async function patchOrderTracking(
+  id: string,
+  input: AdminOrderTrackingInput,
+  options: AdminApiOptions = {},
+): Promise<AdminOrderSummary> {
+  const { accessToken } = options;
+  try {
+    return await apiFetch<AdminOrderSummary>(
+      `/admin/orders/${encodeURIComponent(id)}/tracking`,
+      accessToken
+        ? {
+            method: 'PATCH',
+            body: JSON.stringify(input),
+            accessToken,
+          }
+        : { method: 'PATCH', body: JSON.stringify(input) },
+    );
+  } catch (err) {
+    if (isNetwork(err)) {
+      warnFallback();
+      setOrderOverride(id, {
         ...(input.trackingNumber !== undefined
           ? { trackingNumber: input.trackingNumber }
           : {}),

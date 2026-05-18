@@ -6,22 +6,18 @@ import { AdminBanner } from '@/components/admin/AdminBanner';
 import { AdminAnalyticsDashboard } from '@/components/admin/analytics/AdminAnalyticsDashboard';
 
 export const metadata: Metadata = {
-  title: `Admin · ${brand.name}`,
+  title: `Admin · Analytics · ${brand.name}`,
 };
 
-/**
- * `/admin` — analytics hub (Phase 21). Server-fetches overview +
- * panels; revenue chart is a client island.
- */
-export default async function AdminDashboardPage() {
+export default async function AdminAnalyticsPage() {
   const accessToken = await getServerAccessToken();
 
   return (
     <>
       <AdminBanner />
       <PageHeader
-        heading="Dashboard"
-        description="Store analytics, top products, low stock, subscriptions, and discounts."
+        heading="Analytics"
+        description="Deep-dive metrics — same data as the dashboard hub."
       />
       <AdminAnalyticsDashboard accessToken={accessToken} />
     </>

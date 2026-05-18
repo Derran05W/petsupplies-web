@@ -205,6 +205,42 @@ Schedule cancel-at-period-end (not skip-next).
 
 ---
 
+## Admin — Phase 21 analytics, customers, fulfillment
+
+All routes require **JWT + admin role** (same as other admin routes).
+
+### Analytics
+
+| Method | Path                                  | Query                           | Response (camelCase — verify with live API)                                                          |
+| ------ | ------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| GET    | `/admin/analytics/overview`           | —                               | Overview KPIs: `revenueCents`, `ordersCount`, `customersCount`, `aovCents`, `currency`, `periodDays` |
+| GET    | `/admin/analytics/revenue-timeseries` | `range`: `7d` \| `30d` \| `90d` | `{ currency, points: [{ date, revenueCents, orderCount }] }`                                         |
+| GET    | `/admin/analytics/products/top`       | `limit` (optional)              | `{ items: [...] }`                                                                                   |
+| GET    | `/admin/analytics/products/low-stock` | `limit` (optional)              | `{ items: [...] }`                                                                                   |
+| GET    | `/admin/analytics/subscriptions`      | —                               | Subscription aggregate stats                                                                         |
+| GET    | `/admin/analytics/discounts`          | —                               | `{ items: [...] }`                                                                                   |
+
+### Customers
+
+| Method | Path                                 | Query                        | Notes                                    |
+| ------ | ------------------------------------ | ---------------------------- | ---------------------------------------- |
+| GET    | `/admin/customers`                   | `page`, `pageSize`, `search` | Paginated list                           |
+| GET    | `/admin/customers/:id`               | —                            | Customer detail                          |
+| GET    | `/admin/customers/:id/orders`        | `page`, `pageSize`           | Customer order history                   |
+| GET    | `/admin/customers/:id/subscriptions` | —                            | Array or `{ items }` (client normalises) |
+
+### Fulfillment
+
+| Method | Path                           | Body / query                                            | Notes                                                                                                       |
+| ------ | ------------------------------ | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| GET    | `/admin/fulfillment/queue`     | `page`, `pageSize`, `status` (optional)                 | Orders awaiting fulfillment                                                                                 |
+| POST   | `/admin/fulfillment/bulk-ship` | `{ orderIds, trackingNumber?, trackingUrl?, carrier? }` | Bulk mark shipped; may return partial failures                                                              |
+| PATCH  | `/admin/orders/:id/tracking`   | `{ trackingNumber?, trackingUrl?, carrier? }`           | Tracking updates (Phase 21); status changes remain on `PATCH /admin/orders/:id` or `/status` per deployment |
+
+**Note:** The storefront `petsupplies-web` uses `PATCH /admin/orders/:id` for combined updates in Phase 8; tracking-only edits should use `PATCH /admin/orders/:id/tracking` to match Phase 21.
+
+---
+
 ## Not for the browser app (still exposed)
 
 | Method | Path               | Purpose                                                                                   |

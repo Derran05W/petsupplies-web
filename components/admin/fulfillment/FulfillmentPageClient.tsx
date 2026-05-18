@@ -1,0 +1,356 @@
+'use client';
+
+import { Suspense, useCallback, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { Loader2, Package } from 'lucide-react';
+import type { OrderStatus } from '@/types/order';
+import type { AdminOrderSummary } from '@/types/admin';
+import { ApiError } from '@/lib/api/client';
+import { PageHeader } from '@/components/account/PageHeader';
+import { OrdersPagination } from '@/components/account/orders/OrdersPagination';
+import { OrderStatusPill } from '@/components/account/orders/OrderStatusPill';
+import { AdminBanner } from '@/components/admin/AdminBanner';
+import { ConfirmDialog } from '@/components/account/ConfirmDialog';
+import { formatPrice } from '@/lib/utils/format';
+import { formatDate } from '@/lib/utils/format';
+import { cn } from '@/lib/utils';
+import {
+  mergeUpdatedOrdersIntoCaches,
+  useAdminBulkShipMutation,
+  useAdminFulfillmentQueueQuery,
+} from '@/hooks/useAdminFulfillment';
+import { useQueryClient } from '@tanstack/react-query';
+
+const STATUS_FILTER: Array<{ value: OrderStatus | ''; label: string }> = [
+  { value: '', label: 'All' },
+  { value: 'paid', label: 'Paid' },
+  { value: 'fulfilled', label: 'Fulfilled' },
+];
+
+function parsePage(raw: string | null): number {
+  if (!raw) return 1;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < 1) return 1;
+  return n;
+}
+
+function FulfillmentInner() {
+  const searchParams = useSearchParams();
+  const page = parsePage(searchParams.get('page'));
+  const statusRaw = searchParams.get('status');
+  const status =
+    statusRaw === 'paid' || statusRaw === 'fulfilled' ? statusRaw : undefined;
+
+  const queryClient = useQueryClient();
+  const { data, isPending, isError, error, refetch } =
+    useAdminFulfillmentQueueQuery({
+      page,
+      ...(status ? { status } : {}),
+    });
+
+  const bulkShip = useAdminBulkShipMutation();
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [trackingNumber, setTrackingNumber] = useState('');
+  const [trackingUrl, setTrackingUrl] = useState('');
+  const [carrier, setCarrier] = useState('');
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [lastFailed, setLastFailed] = useState<
+    { orderId: string; message: string }[] | null
+  >(null);
+
+  const orders = useMemo(() => data?.orders ?? [], [data?.orders]);
+  const allSelected =
+    orders.length > 0 && orders.every((o) => selected.has(o.id));
+
+  const toggleAll = useCallback(() => {
+    setSelected((prev) => {
+      if (orders.length === 0) return prev;
+      if (orders.every((o) => prev.has(o.id))) return new Set();
+      return new Set(orders.map((o) => o.id));
+    });
+  }, [orders]);
+
+  const toggleOne = useCallback((id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const basePath = '/admin/fulfillment';
+  const extraQuery = status ? { status } : undefined;
+
+  const filterHref = (s: OrderStatus | '') => {
+    const params = new URLSearchParams();
+    if (s) params.set('status', s);
+    const qs = params.toString();
+    return qs ? `${basePath}?${qs}` : basePath;
+  };
+
+  const onBulkConfirm = async () => {
+    setSubmitError(null);
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    try {
+      const res = await bulkShip.mutateAsync({
+        orderIds: ids,
+        ...(trackingNumber.trim()
+          ? { trackingNumber: trackingNumber.trim() }
+          : {}),
+        ...(trackingUrl.trim() ? { trackingUrl: trackingUrl.trim() } : {}),
+        ...(carrier.trim() ? { carrier: carrier.trim() } : {}),
+      });
+      mergeUpdatedOrdersIntoCaches(queryClient, res.updated);
+      setLastFailed(res.failed.length > 0 ? res.failed : null);
+      setSelected(new Set());
+      setDialogOpen(false);
+      setTrackingNumber('');
+      setTrackingUrl('');
+      setCarrier('');
+      void refetch();
+    } catch (e) {
+      setSubmitError(e instanceof ApiError ? e.message : 'Bulk ship failed.');
+    }
+  };
+
+  const busy = bulkShip.isPending;
+
+  return (
+    <>
+      <AdminBanner />
+      <PageHeader
+        heading="Fulfillment"
+        description="Queue of orders ready to ship. Select rows and add tracking in bulk."
+      />
+
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        {STATUS_FILTER.map((f) => (
+          <Link
+            key={f.label}
+            href={filterHref(f.value)}
+            className={cn(
+              'rounded-lg px-3 py-1.5 font-body text-xs font-medium transition-colors',
+              (f.value || '') === (status ?? '')
+                ? 'bg-brand-400 text-white'
+                : 'text-warm-700 bg-warm-100 hover:bg-warm-200',
+            )}
+          >
+            {f.label}
+          </Link>
+        ))}
+      </div>
+
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          disabled={selected.size === 0 || busy}
+          onClick={() => {
+            setSubmitError(null);
+            setDialogOpen(true);
+          }}
+          className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-4 py-2 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {busy && <Loader2 size={14} className="animate-spin" aria-hidden />}
+          Mark selected shipped ({selected.size})
+        </button>
+        {lastFailed && lastFailed.length > 0 && (
+          <p role="status" className="font-body text-xs text-amber-800">
+            {lastFailed.length} order(s) could not be updated. See API message
+            per row in console-free UI below.
+          </p>
+        )}
+      </div>
+
+      {lastFailed && lastFailed.length > 0 && (
+        <ul
+          className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 font-body text-xs text-amber-900"
+          aria-label="Bulk ship failures"
+        >
+          {lastFailed.map((f) => (
+            <li key={f.orderId}>
+              <span className="font-mono">{f.orderId}</span>: {f.message}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {isPending && (
+        <p className="font-body text-sm text-warm-600">Loading queue…</p>
+      )}
+      {isError && (
+        <p role="alert" className="text-sm text-red-600">
+          {error instanceof Error ? error.message : 'Failed to load queue.'}
+        </p>
+      )}
+      {!isPending && !isError && orders.length === 0 && (
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-warm-200 bg-white px-6 py-12 text-center">
+          <Package className="text-warm-400" size={36} aria-hidden />
+          <p className="font-body text-sm text-warm-600">
+            No orders in this queue.
+          </p>
+        </div>
+      )}
+      {!isPending && !isError && orders.length > 0 && (
+        <>
+          <div className="overflow-hidden rounded-2xl border border-warm-200 bg-white">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px] font-body text-sm">
+                <thead className="border-b border-warm-200 bg-warm-50">
+                  <tr className="text-left text-xs uppercase tracking-[0.06em] text-warm-600">
+                    <th className="px-3 py-3">
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={toggleAll}
+                        aria-label="Select all on this page"
+                        className="size-4 rounded border-warm-300"
+                      />
+                    </th>
+                    <th className="px-3 py-3 font-medium">Order</th>
+                    <th className="px-3 py-3 font-medium">Customer</th>
+                    <th className="px-3 py-3 font-medium">Status</th>
+                    <th className="px-3 py-3 text-right font-medium">Total</th>
+                    <th className="px-3 py-3 text-right font-medium">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-warm-200">
+                  {orders.map((order: AdminOrderSummary) => (
+                    <tr key={order.id} className="hover:bg-warm-50/80">
+                      <td className="px-3 py-3">
+                        <input
+                          type="checkbox"
+                          checked={selected.has(order.id)}
+                          onChange={() => toggleOne(order.id)}
+                          aria-label={`Select order ${order.id}`}
+                          className="size-4 rounded border-warm-300"
+                        />
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className="text-warm-500 font-mono text-xs">
+                          {order.id.slice(0, 12)}…
+                        </span>
+                        <span className="mt-0.5 block text-xs text-warm-600">
+                          {formatDate(order.createdAt)}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className="text-warm-800 line-clamp-2">
+                          {order.customerName ?? order.customerEmail ?? '—'}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <OrderStatusPill status={order.status} />
+                      </td>
+                      <td className="px-3 py-3 text-right font-medium tabular-nums text-warm-900">
+                        {formatPrice(order.totalCents, order.currency)}
+                      </td>
+                      <td className="px-3 py-3 text-right">
+                        <Link
+                          href={`/admin/orders?selected=${encodeURIComponent(order.id)}`}
+                          className="font-medium text-brand-600 hover:text-brand-700"
+                        >
+                          Open
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {data && data.totalPages > 1 && (
+            <OrdersPagination
+              currentPage={data.page}
+              totalPages={data.totalPages}
+              basePath={basePath}
+              extraQuery={extraQuery}
+            />
+          )}
+        </>
+      )}
+
+      <ConfirmDialog
+        open={dialogOpen}
+        title="Mark orders shipped"
+        description={`Add tracking for ${selected.size} selected order(s). Customers may receive shipment notifications from the backend.`}
+        confirmLabel={busy ? 'Working…' : 'Confirm ship'}
+        cancelLabel="Cancel"
+        busy={busy}
+        onClose={() => !busy && setDialogOpen(false)}
+        onConfirm={onBulkConfirm}
+      >
+        <div className="mt-4 flex flex-col gap-3 border-t border-warm-200 pt-4">
+          <div>
+            <label
+              htmlFor="bulk-tracking"
+              className="mb-1 block font-body text-xs font-medium text-warm-600"
+            >
+              Tracking number
+            </label>
+            <input
+              id="bulk-tracking"
+              value={trackingNumber}
+              onChange={(e) => setTrackingNumber(e.target.value)}
+              className="w-full rounded-lg border border-warm-300 px-3 py-2 font-body text-sm"
+              placeholder="Optional — e.g. 1Z999…"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="bulk-url"
+              className="mb-1 block font-body text-xs font-medium text-warm-600"
+            >
+              Tracking URL
+            </label>
+            <input
+              id="bulk-url"
+              type="url"
+              value={trackingUrl}
+              onChange={(e) => setTrackingUrl(e.target.value)}
+              className="w-full rounded-lg border border-warm-300 px-3 py-2 font-body text-sm"
+              placeholder="https://…"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="bulk-carrier"
+              className="mb-1 block font-body text-xs font-medium text-warm-600"
+            >
+              Carrier
+            </label>
+            <input
+              id="bulk-carrier"
+              value={carrier}
+              onChange={(e) => setCarrier(e.target.value)}
+              className="w-full rounded-lg border border-warm-300 px-3 py-2 font-body text-sm"
+              placeholder="Optional"
+            />
+          </div>
+          {submitError && (
+            <p role="alert" className="text-xs text-red-600">
+              {submitError}
+            </p>
+          )}
+        </div>
+      </ConfirmDialog>
+    </>
+  );
+}
+
+export function FulfillmentPageClient() {
+  return (
+    <Suspense
+      fallback={
+        <p className="font-body text-sm text-warm-600">Loading fulfillment…</p>
+      }
+    >
+      <FulfillmentInner />
+    </Suspense>
+  );
+}

@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
 import type { AdminOrderSummary } from '@/types/admin';
 import { ApiError } from '@/lib/api/client';
-import { useUpdateAdminOrderMutation } from '@/hooks/useAdminOrders';
+import { useUpdateOrderTrackingMutation } from '@/hooks/useAdminOrders';
 import { cn } from '@/lib/utils';
 
 interface OrderTrackingFormProps {
@@ -60,7 +60,7 @@ function fieldErrorProps(name: string, error: FieldError | undefined) {
 }
 
 export function OrderTrackingForm({ order }: OrderTrackingFormProps) {
-  const mutation = useUpdateAdminOrderMutation();
+  const mutation = useUpdateOrderTrackingMutation();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
