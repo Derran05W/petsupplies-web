@@ -32,7 +32,9 @@ test.describe('homepage', () => {
     // banner role so we don't collide with the footer's identical
     // brand-name link.
     const navbar = page.getByRole('banner');
-    await expect(navbar.getByRole('link', { name: 'pawsupply' })).toBeVisible();
+    await expect(
+      navbar.getByRole('link', { name: "Aileen's petstore" }),
+    ).toBeVisible();
     await expect(
       navbar.getByRole('button', { name: /Cart/ }).first(),
     ).toBeVisible();

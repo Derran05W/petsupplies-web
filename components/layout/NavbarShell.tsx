@@ -60,10 +60,20 @@ export function NavbarShell() {
           <Link
             href="/"
             aria-label={brand.name}
-            className="inline-flex items-baseline gap-0.5 font-body text-lg font-medium text-warm-900"
+            className="inline-flex items-baseline gap-1 font-body text-lg font-medium text-warm-900"
           >
-            <span className="text-brand-600">{brand.name.slice(0, 3)}</span>
-            <span>{brand.name.slice(3)}</span>
+            {(() => {
+              const words = brand.name.split(' ');
+              const n = brand.logoAccentWords ?? 1;
+              const accent = words.slice(0, n).join(' ');
+              const rest = words.slice(n).join(' ');
+              return (
+                <>
+                  <span className="text-brand-600">{accent}</span>
+                  {rest && <span>{rest}</span>}
+                </>
+              );
+            })()}
           </Link>
 
           <nav
