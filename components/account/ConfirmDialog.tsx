@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 
@@ -13,6 +14,8 @@ interface ConfirmDialogProps {
   busy?: boolean;
   onConfirm: () => void;
   onClose: () => void;
+  /** Optional body between description and action buttons (forms, etc.). */
+  children?: ReactNode;
 }
 
 /**
@@ -30,6 +33,7 @@ export function ConfirmDialog({
   busy = false,
   onConfirm,
   onClose,
+  children,
 }: ConfirmDialogProps) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const cancelRef = useRef<HTMLButtonElement | null>(null);
@@ -115,6 +119,7 @@ export function ConfirmDialog({
           >
             {description}
           </p>
+          {children}
           <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button
               ref={cancelRef}

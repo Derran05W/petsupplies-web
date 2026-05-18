@@ -63,4 +63,53 @@ test.describe('admin role gate', () => {
     await page.goto('/admin');
     await expect(page).toHaveURL(/\/login\?redirect=%2Fadmin$/);
   });
+
+  test('signed-in admin can open dashboard, customers, fulfillment, analytics', async ({
+    page,
+  }) => {
+    const userUrl = `https://test.supabase.co${SUPABASE_USER_PATH}`;
+    await page.route(userUrl, async (route) =>
+      setUserResponse(route, {
+        id: 'admin-1',
+        email: 'admin@example.com',
+        user_metadata: { role: 'ADMIN', name: 'Admin User' },
+      }),
+    );
+
+    await page.goto('/admin');
+    await expect(
+      page.getByRole('heading', { name: 'Dashboard' }),
+    ).toBeVisible();
+
+    await page.goto('/admin/customers');
+    await expect(
+      page.getByRole('heading', { name: 'Customers' }),
+    ).toBeVisible();
+
+    await page.goto('/admin/fulfillment');
+    await expect(
+      page.getByRole('heading', { name: 'Fulfillment' }),
+    ).toBeVisible();
+
+    await page.goto('/admin/analytics');
+    await expect(
+      page.getByRole('heading', { name: 'Analytics' }),
+    ).toBeVisible();
+  });
+
+  test('signed-in non-admin is redirected away from admin customers', async ({
+    page,
+  }) => {
+    const userUrl = `https://test.supabase.co${SUPABASE_USER_PATH}`;
+    await page.route(userUrl, async (route) =>
+      setUserResponse(route, {
+        id: 'user-1',
+        email: 'cust@example.com',
+        user_metadata: { role: 'CUSTOMER' },
+      }),
+    );
+
+    await page.goto('/admin/customers');
+    await expect(page).toHaveURL('/');
+  });
 });

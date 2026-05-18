@@ -83,6 +83,13 @@ export interface AdminOrderUpdateInput {
   trackingUrl?: string | null;
 }
 
+/** PATCH /admin/orders/:id/tracking — Phase 21; do not send status here. */
+export interface AdminOrderTrackingInput {
+  trackingNumber?: string | null;
+  trackingUrl?: string | null;
+  carrier?: string | null;
+}
+
 export interface DashboardStats {
   ordersThisWeek: number;
   ordersLastWeek: number;

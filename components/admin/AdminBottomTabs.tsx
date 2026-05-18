@@ -6,21 +6,22 @@ import { cn } from '@/lib/utils';
 import { ADMIN_NAV_LINKS, isAdminLinkActive } from './nav-links';
 
 /**
- * Sticky bottom-tab navigation for `< lg` viewports. Filters the nav
- * data to the three live entries (Dashboard / Products / Orders);
- * the Customers / Analytics placeholders aren't worth a tap target on
- * mobile until the pages exist.
+ * Sticky bottom-tab navigation for `< lg` viewports. Shows dashboard,
+ * catalogue, orders, and fulfillment. Customers + Analytics stay
+ * sidebar-only (narrow screens).
  */
 export function AdminBottomTabs() {
   const pathname = usePathname();
-  const tabs = ADMIN_NAV_LINKS.filter((link) => !link.disabled);
+  const tabs = ADMIN_NAV_LINKS.filter(
+    (link) => !link.disabled && link.showInBottomTabs !== false,
+  );
 
   return (
     <nav
       aria-label="Admin navigation"
       className="sticky bottom-0 z-30 border-t border-warm-200 bg-warm-50/95 backdrop-blur-sm lg:hidden"
     >
-      <ul className="grid grid-cols-3">
+      <ul className="grid grid-cols-4">
         {tabs.map((link) => {
           const Icon = link.icon;
           const active = isAdminLinkActive(pathname, link);
