@@ -1,4 +1,11 @@
-import { Heart, MapPin, Package, PawPrint, Settings } from 'lucide-react';
+import {
+  Heart,
+  MapPin,
+  Package,
+  PawPrint,
+  Repeat,
+  Settings,
+} from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
 
@@ -31,6 +38,12 @@ export const ACCOUNT_NAV_LINKS: AccountNavLink[] = [
     label: 'Wishlist',
     icon: Heart,
     match: '/account/wishlist',
+  },
+  {
+    href: '/account/subscriptions',
+    label: 'Subscribe',
+    icon: Repeat,
+    match: '/account/subscriptions',
   },
   {
     href: '/account/pets',

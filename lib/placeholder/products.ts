@@ -61,6 +61,11 @@ export const FEATURED_PRODUCTS: Product[] = [
     tags: ['grain-free', 'salmon', 'omega-3'],
     rating: { avg: 4.7, count: 312 },
     createdAt: '2025-09-12T10:00:00.000Z',
+    subscription: {
+      enabled: true,
+      intervals: ['2_weeks', '4_weeks', '8_weeks', '12_weeks'],
+      discountPercent: 10,
+    },
   },
   {
     id: 'placeholder-2',
@@ -153,6 +158,11 @@ export const FEATURED_PRODUCTS: Product[] = [
     tags: ['training', 'single-ingredient'],
     rating: { avg: 4.9, count: 412 },
     createdAt: '2025-10-15T10:00:00.000Z',
+    subscription: {
+      enabled: true,
+      intervals: ['4_weeks', '8_weeks'],
+      discountPercent: 15,
+    },
   },
   {
     id: 'placeholder-7',
@@ -186,5 +196,10 @@ export const FEATURED_PRODUCTS: Product[] = [
     tags: ['supplement', 'joint', 'probiotic'],
     rating: { avg: 4.7, count: 244 },
     createdAt: '2025-11-01T10:00:00.000Z',
+    subscription: {
+      enabled: true,
+      intervals: ['2_weeks', '4_weeks', '8_weeks'],
+      discountPercent: 12,
+    },
   },
 ];

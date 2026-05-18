@@ -49,7 +49,7 @@ function optimisticPet(input: PetInput): Pet {
   };
 }
 
-export function usePetsQuery(): UseQueryResult<Pet[], Error> {
+export function usePetsQuery(enabled = true): UseQueryResult<Pet[], Error> {
   return useQuery({
     queryKey: PETS_QUERY_KEY,
     queryFn: async () => {
@@ -57,6 +57,7 @@ export function usePetsQuery(): UseQueryResult<Pet[], Error> {
       return listPets(accessToken ? { accessToken } : {});
     },
     staleTime: 60_000,
+    enabled,
   });
 }
 

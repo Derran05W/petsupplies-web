@@ -4,6 +4,7 @@ import { CATEGORY_LABEL, PET_TYPE_LABEL, type Product } from '@/types/product';
 import { formatPrice } from '@/lib/utils/format';
 import { ImageGallery } from './ImageGallery';
 import { QuantitySelector } from './QuantitySelector';
+import { SubscribeAndSavePanel } from './SubscribeAndSavePanel';
 import { NutritionalAccordion } from './NutritionalAccordion';
 import { RatingStars } from '@/components/product/reviews/RatingStars';
 import { WishlistButton } from '@/components/wishlist/WishlistButton';
@@ -101,7 +102,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
               {product.description}
             </p>
 
-            <QuantitySelector product={product} />
+            {product.subscription?.enabled ? (
+              <SubscribeAndSavePanel product={product} />
+            ) : (
+              <QuantitySelector product={product} />
+            )}
 
             <WishlistButton product={product} variant="inline" />
 
