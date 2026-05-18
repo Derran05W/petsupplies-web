@@ -15,7 +15,7 @@ import type { AddressInput } from '@/lib/account/schemas';
 import { AddressCard } from './AddressCard';
 import { AddressForm } from './AddressForm';
 import { AddressesEmpty } from './AddressesEmpty';
-import { ConfirmDialog } from './ConfirmDialog';
+import { ConfirmDialog } from '@/components/account/ConfirmDialog';
 
 const NETWORK_ERROR_MESSAGE =
   "Couldn't reach the server. Try again or check back shortly.";
