@@ -118,7 +118,7 @@ export function PreferencesEmailClient({ token }: PreferencesEmailClientProps) {
       ROWS.map((row) => (
         <label
           key={row.key}
-          className="flex cursor-pointer gap-3 rounded-xl border border-warm-100 bg-warm-50/70 px-4 py-3"
+          className="bg-warm-50/70 flex cursor-pointer gap-3 rounded-xl border border-warm-100 px-4 py-3"
         >
           <input
             type="checkbox"

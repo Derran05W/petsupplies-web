@@ -28,7 +28,7 @@ export function BrandValues() {
   return (
     <section
       aria-label="Why shop with us"
-      className="border-y border-warm-200 bg-warm-100/60"
+      className="bg-warm-100/60 border-y border-warm-200"
     >
       <div className="mx-auto grid max-w-7xl gap-8 px-6 py-12 md:grid-cols-3 md:px-8 md:py-16 lg:px-12">
         {VALUES.map(({ Icon, title, subtext }) => (
