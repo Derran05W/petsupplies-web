@@ -106,7 +106,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             {product.subscription?.enabled && product.inStock ? (
               <SubscribeAndSavePanel product={product} />
             ) : product.subscription?.enabled && !product.inStock ? (
-              <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-white p-5 md:p-6">
+              <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-50 px-2.5 py-1 font-body text-xs font-medium text-brand-700">
                     Subscribe &amp; Save — save{' '}

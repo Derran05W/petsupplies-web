@@ -40,7 +40,7 @@ function ChartTooltip({
   };
   if (!row) return null;
   return (
-    <div className="rounded-lg border border-warm-200 bg-white px-3 py-2 font-body text-xs shadow-sm">
+    <div className="rounded-lg border border-warm-200 bg-surface-card px-3 py-2 font-body text-xs shadow-sm">
       <p className="font-medium text-warm-900">{row.date}</p>
       <p className="text-warm-600">
         {formatPrice(row.revenueCents, currency)} · {row.orderCount} orders
@@ -71,7 +71,7 @@ export function RevenueChartClient() {
   return (
     <section
       aria-label="Revenue over time"
-      className="rounded-2xl border border-warm-200 bg-white p-5"
+      className="rounded-2xl border border-warm-200 bg-surface-card p-5"
     >
       <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="font-display text-lg tracking-tight text-warm-900">

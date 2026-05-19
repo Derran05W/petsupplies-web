@@ -47,7 +47,7 @@ export function WishlistItemCard({ item }: WishlistItemCardProps) {
   };
 
   return (
-    <article className="flex flex-col rounded-xl border border-warm-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+    <article className="flex flex-col rounded-xl border border-warm-200 bg-surface-card p-4 shadow-sm transition-shadow hover:shadow-md">
       <Link
         href={`/products/${product.slug}`}
         className="relative mb-3 aspect-square overflow-hidden rounded-lg bg-warm-100"
@@ -94,7 +94,7 @@ export function WishlistItemCard({ item }: WishlistItemCardProps) {
           disabled={busyRemove}
           aria-busy={busyRemove}
           aria-label={`Remove ${product.name} from wishlist`}
-          className="text-warm-700 inline-flex items-center justify-center gap-2 rounded-lg border border-warm-300 bg-white px-4 py-2.5 font-body text-sm font-medium transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-800 disabled:opacity-60"
+          className="text-warm-700 inline-flex items-center justify-center gap-2 rounded-lg border border-warm-300 bg-surface-card px-4 py-2.5 font-body text-sm font-medium transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-800 disabled:opacity-60"
         >
           <Trash2 size={16} aria-hidden />
           Remove

@@ -7,6 +7,9 @@ import { X } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 import { cn } from '@/lib/utils';
 import { NAV_LINKS } from './NavLinks';
+import { useAuth } from '@/hooks/useAuth';
+import { isAdminUser } from '@/lib/account/user-display';
+import { AdminNavButton } from './AdminNavButton';
 import { AuthSlot } from './AuthSlot';
 
 interface MobileMenuProps {
@@ -16,6 +19,8 @@ interface MobileMenuProps {
 
 export function MobileMenu({ open, onClose }: MobileMenuProps) {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const isAdmin = isAdminUser(user);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
 
@@ -79,7 +84,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
         role="presentation"
         onClick={onClose}
         className={cn(
-          'absolute inset-0 bg-warm-900/40 transition-opacity duration-300',
+          'absolute inset-0 bg-overlay transition-opacity duration-300',
           open ? 'opacity-100' : 'opacity-0',
         )}
       />
@@ -154,6 +159,14 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
         </nav>
 
         <div className="border-t border-warm-200 px-6 py-5">
+          {isAdmin ? (
+            <div className="mb-4">
+              <AdminNavButton
+                className="w-full justify-center"
+                onClick={onClose}
+              />
+            </div>
+          ) : null}
           <AuthSlot />
         </div>
       </div>

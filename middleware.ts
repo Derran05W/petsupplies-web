@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { userHasAdminRole } from '@/lib/account/admin-role';
 import { updateSession } from '@/lib/supabase/middleware';
 
 // `/email/*` stays public — not listed in `isProtected` below.
@@ -35,11 +36,7 @@ export async function middleware(request: NextRequest) {
     return withSessionCookies(response, NextResponse.redirect(loginUrl));
   }
 
-  if (
-    isAdminOnly(pathname) &&
-    // TODO(security): harden to app_metadata once API supports it
-    (user.user_metadata as Record<string, unknown>)?.['role'] !== 'ADMIN'
-  ) {
+  if (isAdminOnly(pathname) && !userHasAdminRole(user)) {
     const homeUrl = request.nextUrl.clone();
     homeUrl.pathname = '/';
     homeUrl.search = '';

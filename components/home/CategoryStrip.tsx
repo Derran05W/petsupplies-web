@@ -29,7 +29,7 @@ export function CategoryStrip() {
             <li key={cat.label} className="snap-start">
               <Link
                 href={cat.href}
-                className="inline-flex shrink-0 items-center rounded-md border border-warm-200 bg-white px-3.5 py-2 font-body text-sm text-warm-900 transition-colors hover:border-warm-300 hover:bg-warm-100"
+                className="inline-flex shrink-0 items-center rounded-md border border-warm-200 bg-surface-card px-3.5 py-2 font-body text-sm text-warm-900 transition-colors hover:border-warm-300 hover:bg-warm-100"
               >
                 {cat.label}
               </Link>

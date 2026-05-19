@@ -9,7 +9,7 @@ interface CustomerDetailHeaderProps {
 
 export function CustomerDetailHeader({ customer }: CustomerDetailHeaderProps) {
   return (
-    <header className="rounded-2xl border border-warm-200 bg-white p-5 md:p-6">
+    <header className="rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6">
       <p className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
         Customer
       </p>

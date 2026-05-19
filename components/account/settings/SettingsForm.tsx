@@ -15,7 +15,7 @@ interface SettingsFormProps {
 }
 
 const inputBase =
-  'w-full rounded-lg border border-warm-300 bg-white py-2.5 pl-9 pr-3 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
+  'w-full rounded-lg border border-warm-300 bg-surface-card py-2.5 pl-9 pr-3 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
 const inputError = 'border-red-400 focus:ring-red-400';
 const labelBase =
   'mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600';
@@ -106,7 +106,7 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
 
   if (emailChangeRequested) {
     return (
-      <section className="flex flex-col gap-4 rounded-2xl border border-warm-200 bg-white p-6 md:p-8">
+      <section className="flex flex-col gap-4 rounded-2xl border border-warm-200 bg-surface-card p-6 md:p-8">
         <div className="flex items-center gap-3">
           <span
             aria-hidden
@@ -141,7 +141,7 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
     <form
       onSubmit={onSubmit}
       noValidate
-      className="flex flex-col gap-8 rounded-2xl border border-warm-200 bg-white p-6 md:p-8"
+      className="flex flex-col gap-8 rounded-2xl border border-warm-200 bg-surface-card p-6 md:p-8"
     >
       {errors.root && (
         <div

@@ -187,7 +187,7 @@ function FulfillmentInner() {
         </p>
       )}
       {!isPending && !isError && orders.length === 0 && (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-warm-200 bg-white px-6 py-12 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-warm-200 bg-surface-card px-6 py-12 text-center">
           <Package className="text-warm-400" size={36} aria-hidden />
           <p className="font-body text-sm text-warm-600">
             No orders in this queue.
@@ -196,7 +196,7 @@ function FulfillmentInner() {
       )}
       {!isPending && !isError && orders.length > 0 && (
         <>
-          <div className="overflow-hidden rounded-2xl border border-warm-200 bg-white">
+          <div className="overflow-hidden rounded-2xl border border-warm-200 bg-surface-card">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] font-body text-sm">
                 <thead className="border-b border-warm-200 bg-warm-50">

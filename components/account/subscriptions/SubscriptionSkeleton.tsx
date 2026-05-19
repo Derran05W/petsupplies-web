@@ -7,7 +7,7 @@ export function SubscriptionSkeleton() {
       {[0, 1].map((k) => (
         <li
           key={k}
-          className="flex animate-pulse gap-4 rounded-2xl border border-warm-200 bg-white p-4"
+          className="flex animate-pulse gap-4 rounded-2xl border border-warm-200 bg-surface-card p-4"
         >
           <div className="size-24 shrink-0 rounded-lg bg-warm-100" />
           <div className="flex flex-1 flex-col gap-3">

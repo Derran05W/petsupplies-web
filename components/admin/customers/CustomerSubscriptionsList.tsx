@@ -18,7 +18,7 @@ export function CustomerSubscriptionsList({
 }: CustomerSubscriptionsListProps) {
   if (subscriptions.length === 0) {
     return (
-      <p className="rounded-2xl border border-warm-200 bg-white px-5 py-8 text-center font-body text-sm text-warm-600">
+      <p className="rounded-2xl border border-warm-200 bg-surface-card px-5 py-8 text-center font-body text-sm text-warm-600">
         No subscriptions for this customer.
       </p>
     );
@@ -29,7 +29,7 @@ export function CustomerSubscriptionsList({
       {subscriptions.map((sub) => (
         <li
           key={sub.id}
-          className="flex gap-4 rounded-2xl border border-warm-200 bg-white p-4"
+          className="flex gap-4 rounded-2xl border border-warm-200 bg-surface-card p-4"
         >
           <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-warm-100">
             <Image

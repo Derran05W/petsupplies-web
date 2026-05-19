@@ -6,6 +6,8 @@ import { OrderStatusPill } from './OrderStatusPill';
 
 interface OrderRowProps {
   order: OrderSummary;
+  /** Preserved on detail links (e.g. `returnTo` when entering account from shop). */
+  extraQuery?: Record<string, string | undefined>;
 }
 
 function shortId(id: string): string {
@@ -16,20 +18,34 @@ function pluralise(n: number, singular: string, plural: string): string {
   return `${n} ${n === 1 ? singular : plural}`;
 }
 
+function detailHref(
+  orderId: string,
+  extraQuery?: Record<string, string | undefined>,
+): string {
+  const base = `/account/orders/${orderId}`;
+  if (!extraQuery) return base;
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(extraQuery)) {
+    if (value && value.length > 0) params.set(key, value);
+  }
+  const qs = params.toString();
+  return qs.length > 0 ? `${base}?${qs}` : base;
+}
+
 /**
  * Server-rendered row in the orders list. The whole row is a link so
  * SR users get one focusable element per order; visual hierarchy puts
  * the status pill + total on the right at desktop sizes, and stacks
  * below the order id / date on mobile.
  */
-export function OrderRow({ order }: OrderRowProps) {
+export function OrderRow({ order, extraQuery }: OrderRowProps) {
   const itemCount = order.lines.reduce((sum, line) => sum + line.quantity, 0);
 
   return (
     <li>
       <Link
-        href={`/account/orders/${order.id}`}
-        className="group flex flex-col gap-3 rounded-2xl border border-warm-200 bg-white px-5 py-4 transition-colors hover:border-warm-300 hover:shadow-sm sm:flex-row sm:items-center sm:gap-6 sm:px-6 sm:py-5"
+        href={detailHref(order.id, extraQuery)}
+        className="group flex flex-col gap-3 rounded-2xl border border-warm-200 bg-surface-card px-5 py-4 transition-colors hover:border-warm-300 hover:shadow-sm sm:flex-row sm:items-center sm:gap-6 sm:px-6 sm:py-5"
       >
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex items-center gap-3">

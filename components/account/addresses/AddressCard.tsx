@@ -76,7 +76,7 @@ export function AddressCard({
   }
 
   return (
-    <article className="flex h-full flex-col gap-4 rounded-2xl border border-warm-200 bg-white p-5">
+    <article className="flex h-full flex-col gap-4 rounded-2xl border border-warm-200 bg-surface-card p-5">
       <header className="flex items-start justify-between gap-3">
         <p className="font-body text-sm font-medium text-warm-900">
           {address.fullName}

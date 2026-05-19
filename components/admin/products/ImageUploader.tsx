@@ -154,7 +154,7 @@ export function ImageUploader({
           }
         }}
         className={cn(
-          'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed bg-white px-6 py-10 text-center transition-colors',
+          'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed bg-surface-card px-6 py-10 text-center transition-colors',
           dragOver
             ? 'border-brand-400 bg-brand-50'
             : 'border-warm-300 hover:border-warm-400',
@@ -206,7 +206,7 @@ export function ImageUploader({
           {value.map((image, index) => (
             <li
               key={image.id}
-              className="flex flex-col gap-2 rounded-xl border border-warm-200 bg-white p-2"
+              className="flex flex-col gap-2 rounded-xl border border-warm-200 bg-surface-card p-2"
             >
               <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-warm-100">
                 <Image
@@ -228,7 +228,7 @@ export function ImageUploader({
                 value={image.alt}
                 onChange={(event) => handleAlt(image.id, event.target.value)}
                 placeholder="Alt text (required)"
-                className="w-full rounded-md border border-warm-300 bg-white px-2 py-1 font-body text-xs text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-md border border-warm-300 bg-surface-card px-2 py-1 font-body text-xs text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
               />
               <div className="flex items-center justify-between gap-1">
                 <div className="flex items-center gap-1">
@@ -237,7 +237,7 @@ export function ImageUploader({
                     onClick={() => handleMove(image.id, -1)}
                     disabled={index === 0 || disabled}
                     aria-label={`Move ${image.alt || 'image'} up`}
-                    className="inline-flex size-7 items-center justify-center rounded-md border border-warm-300 bg-white text-warm-600 transition-colors hover:bg-warm-100 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex size-7 items-center justify-center rounded-md border border-warm-300 bg-surface-card text-warm-600 transition-colors hover:bg-warm-100 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <ArrowUp size={12} aria-hidden />
                   </button>
@@ -246,7 +246,7 @@ export function ImageUploader({
                     onClick={() => handleMove(image.id, 1)}
                     disabled={index === value.length - 1 || disabled}
                     aria-label={`Move ${image.alt || 'image'} down`}
-                    className="inline-flex size-7 items-center justify-center rounded-md border border-warm-300 bg-white text-warm-600 transition-colors hover:bg-warm-100 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex size-7 items-center justify-center rounded-md border border-warm-300 bg-surface-card text-warm-600 transition-colors hover:bg-warm-100 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <ArrowDown size={12} aria-hidden />
                   </button>

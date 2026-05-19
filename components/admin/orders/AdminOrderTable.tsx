@@ -13,7 +13,7 @@ export function AdminOrderTable({
   buildViewHref,
 }: AdminOrderTableProps) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-warm-200 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-warm-200 bg-surface-card">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">Admin orders list</caption>

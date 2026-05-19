@@ -32,7 +32,7 @@ export function CheckoutSummary() {
       aria-label="Order summary"
       className="lg:sticky lg:top-24 lg:self-start"
     >
-      <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-white p-5">
+      <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-surface-card p-5">
         <h2 className="font-display text-xl tracking-[-0.02em] text-warm-900">
           Order summary
         </h2>

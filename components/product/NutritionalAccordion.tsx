@@ -23,7 +23,7 @@ export function NutritionalAccordion({ info }: NutritionalAccordionProps) {
         Nutritional info
       </h2>
       <div className="flex flex-col gap-3">
-        <details className="group rounded-xl border border-warm-200 bg-white">
+        <details className="group rounded-xl border border-warm-200 bg-surface-card">
           <summary className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 font-display text-lg tracking-[-0.02em] text-warm-900 [&::-webkit-details-marker]:hidden">
             Ingredients
             <ChevronDown
@@ -37,7 +37,7 @@ export function NutritionalAccordion({ info }: NutritionalAccordionProps) {
           </div>
         </details>
 
-        <details className="group rounded-xl border border-warm-200 bg-white">
+        <details className="group rounded-xl border border-warm-200 bg-surface-card">
           <summary className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 font-display text-lg tracking-[-0.02em] text-warm-900 [&::-webkit-details-marker]:hidden">
             Guaranteed analysis
             <ChevronDown
@@ -65,7 +65,7 @@ export function NutritionalAccordion({ info }: NutritionalAccordionProps) {
           </div>
         </details>
 
-        <details className="group rounded-xl border border-warm-200 bg-white">
+        <details className="group rounded-xl border border-warm-200 bg-surface-card">
           <summary className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 font-display text-lg tracking-[-0.02em] text-warm-900 [&::-webkit-details-marker]:hidden">
             Feeding guidelines
             <ChevronDown

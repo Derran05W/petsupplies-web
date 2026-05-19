@@ -33,7 +33,7 @@ const trackingFormSchema = z.object({
 type TrackingFormInput = z.infer<typeof trackingFormSchema>;
 
 const inputBase =
-  'w-full rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
+  'w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
 const inputError = 'border-red-400 focus:ring-red-400';
 
 const NETWORK_ERROR_MESSAGE =
@@ -107,7 +107,7 @@ export function OrderTrackingForm({ order }: OrderTrackingFormProps) {
     <form
       onSubmit={submit}
       noValidate
-      className="flex flex-col gap-3 rounded-xl border border-warm-200 bg-white p-4"
+      className="flex flex-col gap-3 rounded-xl border border-warm-200 bg-surface-card p-4"
     >
       <h3 className="font-body text-sm font-medium text-warm-900">Tracking</h3>
 

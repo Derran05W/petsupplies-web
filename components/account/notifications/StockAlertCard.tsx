@@ -36,7 +36,7 @@ export function StockAlertCard({ alert }: StockAlertCardProps) {
 
   return (
     <>
-      <article className="flex flex-col rounded-xl border border-warm-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+      <article className="flex flex-col rounded-xl border border-warm-200 bg-surface-card p-4 shadow-sm transition-shadow hover:shadow-md">
         <Link
           href={`/products/${product.slug}`}
           className="relative mb-3 aspect-square overflow-hidden rounded-lg bg-warm-100"
@@ -76,7 +76,7 @@ export function StockAlertCard({ alert }: StockAlertCardProps) {
           onClick={() => setConfirmOpen(true)}
           disabled={busy}
           className={cn(
-            'mt-4 inline-flex items-center justify-center rounded-lg border border-warm-300 bg-white px-4 py-2.5 font-body text-sm font-medium text-warm-900 transition-colors',
+            'mt-4 inline-flex items-center justify-center rounded-lg border border-warm-300 bg-surface-card px-4 py-2.5 font-body text-sm font-medium text-warm-900 transition-colors',
             busy
               ? 'cursor-wait opacity-70'
               : 'hover:border-red-300 hover:bg-red-50 hover:text-red-800',

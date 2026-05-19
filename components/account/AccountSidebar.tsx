@@ -1,4 +1,5 @@
 import type { User } from '@supabase/supabase-js';
+import { getAccountDisplayName } from '@/lib/account/user-display';
 import { AccountNavLinks } from './AccountNavLinks';
 import { AccountSignOutButton } from './AccountSignOutButton';
 
@@ -6,54 +7,32 @@ interface AccountSidebarProps {
   user: User;
 }
 
-function getDisplayName(user: User): string {
-  const meta = user.user_metadata as Record<string, unknown> | null;
-  const name = meta?.['name'];
-  if (typeof name === 'string' && name.trim().length > 0) return name.trim();
-  return user.email ?? 'Account';
-}
-
-function getInitial(name: string): string {
-  const trimmed = name.trim();
-  return trimmed.length > 0 ? trimmed.charAt(0).toUpperCase() : '?';
-}
-
 /**
  * Server-rendered desktop sidebar. Visible at `lg:` and up. The header
- * (avatar + name + email) renders server-side from the request-scoped
- * Supabase user — no extra round-trip on the client. Active link state
- * lives inside the `<AccountNavLinks />` client island.
+ * (name + email) renders server-side from the request-scoped Supabase
+ * user — no extra round-trip on the client. Active link state lives
+ * inside the `<AccountNavLinks />` client island.
  *
  * Sign-out is intentionally only here (not in the bottom-tab nav). Mobile
- * users can still sign out via the existing `<AuthSlot />` dropdown in
- * the global navbar.
+ * users can still sign out from the global settings drawer.
  */
 export function AccountSidebar({ user }: AccountSidebarProps) {
-  const name = getDisplayName(user);
-  const initial = getInitial(name);
+  const name = getAccountDisplayName(user);
 
   return (
     <aside
       aria-label="Account navigation"
-      className="hidden h-fit w-64 shrink-0 flex-col gap-6 rounded-2xl border border-warm-200 bg-white p-5 lg:sticky lg:top-24 lg:flex"
+      className="hidden h-fit w-64 shrink-0 flex-col gap-6 rounded-2xl border border-warm-200 bg-surface-card p-5 lg:sticky lg:top-24 lg:flex"
     >
-      <div className="flex items-center gap-3 border-b border-warm-200 pb-4">
-        <span
-          aria-hidden
-          className="inline-flex size-10 items-center justify-center rounded-full bg-brand-50 font-body text-base font-medium text-brand-700"
-        >
-          {initial}
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-body text-sm font-medium text-warm-900">
-            {name}
+      <div className="border-b border-warm-200 pb-4">
+        <p className="truncate font-body text-sm font-medium text-warm-900">
+          {name}
+        </p>
+        {user.email ? (
+          <p className="truncate font-body text-xs text-warm-600">
+            {user.email}
           </p>
-          {user.email && (
-            <p className="truncate font-body text-xs text-warm-600">
-              {user.email}
-            </p>
-          )}
-        </div>
+        ) : null}
       </div>
 
       <nav aria-label="Account">

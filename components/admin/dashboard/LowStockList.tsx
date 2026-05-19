@@ -14,7 +14,7 @@ export function LowStockList({ products }: LowStockListProps) {
     return (
       <section
         aria-label="Low stock alerts"
-        className="flex items-center gap-3 rounded-2xl border border-warm-200 bg-white px-5 py-4"
+        className="flex items-center gap-3 rounded-2xl border border-warm-200 bg-surface-card px-5 py-4"
       >
         <span
           aria-hidden
@@ -32,7 +32,7 @@ export function LowStockList({ products }: LowStockListProps) {
   return (
     <section
       aria-label="Low stock alerts"
-      className="rounded-2xl border border-warm-200 bg-white"
+      className="rounded-2xl border border-warm-200 bg-surface-card"
     >
       <header className="flex items-center justify-between border-b border-warm-200 px-5 py-3">
         <h2 className="font-body text-sm font-medium text-warm-900">

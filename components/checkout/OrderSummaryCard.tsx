@@ -17,7 +17,7 @@ export function OrderSummaryCard({ order }: OrderSummaryCardProps) {
   return (
     <article
       aria-label="Order summary"
-      className="w-full max-w-2xl rounded-2xl border border-warm-200 bg-white px-6 py-8 shadow-sm md:px-10 md:py-10"
+      className="w-full max-w-2xl rounded-2xl border border-warm-200 bg-surface-card px-6 py-8 shadow-sm md:px-10 md:py-10"
     >
       <header className="flex flex-col items-center gap-3 text-center">
         <span

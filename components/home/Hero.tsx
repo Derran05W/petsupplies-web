@@ -67,7 +67,7 @@ export function Hero() {
               sizes="(min-width: 1024px) 50vw, 100vw"
               className="object-cover"
             />
-            <div className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-lg bg-white/95 px-3 py-2 shadow-sm backdrop-blur-sm">
+            <div className="bg-surface-card/95 absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 shadow-sm backdrop-blur-sm">
               <span
                 aria-hidden
                 className="inline-flex size-7 items-center justify-center rounded-md bg-brand-50 text-brand-600"

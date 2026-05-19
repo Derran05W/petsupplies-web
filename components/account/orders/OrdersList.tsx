@@ -8,6 +8,8 @@ interface OrdersListProps {
   /** Base path used by pagination links. Defaults to `/account` so the
    * orders list at the index route paginates back to itself. */
   basePath?: string;
+  /** Extra query keys preserved on row links and pagination (e.g. `returnTo`). */
+  extraQuery?: Record<string, string | undefined>;
 }
 
 /**
@@ -16,7 +18,11 @@ interface OrdersListProps {
  * to fetch eagerly or wrap in `<Suspense>` later. Renders the empty
  * state when the list is empty, otherwise the list + pagination.
  */
-export function OrdersList({ data, basePath = '/account' }: OrdersListProps) {
+export function OrdersList({
+  data,
+  basePath = '/account',
+  extraQuery,
+}: OrdersListProps) {
   if (data.orders.length === 0) {
     return <OrdersEmpty />;
   }
@@ -25,13 +31,14 @@ export function OrdersList({ data, basePath = '/account' }: OrdersListProps) {
     <>
       <ul className="flex flex-col gap-3">
         {data.orders.map((order) => (
-          <OrderRow key={order.id} order={order} />
+          <OrderRow key={order.id} order={order} extraQuery={extraQuery} />
         ))}
       </ul>
       <OrdersPagination
         currentPage={data.page}
         totalPages={data.totalPages}
         basePath={basePath}
+        extraQuery={extraQuery}
       />
     </>
   );

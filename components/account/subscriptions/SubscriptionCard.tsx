@@ -23,7 +23,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
   const isRemote = /^https?:\/\//i.test(img);
 
   return (
-    <li className="overflow-hidden rounded-2xl border border-warm-200 bg-white shadow-sm">
+    <li className="overflow-hidden rounded-2xl border border-warm-200 bg-surface-card shadow-sm">
       <div className="flex flex-col gap-4 p-4 sm:flex-row">
         <div className="relative mx-auto aspect-square w-full shrink-0 overflow-hidden rounded-xl bg-warm-100 sm:mx-0 sm:size-28">
           <Image

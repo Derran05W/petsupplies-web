@@ -51,7 +51,7 @@ export default async function AdminCustomersPage({ searchParams }: PageProps) {
         </div>
 
         {data.customers.length === 0 ? (
-          <p className="rounded-2xl border border-warm-200 bg-white px-5 py-8 text-center font-body text-sm text-warm-600">
+          <p className="rounded-2xl border border-warm-200 bg-surface-card px-5 py-8 text-center font-body text-sm text-warm-600">
             {filtered ? 'No customers match this search.' : 'No customers yet.'}
           </p>
         ) : (

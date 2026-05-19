@@ -16,7 +16,7 @@ export function AuthCard({
   return (
     <div
       className={cn(
-        'w-full max-w-md rounded-xl border border-warm-200 bg-white px-8 py-10 shadow-sm',
+        'w-full max-w-md rounded-xl border border-warm-200 bg-surface-card px-8 py-10 shadow-sm',
         className,
       )}
     >

@@ -106,7 +106,7 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
   const busy = checkoutMutation.isPending;
 
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-white p-5 md:p-6">
+    <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6">
       <div className="flex flex-wrap items-center gap-3">
         <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-50 px-2.5 py-1 font-body text-xs font-medium text-brand-700">
           <RefreshCw size={13} aria-hidden className="text-brand-500" />
@@ -156,7 +156,7 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
                 value={petId}
                 onChange={(e) => setPetId(e.target.value)}
                 disabled={busy}
-                className="rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
               >
                 <option value="">None</option>
                 {pets.map((p) => (
@@ -182,7 +182,7 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <span className="font-body text-sm text-warm-600">Quantity</span>
-              <div className="inline-flex items-center rounded-lg border border-warm-300 bg-white">
+              <div className="inline-flex items-center rounded-lg border border-warm-300 bg-surface-card">
                 <button
                   type="button"
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
@@ -210,7 +210,7 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
                     setQty(Math.max(1, Math.min(max, next)));
                   }}
                   aria-label="Subscription quantity"
-                  className="h-10 w-12 border-x border-warm-300 bg-white text-center font-body text-sm text-warm-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-400 disabled:bg-warm-100 disabled:text-warm-400"
+                  className="h-10 w-12 border-x border-warm-300 bg-surface-card text-center font-body text-sm text-warm-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-400 disabled:bg-warm-100 disabled:text-warm-400"
                 />
                 <button
                   type="button"

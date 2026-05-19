@@ -108,7 +108,7 @@ export function AddressBook() {
 
   if (query.isLoading) {
     return (
-      <div className="flex min-h-[12rem] items-center justify-center rounded-2xl border border-dashed border-warm-300 bg-white">
+      <div className="flex min-h-[12rem] items-center justify-center rounded-2xl border border-dashed border-warm-300 bg-surface-card">
         <Loader2
           size={20}
           aria-label="Loading addresses"

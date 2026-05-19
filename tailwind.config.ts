@@ -14,32 +14,36 @@ const config: Config = {
         sans: ['var(--font-body)', 'system-ui', 'sans-serif'],
       },
       colors: {
-        // ── saharaDawn palette ───────────────────────────────────────────
-        // Source colours (lib/config/brand.ts → theme):
-        //   coral      #F16C43  →  brand-400
-        //   peach      #FFA47C  →  brand-300
-        //   terracotta #A4645A  →  brand-600
-        //   dustyRose  #A37777  →  warm-400
-        //   deepPlum   #612F3A  →  warm-900
-        // ────────────────────────────────────────────────────────────────
         brand: {
-          50: '#FEF3EF',
-          100: '#FCDDD3',
-          200: '#F9BBA8',
-          300: '#FFA47C', // peach
-          400: '#F16C43', // coral  — primary action
-          500: '#D4522A',
-          600: '#A4645A', // terracotta — links / brand text
-          700: '#7A3D35',
+          50: 'var(--color-brand-50)',
+          100: 'var(--color-brand-100)',
+          200: 'var(--color-brand-200)',
+          300: 'var(--color-brand-300)',
+          400: 'var(--color-brand-400)',
+          500: 'var(--color-brand-500)',
+          600: 'var(--color-brand-600)',
+          700: 'var(--color-brand-700)',
         },
         warm: {
-          50: '#FBF8F8',
-          100: '#F4ECED',
-          200: '#E5D5D7',
-          300: '#CABABB',
-          400: '#A37777', // dustyRose — placeholder / muted text
-          600: '#7A5458',
-          900: '#612F3A', // deepPlum  — primary text
+          50: 'var(--color-warm-50)',
+          100: 'var(--color-warm-100)',
+          200: 'var(--color-warm-200)',
+          300: 'var(--color-warm-300)',
+          400: 'var(--color-warm-400)',
+          600: 'var(--color-warm-600)',
+          900: 'var(--color-warm-900)',
+        },
+        surface: {
+          card: 'var(--color-surface-card)',
+          drawer: 'var(--color-surface-drawer)',
+        },
+        overlay: 'var(--color-surface-overlay)',
+        danger: {
+          surface: 'var(--color-danger-surface)',
+          border: 'var(--color-danger-border)',
+          solid: 'var(--color-danger-solid)',
+          'solid-hover': 'var(--color-danger-solid-hover)',
+          'on-solid': 'var(--color-danger-on-solid)',
         },
       },
       letterSpacing: {

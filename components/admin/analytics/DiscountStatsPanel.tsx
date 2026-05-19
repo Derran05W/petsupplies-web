@@ -14,7 +14,7 @@ export function DiscountStatsPanel({
     return (
       <section
         aria-label="Discount usage"
-        className="rounded-2xl border border-warm-200 bg-white p-5"
+        className="rounded-2xl border border-warm-200 bg-surface-card p-5"
       >
         <h2 className="font-display text-lg tracking-tight text-warm-900">
           Discounts
@@ -29,7 +29,7 @@ export function DiscountStatsPanel({
   return (
     <section
       aria-label="Discount usage"
-      className="overflow-hidden rounded-2xl border border-warm-200 bg-white"
+      className="overflow-hidden rounded-2xl border border-warm-200 bg-surface-card"
     >
       <header className="border-b border-warm-200 px-5 py-3">
         <h2 className="font-display text-lg tracking-tight text-warm-900">

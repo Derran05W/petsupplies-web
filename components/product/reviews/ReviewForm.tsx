@@ -94,7 +94,7 @@ export function ReviewForm({ slug }: ReviewFormProps) {
 
   if (!user) {
     return (
-      <div className="rounded-xl border border-warm-200 bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-warm-200 bg-surface-card p-6 shadow-sm">
         <h3 className="font-display text-lg tracking-[-0.02em] text-warm-900">
           Write a review
         </h3>
@@ -113,7 +113,7 @@ export function ReviewForm({ slug }: ReviewFormProps) {
   }
 
   return (
-    <div className="rounded-xl border border-warm-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-warm-200 bg-surface-card p-6 shadow-sm">
       <h3 className="font-display text-lg tracking-[-0.02em] text-warm-900">
         Write a review
       </h3>
@@ -194,7 +194,7 @@ export function ReviewForm({ slug }: ReviewFormProps) {
             type="text"
             {...register('title')}
             maxLength={80}
-            className="w-full rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
             placeholder="Summarize your experience"
           />
           {errors.title ? (
@@ -215,7 +215,7 @@ export function ReviewForm({ slug }: ReviewFormProps) {
             id="review-body"
             {...register('body')}
             rows={5}
-            className="w-full resize-y rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="w-full resize-y rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
             placeholder="What did your pet think? Packaging, ingredients, shipping…"
           />
           {errors.body ? (

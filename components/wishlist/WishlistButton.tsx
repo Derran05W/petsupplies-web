@@ -66,12 +66,12 @@ export function WishlistButton({
   const buttonClass =
     variant === 'overlay'
       ? cn(
-          'absolute right-3 top-3 z-10 inline-flex size-9 items-center justify-center rounded-full border border-warm-200 bg-white/95 shadow-sm backdrop-blur-sm transition-colors',
-          'hover:bg-white hover:border-brand-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400',
+          'absolute right-3 top-3 z-10 inline-flex size-9 items-center justify-center rounded-full border border-warm-200 bg-surface-card/95 shadow-sm backdrop-blur-sm transition-colors',
+          'hover:bg-surface-card hover:border-brand-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400',
           busy ? 'cursor-wait opacity-80' : '',
         )
       : cn(
-          'inline-flex items-center justify-center gap-2 rounded-lg border border-warm-300 bg-white px-4 py-2.5 font-body text-sm font-medium text-warm-900 transition-colors',
+          'inline-flex items-center justify-center gap-2 rounded-lg border border-warm-300 bg-surface-card px-4 py-2.5 font-body text-sm font-medium text-warm-900 transition-colors',
           'hover:border-brand-300 hover:bg-brand-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400',
           busy ? 'cursor-wait opacity-80' : '',
         );

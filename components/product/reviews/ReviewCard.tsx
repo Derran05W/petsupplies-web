@@ -13,7 +13,7 @@ export function ReviewCard({ review }: ReviewCardProps) {
   return (
     <article
       aria-labelledby={`review-${review.id}-title`}
-      className="rounded-xl border border-warm-200 bg-white p-5 shadow-sm"
+      className="rounded-xl border border-warm-200 bg-surface-card p-5 shadow-sm"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>

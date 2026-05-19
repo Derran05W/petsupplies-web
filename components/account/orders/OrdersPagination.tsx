@@ -84,7 +84,7 @@ export function OrdersPagination({
         <Link
           href={buildHref(currentPage - 1)}
           rel="prev"
-          className="inline-flex items-center gap-1 rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
+          className="inline-flex items-center gap-1 rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
         >
           <ChevronLeft size={14} aria-hidden /> Prev
         </Link>
@@ -109,7 +109,7 @@ export function OrdersPagination({
                   'inline-flex size-9 items-center justify-center rounded-lg font-body text-sm transition-colors',
                   page === currentPage
                     ? 'bg-warm-900 text-warm-50'
-                    : 'border border-warm-200 bg-white text-warm-900 hover:bg-warm-100',
+                    : 'border border-warm-200 bg-surface-card text-warm-900 hover:bg-warm-100',
                 )}
               >
                 {page}
@@ -130,7 +130,7 @@ export function OrdersPagination({
         <Link
           href={buildHref(currentPage + 1)}
           rel="next"
-          className="inline-flex items-center gap-1 rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
+          className="inline-flex items-center gap-1 rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
         >
           Next <ChevronRight size={14} aria-hidden />
         </Link>

@@ -16,7 +16,8 @@
  *   2. Storage → product-images → Policies → New policy:
  *        a. INSERT  : auth.role() = 'authenticated'
  *                     AND (storage.foldername(name))[1] = auth.uid()::text
- *                     AND (auth.jwt() -> 'user_metadata' ->> 'role') = 'ADMIN'
+ *                     AND (auth.jwt() -> 'app_metadata' ->> 'role') = 'ADMIN'
+ *                     -- Fallback until migration: user_metadata.role still honored in app code only.
  *        b. UPDATE  : same condition as INSERT
  *        c. DELETE  : same condition as INSERT
  *        d. SELECT  : true   (public images are readable by anyone)

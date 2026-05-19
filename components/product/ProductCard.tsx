@@ -30,7 +30,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group flex flex-col rounded-xl border border-warm-200 bg-white p-3 transition-all duration-200 hover:border-warm-300 hover:shadow-sm"
+      className="group flex flex-col rounded-xl border border-warm-200 bg-surface-card p-3 transition-all duration-200 hover:border-warm-300 hover:shadow-sm"
     >
       <div className="relative aspect-square overflow-hidden rounded-lg bg-warm-100">
         <WishlistButton product={product} variant="overlay" />
@@ -42,7 +42,7 @@ export function ProductCard({ product }: ProductCardProps) {
           className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
         />
         {!product.inStock ? (
-          <span className="absolute left-3 top-3 rounded-md bg-warm-900/85 px-2 py-1 font-body text-xs font-medium text-warm-50">
+          <span className="bg-warm-900/85 absolute left-3 top-3 rounded-md px-2 py-1 font-body text-xs font-medium text-warm-50">
             Out of stock
           </span>
         ) : isOnSale ? (

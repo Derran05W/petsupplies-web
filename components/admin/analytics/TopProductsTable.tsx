@@ -15,7 +15,7 @@ export function TopProductsTable({ items, currency }: TopProductsTableProps) {
     return (
       <section
         aria-label="Top products"
-        className="rounded-2xl border border-warm-200 bg-white p-5"
+        className="rounded-2xl border border-warm-200 bg-surface-card p-5"
       >
         <h2 className="font-display text-lg tracking-tight text-warm-900">
           Top products
@@ -28,7 +28,7 @@ export function TopProductsTable({ items, currency }: TopProductsTableProps) {
   return (
     <section
       aria-label="Top products"
-      className="overflow-hidden rounded-2xl border border-warm-200 bg-white"
+      className="overflow-hidden rounded-2xl border border-warm-200 bg-surface-card"
     >
       <header className="border-b border-warm-200 px-5 py-3">
         <h2 className="font-display text-lg tracking-tight text-warm-900">

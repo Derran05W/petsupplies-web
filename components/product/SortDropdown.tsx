@@ -41,7 +41,7 @@ export function SortDropdown() {
       <select
         value={current}
         onChange={(event) => handleChange(event.target.value)}
-        className="rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+        className="rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
       >
         {SORT_OPTIONS.map((option) => (
           <option key={option} value={option}>

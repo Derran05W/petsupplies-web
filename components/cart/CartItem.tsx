@@ -72,7 +72,7 @@ export function CartItem({ line, onNavigate }: CartItemProps) {
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <div className="inline-flex items-center rounded-lg border border-warm-300 bg-white">
+          <div className="inline-flex items-center rounded-lg border border-warm-300 bg-warm-100">
             <button
               type="button"
               onClick={() => decrement(line.productId)}
