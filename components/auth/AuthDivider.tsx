@@ -5,7 +5,7 @@ export function AuthDivider() {
         <div className="w-full border-t border-warm-200" />
       </div>
       <div className="relative flex justify-center">
-        <span className="bg-white px-3 font-body text-xs uppercase tracking-[0.08em] text-warm-400">
+        <span className="bg-surface-card px-3 font-body text-xs uppercase tracking-[0.08em] text-warm-400">
           or
         </span>
       </div>

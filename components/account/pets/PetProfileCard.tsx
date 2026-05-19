@@ -109,7 +109,7 @@ export function PetProfileCard({
   const weight = formatWeightKg(pet.weightGrams);
 
   return (
-    <article className="flex h-full flex-col gap-4 rounded-2xl border border-warm-200 bg-white p-5">
+    <article className="flex h-full flex-col gap-4 rounded-2xl border border-warm-200 bg-surface-card p-5">
       <header className="flex items-start gap-3">
         {pet.profilePhotoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element

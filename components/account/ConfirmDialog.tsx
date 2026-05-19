@@ -96,7 +96,7 @@ export function ConfirmDialog({
       <div
         role="presentation"
         onClick={busy ? undefined : onClose}
-        className="absolute inset-0 bg-warm-900/40"
+        className="bg-warm-900/40 absolute inset-0"
       />
       <div className="absolute inset-0 flex items-center justify-center px-4">
         <div
@@ -105,7 +105,7 @@ export function ConfirmDialog({
           aria-modal="true"
           aria-labelledby="confirm-dialog-title"
           aria-describedby="confirm-dialog-desc"
-          className="w-full max-w-md rounded-2xl border border-warm-200 bg-white p-6 shadow-xl"
+          className="w-full max-w-md rounded-2xl border border-warm-200 bg-surface-card p-6 shadow-xl"
         >
           <h2
             id="confirm-dialog-title"

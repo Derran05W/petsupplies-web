@@ -166,7 +166,7 @@ export function SubscriptionActions({
                 setConfirmCancel(true);
               }}
               className={cn(
-                'rounded-lg border border-red-200 bg-white px-3 py-2 font-body text-sm font-medium text-red-700 transition-colors hover:bg-red-50',
+                'rounded-lg border border-red-200 bg-surface-card px-3 py-2 font-body text-sm font-medium text-red-700 transition-colors hover:bg-red-50',
                 blocking && 'opacity-60',
               )}
             >
@@ -194,7 +194,7 @@ export function SubscriptionActions({
         </div>
 
         {editOpen ? (
-          <div className="flex flex-col gap-4 rounded-xl border border-warm-200 bg-warm-50/60 p-4">
+          <div className="bg-warm-50/60 flex flex-col gap-4 rounded-xl border border-warm-200 p-4">
             <div className="flex flex-wrap items-center gap-3">
               <label
                 htmlFor={`sub-qty-${sub.id}`}
@@ -213,7 +213,7 @@ export function SubscriptionActions({
                     Math.max(1, Number.parseInt(e.target.value, 10) || 1),
                   )
                 }
-                className="h-10 w-16 rounded-lg border border-warm-300 bg-white px-2 text-center font-body text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="h-10 w-16 rounded-lg border border-warm-300 bg-surface-card px-2 text-center font-body text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
               />
             </div>
 
@@ -229,7 +229,7 @@ export function SubscriptionActions({
                       'cursor-pointer rounded-lg border px-3 py-2 font-body text-xs',
                       editInterval === int
                         ? 'border-brand-400 bg-brand-50'
-                        : 'border-warm-200 bg-white',
+                        : 'border-warm-200 bg-surface-card',
                     )}
                   >
                     <input
@@ -257,7 +257,7 @@ export function SubscriptionActions({
                   id={`sub-pet-${sub.id}`}
                   value={editPetId}
                   onChange={(e) => setEditPetId(e.target.value)}
-                  className="rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+                  className="rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
                 >
                   <option value="">None</option>
                   {pets.map((p) => (
@@ -308,7 +308,7 @@ export function SubscriptionActions({
 }
 
 const actionButtonNeutral =
-  'inline-flex items-center justify-center gap-2 rounded-lg border border-warm-200 bg-white px-3 py-2 font-body text-sm font-medium text-warm-800 transition-colors hover:bg-warm-50';
+  'inline-flex items-center justify-center gap-2 rounded-lg border border-warm-200 bg-surface-card px-3 py-2 font-body text-sm font-medium text-warm-800 transition-colors hover:bg-warm-50';
 
 const primaryButtonClass =
   'inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-brand-400 px-4 py-2 font-body text-sm font-medium text-white hover:bg-brand-500';

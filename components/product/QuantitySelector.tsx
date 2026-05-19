@@ -70,7 +70,7 @@ export function QuantitySelector({ product }: QuantitySelectorProps) {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
         <span className="font-body text-sm text-warm-600">Quantity</span>
-        <div className="inline-flex items-center rounded-lg border border-warm-300 bg-white">
+        <div className="inline-flex items-center rounded-lg border border-warm-300 bg-surface-card">
           <button
             type="button"
             onClick={decrement}
@@ -94,7 +94,7 @@ export function QuantitySelector({ product }: QuantitySelectorProps) {
             disabled={!inStock}
             onChange={(event) => handleChange(event.target.value)}
             aria-label="Quantity"
-            className="h-10 w-12 border-x border-warm-300 bg-white text-center font-body text-sm text-warm-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-400 disabled:bg-warm-100 disabled:text-warm-400"
+            className="h-10 w-12 border-x border-warm-300 bg-surface-card text-center font-body text-sm text-warm-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-400 disabled:bg-warm-100 disabled:text-warm-400"
           />
           <button
             type="button"

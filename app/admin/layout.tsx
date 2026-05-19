@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { userHasAdminRole } from '@/lib/account/admin-role';
 import { createClient } from '@/lib/supabase/server';
 import { AdminShell } from '@/components/admin/AdminShell';
 
@@ -24,8 +25,7 @@ export default async function AdminLayout({
     redirect('/login?redirect=/admin');
   }
 
-  const role = (user.user_metadata as Record<string, unknown> | null)?.['role'];
-  if (role !== 'ADMIN') {
+  if (!userHasAdminRole(user)) {
     redirect('/');
   }
 

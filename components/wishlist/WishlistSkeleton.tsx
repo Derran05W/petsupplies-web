@@ -10,7 +10,7 @@ export function WishlistSkeleton() {
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={`wishlist-skel-${i}`}
-          className="flex animate-pulse flex-col gap-3 rounded-xl border border-warm-200 bg-white p-4"
+          className="flex animate-pulse flex-col gap-3 rounded-xl border border-warm-200 bg-surface-card p-4"
         >
           <div className="aspect-square rounded-lg bg-warm-200" />
           <div className="h-4 w-3/4 rounded bg-warm-200" />

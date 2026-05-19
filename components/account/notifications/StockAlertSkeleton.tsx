@@ -5,7 +5,7 @@ export function StockAlertSkeleton() {
       {Array.from({ length: 3 }).map((_, i) => (
         <div
           key={`skeleton-${String(i)}`}
-          className="flex animate-pulse flex-col rounded-xl border border-warm-200 bg-white p-4"
+          className="flex animate-pulse flex-col rounded-xl border border-warm-200 bg-surface-card p-4"
           aria-hidden
         >
           <div className="mb-3 aspect-square rounded-lg bg-warm-100" />

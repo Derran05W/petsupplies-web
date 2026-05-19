@@ -9,7 +9,7 @@ interface CustomerTableProps {
 
 export function CustomerTable({ customers }: CustomerTableProps) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-warm-200 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-warm-200 bg-surface-card">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] font-body text-sm">
           <thead>

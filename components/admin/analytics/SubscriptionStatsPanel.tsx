@@ -13,7 +13,7 @@ export function SubscriptionStatsPanel({
   return (
     <section
       aria-label="Subscription analytics"
-      className="rounded-2xl border border-warm-200 bg-white p-5"
+      className="rounded-2xl border border-warm-200 bg-surface-card p-5"
     >
       <h2 className="font-display text-lg tracking-tight text-warm-900">
         Subscriptions

@@ -61,7 +61,7 @@ export function ReviewSummary({
     );
 
   return (
-    <div className="rounded-xl border border-warm-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-warm-200 bg-surface-card p-6 shadow-sm">
       <div className="flex flex-wrap items-start gap-6">
         <div>
           <p className="text-warm-500 font-body text-xs font-medium uppercase tracking-[0.08em]">

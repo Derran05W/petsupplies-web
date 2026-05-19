@@ -10,7 +10,7 @@ export function OrdersEmpty() {
     <section
       role="status"
       aria-live="polite"
-      className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-warm-300 bg-white px-6 py-14 text-center"
+      className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-warm-300 bg-surface-card px-6 py-14 text-center"
     >
       <span
         aria-hidden

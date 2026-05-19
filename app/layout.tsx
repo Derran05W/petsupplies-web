@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { Fraunces, DM_Sans } from 'next/font/google';
 import { brand } from '@/lib/config/brand';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { ThemeScript } from '@/components/theme/ThemeScript';
 import './globals.css';
 
 const fraunces = Fraunces({
@@ -32,9 +35,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${dmSans.variable}`}>
-      <body className="bg-warm-50 font-body text-warm-900 antialiased">
-        <QueryProvider>{children}</QueryProvider>
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${dmSans.variable}`}
+      data-theme="light"
+      suppressHydrationWarning
+    >
+      <body
+        suppressHydrationWarning
+        className="min-h-svh font-body antialiased"
+      >
+        <ThemeScript />
+        <QueryProvider>
+          <AuthProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

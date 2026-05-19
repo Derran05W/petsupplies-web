@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export function StockAlertEmpty() {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-warm-200 bg-white px-6 py-14 text-center">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-warm-200 bg-surface-card px-6 py-14 text-center">
       <p className="font-body text-sm font-medium text-warm-900">
         No alerts yet
       </p>

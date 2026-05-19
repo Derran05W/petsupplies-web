@@ -11,14 +11,14 @@ interface CustomerOrdersTableProps {
 export function CustomerOrdersTable({ orders }: CustomerOrdersTableProps) {
   if (orders.length === 0) {
     return (
-      <p className="rounded-2xl border border-warm-200 bg-white px-5 py-8 text-center font-body text-sm text-warm-600">
+      <p className="rounded-2xl border border-warm-200 bg-surface-card px-5 py-8 text-center font-body text-sm text-warm-600">
         No orders for this customer yet.
       </p>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-warm-200 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-warm-200 bg-surface-card">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[520px] font-body text-sm">
           <thead>

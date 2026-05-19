@@ -190,7 +190,7 @@ export function FilterControls({
               onChange={(event) =>
                 handlePriceChange('minPrice', event.target.value)
               }
-              className="w-full rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
             />
           </label>
           <label className="flex flex-col gap-1">
@@ -205,7 +205,7 @@ export function FilterControls({
               onChange={(event) =>
                 handlePriceChange('maxPrice', event.target.value)
               }
-              className="w-full rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
             />
           </label>
         </div>

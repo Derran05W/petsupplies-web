@@ -19,7 +19,7 @@ export function AdminBottomTabs() {
   return (
     <nav
       aria-label="Admin navigation"
-      className="sticky bottom-0 z-30 border-t border-warm-200 bg-warm-50/95 backdrop-blur-sm lg:hidden"
+      className="bg-warm-50/95 sticky bottom-0 z-30 border-t border-warm-200 backdrop-blur-sm lg:hidden"
     >
       <ul className="grid grid-cols-4">
         {tabs.map((link) => {

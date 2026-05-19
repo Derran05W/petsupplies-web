@@ -19,7 +19,7 @@ export function ProductGrid({
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center gap-4 rounded-xl border border-warm-200 bg-warm-100 px-6 py-16 text-center">
-        <div className="flex size-14 items-center justify-center rounded-full bg-white text-2xl">
+        <div className="flex size-14 items-center justify-center rounded-full bg-surface-card text-2xl">
           <span aria-hidden>🐾</span>
         </div>
         <h2 className="font-display text-2xl tracking-[-0.02em] text-warm-900">

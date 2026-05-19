@@ -5,12 +5,15 @@ import { ArrowLeft } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 import { getOrderById } from '@/lib/api/orders';
 import { getServerAccessToken } from '@/lib/supabase/access-token';
+import { safeReturnPath } from '@/lib/navigation/safe-return-path';
+import { preserveReturnOnAccountHref } from '@/lib/navigation/append-return-to';
 import { PageHeader } from '@/components/account/PageHeader';
 import { OrderSummaryCard } from '@/components/checkout/OrderSummaryCard';
 import { OrderTracking } from '@/components/account/orders/OrderTracking';
 
 interface OrderDetailPageProps {
   params: { id: string };
+  searchParams: { returnTo?: string };
 }
 
 export async function generateMetadata({
@@ -35,6 +38,7 @@ export async function generateMetadata({
  */
 export default async function OrderDetailPage({
   params,
+  searchParams,
 }: OrderDetailPageProps) {
   const accessToken = await getServerAccessToken();
   const order = await getOrderById(
@@ -45,14 +49,16 @@ export default async function OrderDetailPage({
   if (!order) notFound();
 
   const shortId = `#${order.id.slice(-8)}`;
+  const safeReturn = safeReturnPath(searchParams.returnTo);
+  const accountOrdersHref = preserveReturnOnAccountHref('/account', safeReturn);
 
   return (
     <>
       <PageHeader
         heading={`Order ${shortId}`}
         breadcrumb={[
-          { label: 'Account', href: '/account' },
-          { label: 'Orders', href: '/account' },
+          { label: 'Account', href: accountOrdersHref },
+          { label: 'Orders', href: accountOrdersHref },
           { label: shortId },
         ]}
       />
@@ -63,7 +69,7 @@ export default async function OrderDetailPage({
 
         <div className="mt-8">
           <Link
-            href="/account"
+            href={accountOrdersHref}
             className="inline-flex items-center gap-2 rounded-lg border border-warm-300 bg-transparent px-4 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
           >
             <ArrowLeft size={14} aria-hidden /> Back to orders

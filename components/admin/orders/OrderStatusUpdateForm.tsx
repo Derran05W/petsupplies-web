@@ -78,7 +78,7 @@ export function OrderStatusUpdateForm({ order }: OrderStatusUpdateFormProps) {
           setError(errorMessageFor(err));
         }
       }}
-      className="flex flex-col gap-3 rounded-xl border border-warm-200 bg-white p-4"
+      className="flex flex-col gap-3 rounded-xl border border-warm-200 bg-surface-card p-4"
     >
       <h3 className="font-body text-sm font-medium text-warm-900">
         Order status
@@ -117,7 +117,7 @@ export function OrderStatusUpdateForm({ order }: OrderStatusUpdateFormProps) {
             setSuccess(null);
             setError(null);
           }}
-          className="flex-1 rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="flex-1 rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
         >
           {STATUS_OPTIONS.map((option) => (
             <option key={option} value={option}>

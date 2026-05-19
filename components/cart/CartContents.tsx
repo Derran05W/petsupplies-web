@@ -40,7 +40,7 @@ export function CartContents({ variant, onClose }: CartContentsProps) {
 
   if (variant === 'drawer') {
     return (
-      <>
+      <div className="flex min-h-0 flex-1 flex-col bg-surface-drawer">
         <ul className="flex flex-1 flex-col divide-y divide-warm-200 overflow-y-auto px-6">
           {lines.map((line) => (
             <CartItem
@@ -50,16 +50,16 @@ export function CartContents({ variant, onClose }: CartContentsProps) {
             />
           ))}
         </ul>
-        <div className="border-t border-warm-200 bg-warm-50 p-5">
+        <div className="shrink-0 border-t border-warm-200 bg-surface-drawer p-5">
           <CartSummary variant="drawer" {...(onClose ? { onClose } : {})} />
         </div>
-      </>
+      </div>
     );
   }
 
   return (
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[2fr_1fr]">
-      <div className="rounded-2xl border border-warm-200 bg-white">
+      <div className="rounded-2xl border border-warm-200 bg-surface-card">
         <ul className="flex flex-col divide-y divide-warm-200 px-5">
           {lines.map((line) => (
             <CartItem key={line.productId} line={line} />
@@ -98,7 +98,7 @@ function CartContentsSkeleton({ variant }: { variant: 'drawer' | 'page' }) {
   }
   return (
     <div aria-hidden className="grid grid-cols-1 gap-10 lg:grid-cols-[2fr_1fr]">
-      <div className="flex flex-col gap-4 rounded-2xl border border-warm-200 bg-white p-5">
+      <div className="flex flex-col gap-4 rounded-2xl border border-warm-200 bg-surface-card p-5">
         {[0, 1, 2].map((i) => (
           <div key={i} className="flex gap-4">
             <div className="size-20 shrink-0 animate-pulse rounded-lg bg-warm-100" />
@@ -109,7 +109,7 @@ function CartContentsSkeleton({ variant }: { variant: 'drawer' | 'page' }) {
           </div>
         ))}
       </div>
-      <div className="h-64 animate-pulse rounded-2xl border border-warm-200 bg-white" />
+      <div className="h-64 animate-pulse rounded-2xl border border-warm-200 bg-surface-card" />
     </div>
   );
 }

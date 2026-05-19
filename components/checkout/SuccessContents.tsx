@@ -162,7 +162,7 @@ export function SuccessContents({ sessionId }: SuccessContentsProps) {
 
 function CenteredPanel({ children }: { children: React.ReactNode }) {
   return (
-    <section className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl border border-warm-200 bg-white px-6 py-10 text-center shadow-sm md:px-10 md:py-12">
+    <section className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl border border-warm-200 bg-surface-card px-6 py-10 text-center shadow-sm md:px-10 md:py-12">
       {children}
     </section>
   );

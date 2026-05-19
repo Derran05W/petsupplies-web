@@ -33,7 +33,7 @@ export function StatCard({
   const inner = (
     <article
       className={cn(
-        'flex flex-col gap-3 rounded-2xl border border-warm-200 bg-white p-5 transition-shadow',
+        'flex flex-col gap-3 rounded-2xl border border-warm-200 bg-surface-card p-5 transition-shadow',
         href && 'hover:shadow-sm',
       )}
     >

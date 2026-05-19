@@ -55,7 +55,7 @@ export function AdminOrdersToolbar() {
               'inline-flex items-center rounded-full px-3 py-1.5 font-body text-xs font-medium transition-colors',
               active
                 ? 'bg-warm-900 text-warm-50'
-                : 'border border-warm-300 bg-white text-warm-900 hover:bg-warm-100',
+                : 'border border-warm-300 bg-surface-card text-warm-900 hover:bg-warm-100',
             )}
           >
             {pill.label}

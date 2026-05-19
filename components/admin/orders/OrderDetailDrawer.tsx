@@ -113,7 +113,7 @@ export function OrderDetailDrawer({
       <div
         role="presentation"
         onClick={close}
-        className="absolute inset-0 bg-warm-900/40"
+        className="bg-warm-900/40 absolute inset-0"
       />
       <div
         ref={drawerRef}
@@ -122,7 +122,7 @@ export function OrderDetailDrawer({
         aria-labelledby="admin-order-drawer-title"
         className="absolute inset-x-0 bottom-0 max-h-[92svh] overflow-y-auto rounded-t-2xl border border-warm-200 bg-warm-50 shadow-xl sm:inset-y-0 sm:left-auto sm:right-0 sm:max-h-none sm:w-full sm:max-w-lg sm:rounded-l-2xl sm:rounded-tr-none"
       >
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-warm-200 bg-warm-50/95 px-5 py-4 backdrop-blur-sm">
+        <header className="bg-warm-50/95 sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-warm-200 px-5 py-4 backdrop-blur-sm">
           <div>
             <p className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
               Order

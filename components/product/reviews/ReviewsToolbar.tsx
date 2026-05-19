@@ -71,7 +71,7 @@ export function ReviewsToolbar({
         <select
           value={sort}
           onChange={(e) => handleSort(e.target.value)}
-          className="rounded-lg border border-warm-300 bg-white px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
         >
           {SORT_OPTIONS.map((key) => (
             <option key={key} value={key}>
@@ -91,7 +91,7 @@ export function ReviewsToolbar({
               type="button"
               onClick={goPrev}
               disabled={page <= 1}
-              className="rounded-lg border border-warm-300 bg-white px-3 py-1.5 font-medium text-warm-900 transition-colors hover:border-warm-400 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-lg border border-warm-300 bg-surface-card px-3 py-1.5 font-medium text-warm-900 transition-colors hover:border-warm-400 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Previous
             </button>
@@ -99,7 +99,7 @@ export function ReviewsToolbar({
               type="button"
               onClick={goNext}
               disabled={page >= totalPages}
-              className="rounded-lg border border-warm-300 bg-white px-3 py-1.5 font-medium text-warm-900 transition-colors hover:border-warm-400 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-lg border border-warm-300 bg-surface-card px-3 py-1.5 font-medium text-warm-900 transition-colors hover:border-warm-400 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next
             </button>

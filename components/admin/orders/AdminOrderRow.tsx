@@ -43,7 +43,7 @@ export function AdminOrderRow({ order, viewHref }: AdminOrderRowProps) {
         <Link
           href={viewHref}
           scroll={false}
-          className="inline-flex items-center rounded-md border border-warm-300 bg-white px-2.5 py-1 font-body text-xs text-warm-900 transition-colors hover:bg-warm-100"
+          className="inline-flex items-center rounded-md border border-warm-300 bg-surface-card px-2.5 py-1 font-body text-xs text-warm-900 transition-colors hover:bg-warm-100"
         >
           View
         </Link>

@@ -75,7 +75,7 @@ export function LoginForm() {
               type="email"
               autoComplete="email"
               {...register('email')}
-              className="w-full rounded-lg border border-warm-300 bg-white py-2.5 pl-9 pr-3 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-lg border border-warm-300 bg-surface-card py-2.5 pl-9 pr-3 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
               placeholder="you@example.com"
             />
           </div>
@@ -103,7 +103,7 @@ export function LoginForm() {
               type="password"
               autoComplete="current-password"
               {...register('password')}
-              className="w-full rounded-lg border border-warm-300 bg-white py-2.5 pl-9 pr-3 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className="w-full rounded-lg border border-warm-300 bg-surface-card py-2.5 pl-9 pr-3 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
               placeholder="••••••••"
             />
           </div>

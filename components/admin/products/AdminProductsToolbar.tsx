@@ -79,7 +79,7 @@ export function AdminProductsToolbar() {
           value={value}
           onChange={(event) => setValue(event.target.value)}
           placeholder="Search products by name, tag, or description…"
-          className="h-11 w-full rounded-lg border border-warm-300 bg-white pl-10 pr-10 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="h-11 w-full rounded-lg border border-warm-300 bg-surface-card pl-10 pr-10 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
         />
         {value.length > 0 && (
           <button
@@ -110,7 +110,7 @@ export function AdminProductsToolbar() {
                 'inline-flex items-center rounded-full px-3 py-1.5 font-body text-xs font-medium transition-colors',
                 active
                   ? 'bg-warm-900 text-warm-50'
-                  : 'border border-warm-300 bg-white text-warm-900 hover:bg-warm-100',
+                  : 'border border-warm-300 bg-surface-card text-warm-900 hover:bg-warm-100',
               )}
             >
               {pill.label}

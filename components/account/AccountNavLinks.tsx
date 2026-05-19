@@ -1,27 +1,39 @@
 'use client';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { preserveReturnOnAccountHref } from '@/lib/navigation/append-return-to';
 import { ACCOUNT_NAV_LINKS, isAccountLinkActive } from './nav-links';
 
-/**
- * Active-link island for the desktop sidebar. Server-renders the chrome,
- * client-renders the active state via `usePathname()` — same pattern
- * `<NavLinks />` uses for the top-of-page nav.
- */
-export function AccountNavLinks() {
+function AccountNavLinksFallback() {
+  return (
+    <ul className="flex flex-col gap-1" aria-hidden>
+      {ACCOUNT_NAV_LINKS.map((link) => (
+        <li key={link.href}>
+          <div className="h-10 animate-pulse rounded-lg bg-warm-100" />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function AccountNavLinksInner() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo');
 
   return (
     <ul className="flex flex-col gap-1">
       {ACCOUNT_NAV_LINKS.map((link) => {
         const Icon = link.icon;
         const active = isAccountLinkActive(pathname, link);
+        const href = preserveReturnOnAccountHref(link.href, returnTo);
         return (
           <li key={link.href}>
             <Link
-              href={link.href}
+              href={href}
               aria-current={active ? 'page' : undefined}
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 font-body text-sm transition-colors',
@@ -37,5 +49,17 @@ export function AccountNavLinks() {
         );
       })}
     </ul>
+  );
+}
+
+/**
+ * Active-link island for the desktop sidebar. Preserves `?returnTo=` across
+ * account routes so the shell back control keeps pointing at the shop page.
+ */
+export function AccountNavLinks() {
+  return (
+    <Suspense fallback={<AccountNavLinksFallback />}>
+      <AccountNavLinksInner />
+    </Suspense>
   );
 }

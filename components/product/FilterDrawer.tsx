@@ -59,7 +59,7 @@ export function FilterDrawer({ activeCount }: FilterDrawerProps) {
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="inline-flex items-center gap-2 rounded-lg border border-warm-300 bg-white px-4 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
+        className="inline-flex items-center gap-2 rounded-lg border border-warm-300 bg-surface-card px-4 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
       >
         <SlidersHorizontal size={16} aria-hidden />
         Filters
@@ -81,7 +81,7 @@ export function FilterDrawer({ activeCount }: FilterDrawerProps) {
           role="presentation"
           onClick={close}
           className={cn(
-            'absolute inset-0 bg-warm-900/40 transition-opacity duration-300',
+            'absolute inset-0 bg-overlay transition-opacity duration-300',
             open ? 'opacity-100' : 'opacity-0',
           )}
         />

@@ -19,7 +19,7 @@ export function CartSummary({ variant, onClose }: CartSummaryProps) {
   const subtotalCents = useCartSubtotalCents();
 
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-white p-5">
+    <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-warm-100 p-5">
       <div className="flex items-center justify-between font-body text-sm">
         <span className="text-warm-600">Subtotal</span>
         <span className="font-medium text-warm-900">

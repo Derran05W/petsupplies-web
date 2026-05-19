@@ -6,7 +6,7 @@
 export function ProductSkeleton() {
   return (
     <div
-      className="flex flex-col rounded-xl border border-warm-200 bg-white p-3"
+      className="flex flex-col rounded-xl border border-warm-200 bg-surface-card p-3"
       aria-hidden
     >
       <div className="aspect-square animate-pulse rounded-lg bg-warm-100" />

@@ -12,7 +12,7 @@ import {
 import { cn } from '@/lib/utils';
 
 const inputBase =
-  'w-full rounded-lg border border-warm-300 bg-white px-3 py-2.5 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
+  'w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2.5 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
 const inputError = 'border-red-400 focus:ring-red-400';
 const labelBase =
   'mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600';
@@ -80,7 +80,7 @@ export function PetProfileForm({
     <form
       onSubmit={submit}
       noValidate
-      className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-white p-5 md:p-6"
+      className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6"
     >
       {submitError && (
         <div

@@ -1,74 +1,157 @@
 # petsupplies-api — route inventory (notes)
 
-Reference snapshot for aligning the storefront (`petsupplies-web`) with the backend. Update this file when the API surface changes.
+Reference snapshot for aligning the storefront (`petsupplies-web`) with the backend. Mirrors the backend's `API endpoints` doc (single inventory of HTTP routes mounted by `src/app.ts` in the API repo). Update this file when the API surface changes.
+
+**Customer storefront:** use everything except `/admin/*`, `/webhooks/*`, and `/jobs/*`.
+**Admin UI:** use `/admin/*` with an authenticated user whose JWT **`app_metadata.role`** is `ADMIN` (legacy `user_metadata.role` still honored in middleware until migration — see `docs/supabase/migrate-admin-role-to-app-metadata.sql`).
+**Frontend never calls:** Stripe webhook and cron job endpoints (server-to-server only).
 
 ---
 
-## Public (no user JWT)
+## Legend
 
-| Method | Path                      | Notes                                             |
-| ------ | ------------------------- | ------------------------------------------------- |
-| GET    | `/health`                 | Liveness                                          |
-| GET    | `/products`               | List + filters (query params per listQuerySchema) |
-| GET    | `/products/:slug`         | Product detail                                    |
-| GET    | `/products/:slug/reviews` | Paginated reviews                                 |
+| Column   | Meaning                                                                                                                                                                |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Auth** | `none` — public; `user` — `Authorization: Bearer <Supabase JWT>`; `admin` — JWT + admin role; `stripe` — Stripe signature on raw body; `cron` — `Bearer <CRON_BEARER>` |
 
 ---
 
-## Authenticated (logged-in user)
+## Health
 
-| Method | Path                                 |
-| ------ | ------------------------------------ |
-| POST   | `/products/:slug/reviews`            |
-| GET    | `/users/me`                          |
-| PATCH  | `/users/me`                          |
-| GET    | `/users/me/addresses`                |
-| POST   | `/users/me/addresses`                |
-| PATCH  | `/users/me/addresses/:id`            |
-| DELETE | `/users/me/addresses/:id`            |
-| POST   | `/users/me/addresses/:id/default`    |
-| GET    | `/cart`                              |
-| POST   | `/cart/items`                        |
-| PATCH  | `/cart/items/:id`                    |
-| DELETE | `/cart/items/:id`                    |
-| POST   | `/cart/discount`                     |
-| DELETE | `/cart/discount`                     |
-| DELETE | `/cart`                              |
-| POST   | `/checkout/session`                  |
-| POST   | `/subscriptions`                     |
-| GET    | `/orders`                            |
-| GET    | `/orders/:id`                        |
-| PATCH  | `/reviews/:id`                       |
-| DELETE | `/reviews/:id`                       |
-| GET    | `/users/me/wishlist`                 |
-| POST   | `/users/me/wishlist`                 |
-| DELETE | `/users/me/wishlist/:productId`      |
-| GET    | `/users/me/stock-alerts`             |
-| POST   | `/users/me/stock-alerts`             |
-| DELETE | `/users/me/stock-alerts/:productId`  |
-| GET    | `/users/me/pets`                     |
-| GET    | `/users/me/pets/:id`                 |
-| POST   | `/users/me/pets`                     |
-| PATCH  | `/users/me/pets/:id`                 |
-| DELETE | `/users/me/pets/:id`                 |
-| GET    | `/users/me/subscriptions`            |
-| GET    | `/users/me/subscriptions/:id`        |
-| PATCH  | `/users/me/subscriptions/:id`        |
-| POST   | `/users/me/subscriptions/:id/pause`  |
-| POST   | `/users/me/subscriptions/:id/resume` |
-| DELETE | `/users/me/subscriptions/:id`        |
+| Method | Path      | Auth |
+| ------ | --------- | ---- |
+| GET    | `/health` | none |
 
 ---
 
-## Stock alerts (back in stock)
+## Webhooks (server only)
 
-All routes require a **logged-in user JWT**.
+| Method | Path               | Auth                                 |
+| ------ | ------------------ | ------------------------------------ |
+| POST   | `/webhooks/stripe` | Stripe `stripe-signature` (raw body) |
 
-| Method | Path                                | Purpose                    |
-| ------ | ----------------------------------- | -------------------------- |
-| GET    | `/users/me/stock-alerts`            | List active alerts         |
-| POST   | `/users/me/stock-alerts`            | Create alert for a product |
-| DELETE | `/users/me/stock-alerts/:productId` | Cancel alert               |
+---
+
+## Products & catalog reviews
+
+Mounted at `/products`. Listing and detail are public; creating a review requires login.
+
+| Method | Path                      | Auth |
+| ------ | ------------------------- | ---- |
+| GET    | `/products`               | none |
+| GET    | `/products/:slug`         | none |
+| GET    | `/products/:slug/reviews` | none |
+| POST   | `/products/:slug/reviews` | user |
+
+Listing filters: query params per `listQuerySchema` on the backend.
+
+---
+
+## Cart
+
+Mounted at `/cart`. All routes require auth.
+
+| Method | Path              | Auth |
+| ------ | ----------------- | ---- |
+| GET    | `/cart`           | user |
+| POST   | `/cart/items`     | user |
+| PATCH  | `/cart/items/:id` | user |
+| DELETE | `/cart/items/:id` | user |
+| POST   | `/cart/discount`  | user |
+| DELETE | `/cart/discount`  | user |
+| DELETE | `/cart`           | user |
+
+---
+
+## Checkout & shipping
+
+| Method | Path                | Auth |
+| ------ | ------------------- | ---- |
+| POST   | `/checkout/session` | user |
+| POST   | `/shipping/quote`   | user |
+
+> **Checkout path note (one-time orders):** the canonical backend path is `POST /checkout/session`. The storefront historically called `POST /checkout` from `lib/api/checkout.ts`. Align the storefront with `/checkout/session` and remove the legacy path in a dedicated follow-up; update this doc + `checkout.ts` together.
+
+---
+
+## Subscribe & Save (checkout)
+
+Mounted at `/subscriptions` — creates a Stripe subscription checkout for the authenticated user.
+
+| Method | Path             | Auth |
+| ------ | ---------------- | ---- |
+| POST   | `/subscriptions` | user |
+
+---
+
+## Orders (customer)
+
+Mounted at `/orders`.
+
+| Method | Path          | Auth |
+| ------ | ------------- | ---- |
+| GET    | `/orders`     | user |
+| GET    | `/orders/:id` | user |
+
+---
+
+## Reviews (authenticated user's edits)
+
+Mounted at `/reviews` — update/delete **your** review by review id (not product slug).
+
+| Method | Path           | Auth |
+| ------ | -------------- | ---- |
+| PATCH  | `/reviews/:id` | user |
+| DELETE | `/reviews/:id` | user |
+
+---
+
+## Current user profile
+
+Mounted at `/users`.
+
+| Method | Path        | Auth |
+| ------ | ----------- | ---- |
+| GET    | `/users/me` | user |
+| PATCH  | `/users/me` | user |
+
+---
+
+## Saved addresses
+
+Mounted at `/users/me/addresses`.
+
+| Method | Path                              | Auth |
+| ------ | --------------------------------- | ---- |
+| GET    | `/users/me/addresses`             | user |
+| POST   | `/users/me/addresses`             | user |
+| PATCH  | `/users/me/addresses/:id`         | user |
+| DELETE | `/users/me/addresses/:id`         | user |
+| POST   | `/users/me/addresses/:id/default` | user |
+
+---
+
+## Wishlist
+
+Mounted at `/users/me/wishlist`.
+
+| Method | Path                            | Auth |
+| ------ | ------------------------------- | ---- |
+| GET    | `/users/me/wishlist`            | user |
+| POST   | `/users/me/wishlist`            | user |
+| DELETE | `/users/me/wishlist/:productId` | user |
+
+---
+
+## Back-in-stock alerts
+
+Mounted at `/users/me/stock-alerts`.
+
+| Method | Path                                | Auth |
+| ------ | ----------------------------------- | ---- |
+| GET    | `/users/me/stock-alerts`            | user |
+| POST   | `/users/me/stock-alerts`            | user |
+| DELETE | `/users/me/stock-alerts/:productId` | user |
 
 ### `POST /users/me/stock-alerts`
 
@@ -84,7 +167,7 @@ All routes require a **logged-in user JWT**.
 - `product` — embedded `Product` (same camelCase shape as catalogue)
 - `createdAt` — ISO 8601 (also accepts snake_case `created_at` until backend is locked)
 
-**Duplicates:** Frontend treats **409 Conflict** like wishlist POST — synthesises `StockAlert` from the PDP `product` snapshot when `{ productId, product }` is known.
+**Duplicates:** frontend treats **409 Conflict** like wishlist POST — synthesises `StockAlert` from the PDP `product` snapshot when `{ productId, product }` is known.
 
 **Typical errors:** `401`; `400` if product invalid or alert not allowed (e.g. already in stock) — PDP surfaces message and prompts refresh where appropriate.
 
@@ -100,17 +183,38 @@ Idempotent — **404** ignored. **204** supported via `apiFetch`.
 
 ---
 
-## Checkout path note (one-time orders)
+## Pet profiles
 
-The route inventory above lists `POST /checkout/session`. The storefront currently calls `POST /checkout` in `lib/api/checkout.ts` (legacy path). **Do not change the checkout module in Phase 16** — align the deployed API with either path and update this doc + `checkout.ts` together in a dedicated follow-up.
+Mounted at `/users/me/pets`.
+
+| Method | Path                 | Auth |
+| ------ | -------------------- | ---- |
+| GET    | `/users/me/pets`     | user |
+| GET    | `/users/me/pets/:id` | user |
+| POST   | `/users/me/pets`     | user |
+| PATCH  | `/users/me/pets/:id` | user |
+| DELETE | `/users/me/pets/:id` | user |
 
 ---
 
-## Subscriptions (Subscribe & Save) — contract
+## Subscriptions (customer lifecycle)
 
-Aligned with backend Phase 16 Stripe Checkout for subscriptions. All routes require a **logged-in user JWT** unless noted.
+Mounted at `/users/me/subscriptions`.
 
-### Product eligibility (`GET /products`, `GET /products/:slug`)
+| Method | Path                                 | Auth |
+| ------ | ------------------------------------ | ---- |
+| GET    | `/users/me/subscriptions`            | user |
+| GET    | `/users/me/subscriptions/:id`        | user |
+| PATCH  | `/users/me/subscriptions/:id`        | user |
+| POST   | `/users/me/subscriptions/:id/pause`  | user |
+| POST   | `/users/me/subscriptions/:id/resume` | user |
+| DELETE | `/users/me/subscriptions/:id`        | user |
+
+### Subscribe & Save — contract
+
+Aligned with backend Stripe Checkout for subscriptions.
+
+#### Product eligibility (`GET /products`, `GET /products/:slug`)
 
 Optional embedded object (camelCase JSON):
 
@@ -118,11 +222,9 @@ Optional embedded object (camelCase JSON):
 - `subscription.intervals` — `SubscriptionInterval[]` subset the customer may choose.
 - `subscription.discountPercent` — integer percent off the one-time `priceCents` for the subscribe price (UI preview only; backend is canonical).
 
-`SubscriptionInterval` enum (string):
+`SubscriptionInterval` enum (string): `2_weeks` | `4_weeks` | `8_weeks` | `12_weeks`.
 
-- `2_weeks` | `4_weeks` | `8_weeks` | `12_weeks`
-
-### `POST /subscriptions`
+#### `POST /subscriptions`
 
 Creates a Stripe Checkout Session for a single-product subscription.
 
@@ -151,31 +253,29 @@ Creates a Stripe Checkout Session for a single-product subscription.
 - `400` — validation / product not subscription-eligible.
 - `409` — conflict (e.g. active cart promo/discount incompatible with subscribe checkout).
 
-### `GET /users/me/subscriptions`
+#### `GET /users/me/subscriptions`
 
 **Response:** `Subscription[]` **or** `{ subscriptions: Subscription[] }` **or** `{ items: Subscription[] }` (frontend normalises).
 
-### `GET /users/me/subscriptions/:id`
+#### `GET /users/me/subscriptions/:id`
 
 **Response 200:** `Subscription`. **404** if not found / not owned.
 
-### `PATCH /users/me/subscriptions/:id`
+#### `PATCH /users/me/subscriptions/:id`
 
-Partial update. Body may include `quantity`, `interval`, `petId` (null clears).
+Partial update. Body may include `quantity`, `interval`, `petId` (null clears). **Response 200:** updated `Subscription`.
 
-**Response 200:** updated `Subscription`.
-
-### `POST /users/me/subscriptions/:id/pause` / `.../resume`
+#### `POST /users/me/subscriptions/:id/pause` / `.../resume`
 
 **Response 200:** updated `Subscription`.
 
-### `DELETE /users/me/subscriptions/:id`
+#### `DELETE /users/me/subscriptions/:id`
 
 Schedule cancel-at-period-end (not skip-next).
 
 **Response:** Prefer **200** + `Subscription` body so UI can read `cancelAtPeriodEnd`, `currentPeriodEnd`. If the API returns **204**, the client MUST refetch the row or list to refresh UI (`apiFetch` maps 204 to `undefined`).
 
-### `Subscription` resource (camelCase)
+#### `Subscription` resource (camelCase)
 
 | Field                                                        | Notes                                                            |
 | ------------------------------------------------------------ | ---------------------------------------------------------------- |
@@ -192,58 +292,117 @@ Schedule cancel-at-period-end (not skip-next).
 
 ---
 
-## Admin (JWT + admin role)
+## Scheduled jobs (cron / infra)
 
-| Method | Path                               |
-| ------ | ---------------------------------- |
-| GET    | `/admin/orders`                    |
-| GET    | `/admin/orders/:id`                |
-| PATCH  | `/admin/orders/:id/status`         |
-| POST   | `/admin/discounts`                 |
-| GET    | `/admin/discounts`                 |
-| PATCH  | `/admin/products/:id/subscription` |
+Mounted at `/jobs`. Not for browser clients.
 
----
+| Method | Path                          | Auth |
+| ------ | ----------------------------- | ---- |
+| POST   | `/jobs/run/abandoned-cart`    | cron |
+| POST   | `/jobs/run/upcoming-delivery` | cron |
+| POST   | `/jobs/run/back-in-stock`     | cron |
 
-## Admin — Phase 21 analytics, customers, fulfillment
-
-All routes require **JWT + admin role** (same as other admin routes).
-
-### Analytics
-
-| Method | Path                                  | Query                           | Response (camelCase — verify with live API)                                                          |
-| ------ | ------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| GET    | `/admin/analytics/overview`           | —                               | Overview KPIs: `revenueCents`, `ordersCount`, `customersCount`, `aovCents`, `currency`, `periodDays` |
-| GET    | `/admin/analytics/revenue-timeseries` | `range`: `7d` \| `30d` \| `90d` | `{ currency, points: [{ date, revenueCents, orderCount }] }`                                         |
-| GET    | `/admin/analytics/products/top`       | `limit` (optional)              | `{ items: [...] }`                                                                                   |
-| GET    | `/admin/analytics/products/low-stock` | `limit` (optional)              | `{ items: [...] }`                                                                                   |
-| GET    | `/admin/analytics/subscriptions`      | —                               | Subscription aggregate stats                                                                         |
-| GET    | `/admin/analytics/discounts`          | —                               | `{ items: [...] }`                                                                                   |
-
-### Customers
-
-| Method | Path                                 | Query                        | Notes                                    |
-| ------ | ------------------------------------ | ---------------------------- | ---------------------------------------- |
-| GET    | `/admin/customers`                   | `page`, `pageSize`, `search` | Paginated list                           |
-| GET    | `/admin/customers/:id`               | —                            | Customer detail                          |
-| GET    | `/admin/customers/:id/orders`        | `page`, `pageSize`           | Customer order history                   |
-| GET    | `/admin/customers/:id/subscriptions` | —                            | Array or `{ items }` (client normalises) |
-
-### Fulfillment
-
-| Method | Path                           | Body / query                                            | Notes                                                                                                       |
-| ------ | ------------------------------ | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| GET    | `/admin/fulfillment/queue`     | `page`, `pageSize`, `status` (optional)                 | Orders awaiting fulfillment                                                                                 |
-| POST   | `/admin/fulfillment/bulk-ship` | `{ orderIds, trackingNumber?, trackingUrl?, carrier? }` | Bulk mark shipped; may return partial failures                                                              |
-| PATCH  | `/admin/orders/:id/tracking`   | `{ trackingNumber?, trackingUrl?, carrier? }`           | Tracking updates (Phase 21); status changes remain on `PATCH /admin/orders/:id` or `/status` per deployment |
-
-**Note:** The storefront `petsupplies-web` uses `PATCH /admin/orders/:id` for combined updates in Phase 8; tracking-only edits should use `PATCH /admin/orders/:id/tracking` to match Phase 21.
+Unknown `:name` returns `404`.
 
 ---
 
-## Not for the browser app (still exposed)
+## Admin
 
-| Method | Path               | Purpose                                                                                   |
-| ------ | ------------------ | ----------------------------------------------------------------------------------------- |
-| POST   | `/webhooks/stripe` | Stripe → API (raw body + signature)                                                       |
-| POST   | `/jobs/run/:name`  | Cron / jobs (abandoned-cart, upcoming-delivery, back-in-stock; CRON bearer, not user JWT) |
+All routes under `/admin` require **admin** auth (`auth` + `adminOnly`).
+
+### Analytics (`/admin/analytics`)
+
+| Method | Path                                  | Auth  |
+| ------ | ------------------------------------- | ----- |
+| GET    | `/admin/analytics/overview`           | admin |
+| GET    | `/admin/analytics/revenue-timeseries` | admin |
+| GET    | `/admin/analytics/products/top`       | admin |
+| GET    | `/admin/analytics/products/low-stock` | admin |
+| GET    | `/admin/analytics/subscriptions`      | admin |
+| GET    | `/admin/analytics/discounts`          | admin |
+
+Storefront response shapes (camelCase — verify with live API):
+
+| Path                                  | Query                           | Response                                                                                             |
+| ------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `/admin/analytics/overview`           | —                               | Overview KPIs: `revenueCents`, `ordersCount`, `customersCount`, `aovCents`, `currency`, `periodDays` |
+| `/admin/analytics/revenue-timeseries` | `range`: `7d` \| `30d` \| `90d` | `{ currency, points: [{ date, revenueCents, orderCount }] }`                                         |
+| `/admin/analytics/products/top`       | `limit` (optional)              | `{ items: [...] }`                                                                                   |
+| `/admin/analytics/products/low-stock` | `limit` (optional)              | `{ items: [...] }`                                                                                   |
+| `/admin/analytics/subscriptions`      | —                               | Subscription aggregate stats                                                                         |
+| `/admin/analytics/discounts`          | —                               | `{ items: [...] }`                                                                                   |
+
+### Customers (`/admin/customers`)
+
+| Method | Path                                 | Auth  |
+| ------ | ------------------------------------ | ----- |
+| GET    | `/admin/customers`                   | admin |
+| GET    | `/admin/customers/:id`               | admin |
+| GET    | `/admin/customers/:id/orders`        | admin |
+| GET    | `/admin/customers/:id/subscriptions` | admin |
+
+Storefront query/notes:
+
+| Path                                 | Query                        | Notes                                    |
+| ------------------------------------ | ---------------------------- | ---------------------------------------- |
+| `/admin/customers`                   | `page`, `pageSize`, `search` | Paginated list                           |
+| `/admin/customers/:id`               | —                            | Customer detail                          |
+| `/admin/customers/:id/orders`        | `page`, `pageSize`           | Customer order history                   |
+| `/admin/customers/:id/subscriptions` | —                            | Array or `{ items }` (client normalises) |
+
+### Fulfillment (`/admin/fulfillment`)
+
+| Method | Path                           | Auth  |
+| ------ | ------------------------------ | ----- |
+| GET    | `/admin/fulfillment/queue`     | admin |
+| POST   | `/admin/fulfillment/bulk-ship` | admin |
+
+Storefront body/query:
+
+| Path                           | Body / query                                            | Notes                                          |
+| ------------------------------ | ------------------------------------------------------- | ---------------------------------------------- |
+| `/admin/fulfillment/queue`     | `page`, `pageSize`, `status` (optional)                 | Orders awaiting fulfillment                    |
+| `/admin/fulfillment/bulk-ship` | `{ orderIds, trackingNumber?, trackingUrl?, carrier? }` | Bulk mark shipped; may return partial failures |
+
+### Products — CRUD & images (`/admin/products`)
+
+| Method | Path                                  | Auth  |
+| ------ | ------------------------------------- | ----- |
+| POST   | `/admin/products/images/upload-url`   | admin |
+| GET    | `/admin/products`                     | admin |
+| POST   | `/admin/products`                     | admin |
+| GET    | `/admin/products/:id`                 | admin |
+| PATCH  | `/admin/products/:id`                 | admin |
+| DELETE | `/admin/products/:id`                 | admin |
+| POST   | `/admin/products/:id/images`          | admin |
+| PATCH  | `/admin/products/:id/images/reorder`  | admin |
+| PATCH  | `/admin/products/:id/images/:imageId` | admin |
+| DELETE | `/admin/products/:id/images/:imageId` | admin |
+
+### Product shipping package & Subscribe & Save setup
+
+Same `/admin/products` prefix; implemented on the top-level `adminRouter` (not the nested products router).
+
+| Method | Path                               | Auth  |
+| ------ | ---------------------------------- | ----- |
+| PATCH  | `/admin/products/:id/package`      | admin |
+| PATCH  | `/admin/products/:id/subscription` | admin |
+
+### Orders & discounts (`/admin`)
+
+| Method | Path                         | Auth  |
+| ------ | ---------------------------- | ----- |
+| GET    | `/admin/orders`              | admin |
+| GET    | `/admin/orders/:id`          | admin |
+| PATCH  | `/admin/orders/:id/status`   | admin |
+| PATCH  | `/admin/orders/:id/tracking` | admin |
+| POST   | `/admin/discounts`           | admin |
+| GET    | `/admin/discounts`           | admin |
+
+**Note:** the storefront historically used `PATCH /admin/orders/:id` for combined updates; tracking-only edits should use `PATCH /admin/orders/:id/tracking` and status-only edits `PATCH /admin/orders/:id/status` to match the current backend.
+
+---
+
+## Maintaining this file
+
+When the backend adds or removes routes under `src/routes/` or changes mounts in `src/app.ts`, update this document in the same storefront PR that consumes the change.

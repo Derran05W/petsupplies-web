@@ -8,7 +8,7 @@
 export function CheckoutSkeleton() {
   return (
     <div aria-hidden className="grid grid-cols-1 gap-10 lg:grid-cols-[3fr_2fr]">
-      <div className="flex flex-col gap-6 rounded-2xl border border-warm-200 bg-white p-6">
+      <div className="flex flex-col gap-6 rounded-2xl border border-warm-200 bg-surface-card p-6">
         <div className="flex flex-col gap-3">
           <div className="h-3 w-20 animate-pulse rounded bg-warm-100" />
           <div className="h-11 w-full animate-pulse rounded-lg bg-warm-100" />
@@ -28,7 +28,7 @@ export function CheckoutSkeleton() {
         </div>
         <div className="h-12 w-full animate-pulse rounded-lg bg-warm-100" />
       </div>
-      <div className="h-72 animate-pulse rounded-2xl border border-warm-200 bg-white" />
+      <div className="h-72 animate-pulse rounded-2xl border border-warm-200 bg-surface-card" />
     </div>
   );
 }
