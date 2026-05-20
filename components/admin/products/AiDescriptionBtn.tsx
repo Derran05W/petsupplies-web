@@ -3,16 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, Sparkles, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { generateDescriptionStream } from '@/lib/api/admin/ai';
-import type { Category, PetType } from '@/types/product';
+import { generateDescriptionStreamForAdminCategory } from '@/lib/api/admin/ai';
+import type { AdminProductCategory } from '@/types/admin-product-api';
 
 interface AiDescriptionBtnProps {
   /** Current product name + classification — required for the prompt. */
   name: string;
-  category: Category | undefined;
-  petType: PetType | undefined;
-  /** Optional: prefilled ingredients (food category only). */
-  ingredients?: string;
+  category: AdminProductCategory | undefined;
   /** Receives streamed chunks; the parent appends them to the textarea. */
   onChunk: (chunk: string) => void;
   /** Called once before the first chunk so the parent can clear the textarea. */
@@ -32,8 +29,6 @@ async function getBrowserAccessToken(): Promise<string | undefined> {
 export function AiDescriptionBtn({
   name,
   category,
-  petType,
-  ingredients,
   onChunk,
   onStart,
   onComplete,
@@ -59,8 +54,8 @@ export function AiDescriptionBtn({
       setValidationMessage('Add a product name first.');
       return;
     }
-    if (!category || !petType) {
-      setValidationMessage('Pick a category and pet type first.');
+    if (!category) {
+      setValidationMessage('Pick a category first.');
       return;
     }
 
@@ -72,13 +67,9 @@ export function AiDescriptionBtn({
 
     try {
       const accessToken = await getBrowserAccessToken();
-      await generateDescriptionStream(
-        {
-          name: name.trim(),
-          category,
-          petType,
-          ...(ingredients && ingredients.length > 0 ? { ingredients } : {}),
-        },
+      await generateDescriptionStreamForAdminCategory(
+        name.trim(),
+        category,
         accessToken,
         {
           signal: controller.signal,

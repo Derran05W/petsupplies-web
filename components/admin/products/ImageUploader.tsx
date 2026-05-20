@@ -3,56 +3,44 @@
 import { useId, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ArrowDown, ArrowUp, Loader2, Trash2, UploadCloud } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 import type { ProductImage } from '@/types/product';
+import { imageUploadErrorMessage } from '@/lib/api/admin/error-messages';
 import {
-  deleteProductImage,
-  ImageUploadError,
-  uploadProductImage,
-} from '@/lib/supabase/storage';
+  adminDeleteProductImage,
+  uploadAdminProductImageFile,
+} from '@/lib/api/admin/product-images';
+import { isPersistedImageId } from '@/lib/api/admin/product-mapper';
 import { cn } from '@/lib/utils';
 
 interface ImageUploaderProps {
   value: ProductImage[];
   onChange: (images: ProductImage[]) => void;
-  /** True when the parent form is submitting — uploader disables. */
   disabled?: boolean;
+  /** When editing, uploads attach via POST /admin/products/:id/images. */
+  productId?: string | null;
 }
 
-interface InternalImage extends ProductImage {
-  /** Set when this image was uploaded but the parent hasn't yet emitted
-   * it back through `value` — used internally for upload-progress UI. */
-  storagePath?: string;
-}
-
-function newId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID();
-  }
-  return `img_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
-}
-
-function reorderPrimary(images: InternalImage[]): ProductImage[] {
+function reorderPrimary(images: ProductImage[]): ProductImage[] {
   return images.map((image, index) => ({
-    id: image.id,
-    url: image.url,
-    alt: image.alt,
+    ...image,
     isPrimary: index === 0,
   }));
 }
 
-/**
- * Multi-image uploader. Owns no long-lived state besides per-file
- * upload progress; everything else lives in the parent form's
- * `value` / `onChange` props so the form schema can validate.
- *
- * Reorder via up/down arrow buttons (no drag-sort dep). The first
- * image is implicitly primary on emit. Alt text is editable inline
- * under each thumbnail and required for save.
- */
+async function getBrowserAccessToken(): Promise<string | undefined> {
+  const supabase = createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return session?.access_token;
+}
+
 export function ImageUploader({
   value,
   onChange,
   disabled = false,
+  productId = null,
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [busyCount, setBusyCount] = useState(0);
@@ -66,39 +54,39 @@ export function ImageUploader({
     setError(null);
     setBusyCount((n) => n + list.length);
 
-    const results: InternalImage[] = [];
+    const results: ProductImage[] = [];
+    const accessToken = await getBrowserAccessToken();
+
     for (const file of list) {
       try {
-        const { url, path } = await uploadProductImage(file);
-        results.push({
-          id: newId(),
-          url,
-          alt: file.name.replace(/\.[^/.]+$/, ''),
-          isPrimary: false,
-          storagePath: path,
+        const image = await uploadAdminProductImageFile(file, {
+          ...(accessToken ? { accessToken } : {}),
+          ...(productId ? { productId } : {}),
         });
+        results.push(image);
       } catch (err) {
-        if (err instanceof ImageUploadError) setError(err.message);
-        else setError('Could not upload that image. Try a different file.');
+        setError(imageUploadErrorMessage(err));
       } finally {
         setBusyCount((n) => Math.max(0, n - 1));
       }
     }
 
     if (results.length > 0) {
-      const next = reorderPrimary([...value, ...results]);
-      onChange(next);
+      onChange(reorderPrimary([...value, ...results]));
     }
   };
 
   const handleRemove = (id: string) => {
-    const target = value.find((image) => image.id === id) as
-      | InternalImage
-      | undefined;
+    const target = value.find((image) => image.id === id);
     const next = reorderPrimary(value.filter((image) => image.id !== id));
     onChange(next);
-    if (target?.storagePath) {
-      void deleteProductImage(target.storagePath);
+
+    if (productId && target && isPersistedImageId(target.id)) {
+      void getBrowserAccessToken().then((accessToken) =>
+        adminDeleteProductImage(productId, target.id, {
+          ...(accessToken ? { accessToken } : {}),
+        }),
+      );
     }
   };
 

@@ -7,7 +7,7 @@ interface AdminProductTableProps {
 
 export function AdminProductTable({ products }: AdminProductTableProps) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-warm-200 bg-surface-card">
+    <div className="max-w-full overflow-hidden rounded-2xl border border-warm-200 bg-surface-card">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">Admin products list</caption>
@@ -16,11 +16,8 @@ export function AdminProductTable({ products }: AdminProductTableProps) {
               <th scope="col" className="px-4 py-3">
                 Product
               </th>
-              <th scope="col" className="hidden px-4 py-3 md:table-cell">
+              <th scope="col" className="px-4 py-3">
                 Category
-              </th>
-              <th scope="col" className="hidden px-4 py-3 md:table-cell">
-                Pet type
               </th>
               <th scope="col" className="px-4 py-3">
                 Price

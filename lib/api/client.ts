@@ -12,8 +12,11 @@
  *     back to placeholder data.
  */
 
+import { parseApiErrorMessage } from './errors';
+
 interface ApiErrorBody {
   message?: string;
+  error?: string | { message?: string };
   errors?: Record<string, string[]>;
 }
 
@@ -25,8 +28,9 @@ export class ApiError extends Error {
     message: string,
     status: number,
     validationErrors?: Record<string, string[]>,
+    options?: { cause?: unknown },
   ) {
-    super(message);
+    super(message, options);
     this.name = 'ApiError';
     this.status = status;
     if (validationErrors) {
@@ -40,12 +44,20 @@ export class ApiError extends Error {
   }
 }
 
-function getBaseUrl(): string {
+/** Base URL for petsupplies-api (exported for tests and dev diagnostics). */
+export function getApiBaseUrl(): string {
   const url = process.env.NEXT_PUBLIC_API_URL;
   if (!url || url.length === 0) {
     return 'http://localhost:3001';
   }
   return url.replace(/\/$/, '');
+}
+
+function formatUrlForError(url: string): string {
+  if (process.env.NODE_ENV === 'production') {
+    return 'the API';
+  }
+  return url;
 }
 
 export interface ApiFetchInit extends RequestInit {
@@ -64,7 +76,7 @@ export async function apiFetch<T>(
   path: string,
   init?: ApiFetchInit,
 ): Promise<T> {
-  const url = `${getBaseUrl()}${path.startsWith('/') ? path : `/${path}`}`;
+  const url = `${getApiBaseUrl()}${path.startsWith('/') ? path : `/${path}`}`;
   const { accessToken, headers: initHeaders, ...restInit } = init ?? {};
 
   const headers: Record<string, string> = {
@@ -82,8 +94,13 @@ export async function apiFetch<T>(
       ...restInit,
       headers,
     });
-  } catch (_err) {
-    throw new ApiError('Network error: backend unreachable', 0);
+  } catch (err) {
+    throw new ApiError(
+      `Could not reach API at ${formatUrlForError(url)}`,
+      0,
+      undefined,
+      { cause: err },
+    );
   }
 
   if (!response.ok) {
@@ -94,7 +111,7 @@ export async function apiFetch<T>(
       // response had no JSON body — fall through with empty body
     }
     throw new ApiError(
-      body.message ?? response.statusText ?? 'Request failed',
+      parseApiErrorMessage(body, response.statusText ?? 'Request failed'),
       response.status,
       body.errors,
     );
@@ -113,12 +130,20 @@ export async function apiFetch<T>(
   // fire and the error propagates uncaught.
   const contentType = response.headers.get('content-type') ?? '';
   if (!contentType.includes('application/json')) {
-    throw new ApiError('Backend returned a non-JSON response', 0);
+    throw new ApiError(
+      `API returned non-JSON (${contentType || 'unknown type'}) from ${formatUrlForError(url)}`,
+      0,
+    );
   }
 
   try {
     return (await response.json()) as T;
-  } catch {
-    throw new ApiError('Failed to parse backend response as JSON', 0);
+  } catch (err) {
+    throw new ApiError(
+      `Failed to parse JSON from ${formatUrlForError(url)}`,
+      0,
+      undefined,
+      { cause: err },
+    );
   }
 }

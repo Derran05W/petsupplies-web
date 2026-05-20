@@ -10,15 +10,14 @@ import {
 } from 'react-hook-form';
 import { Loader2, Trash2 } from 'lucide-react';
 import { productSchema, slugify, type ProductInput } from '@/lib/admin/schemas';
+import type { ProductImage } from '@/types/product';
 import {
-  CATEGORY_LABEL,
-  PET_TYPE_LABEL,
-  type Category,
-  type PetType,
-  type ProductImage,
-} from '@/types/product';
+  ADMIN_PRODUCT_CATEGORIES,
+  ADMIN_PRODUCT_CATEGORY_LABEL,
+  type AdminProductCategory,
+} from '@/types/admin-product-api';
 import type { AdminProduct } from '@/types/admin';
-import { ApiError } from '@/lib/api/client';
+import { productFormErrorMessage } from '@/lib/api/admin/error-messages';
 import {
   useCreateAdminProductMutation,
   useDeleteAdminProductMutation,
@@ -35,20 +34,6 @@ const inputError = 'border-red-400 focus:ring-red-400';
 const labelBase =
   'mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600';
 
-const NETWORK_ERROR_MESSAGE =
-  "Couldn't reach the server. Try again or check back shortly.";
-const SESSION_ERROR_MESSAGE = 'Your session has expired. Please sign in again.';
-const GENERIC_ERROR_MESSAGE =
-  'Something went wrong saving that product. Please try again.';
-
-const CATEGORY_VALUES: Category[] = [
-  'food',
-  'treats',
-  'accessories',
-  'healthcare',
-];
-const PET_TYPE_VALUES: PetType[] = ['dog', 'cat', 'bird', 'small-animal'];
-
 interface ProductFormProps {
   initialProduct: AdminProduct | null;
 }
@@ -58,15 +43,11 @@ interface FormShape {
   slug: string;
   description: string;
   priceDollars: string;
-  compareAtPriceDollars: string;
-  category: Category | '';
-  petType: PetType | '';
+  category: AdminProductCategory | '';
   stockCount: string;
   tagsRaw: string;
   images: ProductImage[];
   isPublished: boolean;
-  ingredients: string;
-  feedingGuidelines: string;
 }
 
 function fromAdminProduct(product: AdminProduct | null): FormShape {
@@ -78,56 +59,32 @@ function fromAdminProduct(product: AdminProduct | null): FormShape {
       product && product.priceCents > 0
         ? (product.priceCents / 100).toFixed(2)
         : '',
-    compareAtPriceDollars:
-      product && product.compareAtPriceCents
-        ? (product.compareAtPriceCents / 100).toFixed(2)
-        : '',
     category: product?.category ?? '',
-    petType: product?.petType ?? '',
     stockCount: product ? String(product.stockCount) : '0',
     tagsRaw: product?.tags.join(', ') ?? '',
     images: product?.images ?? [],
     isPublished: product?.isPublished ?? true,
-    ingredients: product?.nutritionalInfo?.ingredients ?? '',
-    feedingGuidelines: product?.nutritionalInfo?.feedingGuidelines ?? '',
   };
 }
 
 function toApiInput(values: FormShape): ProductInput {
-  const priceCents = Math.round(Number(values.priceDollars) * 100);
-  const compareDollars = values.compareAtPriceDollars.trim();
-  const compareAtPriceCents =
-    compareDollars.length > 0
-      ? Math.round(Number(compareDollars) * 100)
-      : undefined;
+  const priceRaw = Math.round(Number(values.priceDollars) * 100);
+  const priceCents = Number.isFinite(priceRaw) ? priceRaw : 0;
+  const stockRaw = Number(values.stockCount);
+  const stockCount = Number.isFinite(stockRaw) ? Math.trunc(stockRaw) : 0;
   const tags = values.tagsRaw
     .split(',')
     .map((tag) => tag.trim())
     .filter((tag) => tag.length > 0);
-
-  const isFood = values.category === 'food';
-  const ingredients = values.ingredients.trim();
-  const feedingGuidelines = values.feedingGuidelines.trim();
-  const nutritionalInfo =
-    isFood && (ingredients.length > 0 || feedingGuidelines.length > 0)
-      ? {
-          ingredients,
-          guaranteedAnalysis: [],
-          feedingGuidelines,
-        }
-      : undefined;
 
   return {
     name: values.name.trim(),
     slug: values.slug.trim(),
     description: values.description.trim(),
     priceCents,
-    ...(compareAtPriceCents !== undefined ? { compareAtPriceCents } : {}),
-    category: values.category as Category,
-    petType: values.petType as PetType,
+    category: values.category as AdminProductCategory,
     images: values.images,
-    ...(nutritionalInfo ? { nutritionalInfo } : {}),
-    stockCount: Number(values.stockCount),
+    stockCount,
     tags,
     isPublished: values.isPublished,
   };
@@ -139,15 +96,6 @@ function fieldErrorProps(name: string, error: FieldError | undefined) {
     'aria-invalid': true as const,
     'aria-describedby': `${name}-error`,
   };
-}
-
-function errorMessageFor(err: unknown): string {
-  if (err instanceof ApiError) {
-    if (err.isNetworkError) return NETWORK_ERROR_MESSAGE;
-    if (err.status === 401) return SESSION_ERROR_MESSAGE;
-    return err.message || GENERIC_ERROR_MESSAGE;
-  }
-  return GENERIC_ERROR_MESSAGE;
 }
 
 export function ProductForm({ initialProduct }: ProductFormProps) {
@@ -174,7 +122,6 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
   const { errors } = useFormState({ control });
 
   const watchedCategory = watch('category');
-  const watchedPetType = watch('petType');
   const watchedName = watch('name');
 
   // Auto-focus the description textarea when the AI shortcut links here
@@ -212,6 +159,7 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
         await updateMutation.mutateAsync({
           id: initialProduct.id,
           input: parsed.data,
+          existingImages: initialProduct.images,
         });
       } else {
         await createMutation.mutateAsync(parsed.data);
@@ -219,7 +167,7 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
       router.push('/admin/products');
       router.refresh();
     } catch (err) {
-      setSubmitError(errorMessageFor(err));
+      setSubmitError(productFormErrorMessage(err));
     }
   });
 
@@ -232,7 +180,7 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
       router.push('/admin/products');
       router.refresh();
     } catch (err) {
-      setSubmitError(errorMessageFor(err));
+      setSubmitError(productFormErrorMessage(err));
       setPendingDelete(false);
     }
   };
@@ -294,41 +242,22 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor={fieldId('category')} className={labelBase}>
-                Category
-              </label>
-              <select
-                id={fieldId('category')}
-                {...register('category')}
-                className={cn(inputBase, errors.category && inputError)}
-              >
-                <option value="">Select category</option>
-                {CATEGORY_VALUES.map((value) => (
-                  <option key={value} value={value}>
-                    {CATEGORY_LABEL[value]}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor={fieldId('petType')} className={labelBase}>
-                Pet type
-              </label>
-              <select
-                id={fieldId('petType')}
-                {...register('petType')}
-                className={cn(inputBase, errors.petType && inputError)}
-              >
-                <option value="">Select pet type</option>
-                {PET_TYPE_VALUES.map((value) => (
-                  <option key={value} value={value}>
-                    {PET_TYPE_LABEL[value]}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div>
+            <label htmlFor={fieldId('category')} className={labelBase}>
+              Category
+            </label>
+            <select
+              id={fieldId('category')}
+              {...register('category')}
+              className={cn(inputBase, errors.category && inputError)}
+            >
+              <option value="">Select category</option>
+              {ADMIN_PRODUCT_CATEGORIES.map((value) => (
+                <option key={value} value={value}>
+                  {ADMIN_PRODUCT_CATEGORY_LABEL[value]}
+                </option>
+              ))}
+            </select>
           </div>
 
           <label className="flex items-center gap-2 font-body text-sm text-warm-900">
@@ -347,7 +276,7 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
             Pricing & stock
           </legend>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor={fieldId('price')} className={labelBase}>
                 Price (USD)
@@ -359,23 +288,6 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
                 step="0.01"
                 min="0"
                 {...register('priceDollars')}
-                className={inputBase}
-              />
-            </div>
-            <div>
-              <label htmlFor={fieldId('compareAt')} className={labelBase}>
-                Compare-at price{' '}
-                <span className="font-normal normal-case tracking-normal text-warm-400">
-                  (optional)
-                </span>
-              </label>
-              <input
-                id={fieldId('compareAt')}
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min="0"
-                {...register('compareAtPriceDollars')}
                 className={inputBase}
               />
             </div>
@@ -409,6 +321,7 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
                 value={field.value}
                 onChange={field.onChange}
                 disabled={busy}
+                productId={initialProduct?.id ?? null}
               />
             )}
           />
@@ -438,12 +351,10 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
           <AiDescriptionBtn
             name={watchedName}
             category={
-              watchedCategory === '' ? undefined : (watchedCategory as Category)
+              watchedCategory === ''
+                ? undefined
+                : (watchedCategory as AdminProductCategory)
             }
-            petType={
-              watchedPetType === '' ? undefined : (watchedPetType as PetType)
-            }
-            ingredients={getValues('ingredients')}
             onStart={() => {
               aiAccumulator.current = '';
               setValue('description', '', { shouldDirty: true });
@@ -475,40 +386,6 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
             Comma-separated. Used for search and related-product suggestions.
           </p>
         </fieldset>
-
-        {/* Nutritional info — only when category === 'food' */}
-        {watchedCategory === 'food' && (
-          <fieldset className="flex flex-col gap-4 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6">
-            <legend className="px-2 font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
-              Nutritional information
-            </legend>
-            <div>
-              <label htmlFor={fieldId('ingredients')} className={labelBase}>
-                Ingredients
-              </label>
-              <textarea
-                id={fieldId('ingredients')}
-                rows={3}
-                {...register('ingredients')}
-                className={cn(inputBase, 'resize-y')}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor={fieldId('feedingGuidelines')}
-                className={labelBase}
-              >
-                Feeding guidelines
-              </label>
-              <textarea
-                id={fieldId('feedingGuidelines')}
-                rows={3}
-                {...register('feedingGuidelines')}
-                className={cn(inputBase, 'resize-y')}
-              />
-            </div>
-          </fieldset>
-        )}
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
           <button

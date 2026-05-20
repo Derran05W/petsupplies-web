@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createClient } from './server';
 
 /**
@@ -9,11 +10,16 @@ import { createClient } from './server';
  * into any client-visible store. This helper is the canonical
  * server-side read for `lib/api/*` callers that need to attach
  * `Authorization: Bearer <token>` on backend requests.
+ *
+ * Wrapped in `cache()` so parallel Suspense boundaries on one request
+ * share a single session read.
  */
-export async function getServerAccessToken(): Promise<string | undefined> {
-  const supabase = await createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  return session?.access_token;
-}
+export const getServerAccessToken = cache(
+  async (): Promise<string | undefined> => {
+    const supabase = await createClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return session?.access_token;
+  },
+);

@@ -108,13 +108,20 @@ export function useCreateAdminProductMutation(): UseMutationResult<
 export function useUpdateAdminProductMutation(): UseMutationResult<
   AdminProduct,
   Error,
-  { id: string; input: AdminProductInput }
+  {
+    id: string;
+    input: AdminProductInput;
+    existingImages?: AdminProduct['images'];
+  }
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, input }) => {
+    mutationFn: async ({ id, input, existingImages }) => {
       const accessToken = await getBrowserAccessToken();
-      return adminUpdateProduct(id, input, accessToken ? { accessToken } : {});
+      return adminUpdateProduct(id, input, {
+        ...(accessToken ? { accessToken } : {}),
+        ...(existingImages ? { existingImages } : {}),
+      });
     },
     onSuccess: (updated) => {
       queryClient.setQueryData(detailQueryKey(updated.id), updated);

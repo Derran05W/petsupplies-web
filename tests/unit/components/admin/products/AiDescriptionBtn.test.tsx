@@ -4,8 +4,7 @@
  *
  * What's covered:
  *   - validation guards: missing name → "Add a product name first." alert
- *     (no stream call). Missing category / petType → "Pick a category and
- *     pet type first." alert.
+ *     (no stream call). Missing category → "Pick a category first." alert.
  *   - happy path: click "Generate with AI" → onStart → mocked stream
  *     emits three chunks → onChunk receives each in order → onComplete
  *     fires → status text reads "Description generated."
@@ -14,7 +13,7 @@
  *     status text reads "Generation cancelled."
  *
  * Mock boundary:
- *   - `@/lib/api/admin/ai` (`generateDescriptionStream`) so the real
+ *   - `@/lib/api/admin/ai` (`generateDescriptionStreamForAdminCategory`) so the real
  *     network / fallback streaming code never runs from this test.
  *   - `@/lib/supabase/client` so the access-token call resolves
  *     immediately to a known value.
@@ -38,7 +37,8 @@ vi.mock('@/lib/supabase/client', () => ({
 
 const generateMock = vi.fn();
 vi.mock('@/lib/api/admin/ai', () => ({
-  generateDescriptionStream: (...args: unknown[]) => generateMock(...args),
+  generateDescriptionStreamForAdminCategory: (...args: unknown[]) =>
+    generateMock(...args),
 }));
 
 beforeEach(() => {
@@ -47,8 +47,7 @@ beforeEach(() => {
 
 interface RenderOptions {
   name?: string;
-  category?: 'food' | 'treats' | 'accessories' | 'healthcare' | undefined;
-  petType?: 'dog' | 'cat' | 'bird' | 'small-animal' | undefined;
+  category?: 'DOG' | 'CAT' | undefined;
 }
 
 function renderBtn(options: RenderOptions = {}) {
@@ -57,8 +56,7 @@ function renderBtn(options: RenderOptions = {}) {
   const onComplete = vi.fn();
   const props = {
     name: options.name ?? 'Salmon Treats',
-    category: 'category' in options ? options.category : ('treats' as const),
-    petType: 'petType' in options ? options.petType : ('dog' as const),
+    category: 'category' in options ? options.category : ('DOG' as const),
     onStart,
     onChunk,
     onComplete,
@@ -83,7 +81,7 @@ describe('AiDescriptionBtn', () => {
       expect(generateMock).not.toHaveBeenCalled();
     });
 
-    it('shows "Pick a category and pet type first." when classification is incomplete', async () => {
+    it('shows "Pick a category first." when classification is incomplete', async () => {
       const user = userEvent.setup();
       const { onStart } = renderBtn({
         name: 'Salmon Treats',
@@ -95,7 +93,7 @@ describe('AiDescriptionBtn', () => {
       );
 
       const alert = await screen.findByRole('alert');
-      expect(alert).toHaveTextContent('Pick a category and pet type first.');
+      expect(alert).toHaveTextContent('Pick a category first.');
       expect(onStart).not.toHaveBeenCalled();
       expect(generateMock).not.toHaveBeenCalled();
     });
@@ -106,7 +104,8 @@ describe('AiDescriptionBtn', () => {
       const user = userEvent.setup();
       generateMock.mockImplementation(
         async (
-          _input: unknown,
+          _name: unknown,
+          _category: unknown,
           _accessToken: unknown,
           options: { onChunk: (chunk: string) => void },
         ) => {
@@ -143,7 +142,8 @@ describe('AiDescriptionBtn', () => {
       let observedSignal: AbortSignal | undefined;
       generateMock.mockImplementation(
         (
-          _input: unknown,
+          _name: unknown,
+          _category: unknown,
           _accessToken: unknown,
           options: { signal?: AbortSignal },
         ) => {

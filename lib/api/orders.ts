@@ -1,15 +1,18 @@
 import type { OrderSummary } from '@/types/order';
-import type { OrderListResponse } from '@/types/account';
+import type { ApiOrderListResponse, OrderListResponse } from '@/types/account';
 import { ApiError, apiFetch } from './client';
+import { isBackendUnreachableError } from './unreachable';
 import { PLACEHOLDER_ORDERS } from '@/lib/placeholder/orders';
 import { loadPendingCheckout } from '@/lib/checkout/storage';
 import { applyOrderOverride } from '@/lib/admin/storage';
 
-const DEFAULT_PAGE_SIZE = 10;
+/** Matches petsupplies-api `listQuerySchema` default for `limit`. */
+const DEFAULT_LIMIT = 20;
 
 export interface GetOrdersOptions {
   page?: number;
-  pageSize?: number;
+  /** Page size — sent as `limit` query param (backend max 100). */
+  limit?: number;
   status?: OrderSummary['status'];
   /** Supabase access token. Required by the backend; only omitted when
    * the caller knows the network is unreachable and only the fallback
@@ -34,25 +37,25 @@ let warnedAboutOrdersFallback = false;
 export async function getOrders(
   options: GetOrdersOptions = {},
 ): Promise<OrderListResponse> {
-  const {
-    page = 1,
-    pageSize = DEFAULT_PAGE_SIZE,
-    status,
-    accessToken,
-  } = options;
+  const { page = 1, limit = DEFAULT_LIMIT, status, accessToken } = options;
 
   const params = new URLSearchParams();
   params.set('page', String(page));
-  params.set('pageSize', String(pageSize));
-  if (status) params.set('status', status);
+  params.set('limit', String(limit));
+  if (status) params.set('status', status.toUpperCase());
 
   try {
-    return await apiFetch<OrderListResponse>(
+    const raw = await apiFetch<ApiOrderListResponse>(
       `/orders?${params.toString()}`,
       accessToken ? { cache: 'no-store', accessToken } : { cache: 'no-store' },
     );
+    return mapApiOrderListResponse(raw);
   } catch (err) {
-    if (err instanceof ApiError && err.isNetworkError) {
+    if (
+      err instanceof ApiError &&
+      isBackendUnreachableError(err) &&
+      process.env.NODE_ENV === 'development'
+    ) {
       if (!warnedAboutOrdersFallback) {
         warnedAboutOrdersFallback = true;
         // eslint-disable-next-line no-console
@@ -60,10 +63,20 @@ export async function getOrders(
           '[orders] backend unreachable — using placeholder orders for dev',
         );
       }
-      return synthesisePlaceholderList({ page, pageSize });
+      return synthesisePlaceholderList({ page, limit });
     }
     throw err;
   }
+}
+
+function mapApiOrderListResponse(raw: ApiOrderListResponse): OrderListResponse {
+  return {
+    orders: raw.data,
+    total: raw.total,
+    page: raw.page,
+    pageSize: raw.limit,
+    totalPages: raw.totalPages,
+  };
 }
 
 /**
@@ -90,7 +103,10 @@ export async function getOrderById(
   } catch (err) {
     if (err instanceof ApiError) {
       if (err.status === 404) return null;
-      if (err.isNetworkError) {
+      if (
+        isBackendUnreachableError(err) &&
+        process.env.NODE_ENV === 'development'
+      ) {
         return findPlaceholderOrder(id);
       }
     }
@@ -170,18 +186,18 @@ function getAllPlaceholderOrders(): OrderSummary[] {
 
 function synthesisePlaceholderList(opts: {
   page: number;
-  pageSize: number;
+  limit: number;
 }): OrderListResponse {
   const all = getAllPlaceholderOrders();
   const total = all.length;
-  const totalPages = Math.max(1, Math.ceil(total / opts.pageSize));
+  const totalPages = Math.max(1, Math.ceil(total / opts.limit));
   const safePage = Math.min(Math.max(1, opts.page), totalPages);
-  const start = (safePage - 1) * opts.pageSize;
+  const start = (safePage - 1) * opts.limit;
   return {
-    orders: all.slice(start, start + opts.pageSize),
+    orders: all.slice(start, start + opts.limit),
     total,
     page: safePage,
-    pageSize: opts.pageSize,
+    pageSize: opts.limit,
     totalPages,
   };
 }

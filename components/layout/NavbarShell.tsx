@@ -6,8 +6,6 @@ import { Menu, Search } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
-import { isAdminUser } from '@/lib/account/user-display';
-import { AdminNavButton } from './AdminNavButton';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { CartLiveRegion } from '@/components/cart/CartLiveRegion';
 import { CartIcon } from './CartIcon';
@@ -31,7 +29,6 @@ import { SettingsDrawerContext } from './SettingsDrawerContext';
  */
 export function NavbarShell() {
   const { user, loading } = useAuth();
-  const isAdmin = isAdminUser(user);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -134,13 +131,7 @@ export function NavbarShell() {
               {loading ? (
                 <div aria-hidden className="size-9 rounded-lg bg-warm-100" />
               ) : user ? (
-                <>
-                  {isAdmin ? <AdminNavButton /> : null}
-                  <SettingsButton
-                    ref={settingsButtonRef}
-                    onOpen={openSettings}
-                  />
-                </>
+                <SettingsButton ref={settingsButtonRef} onOpen={openSettings} />
               ) : null}
               <CartIcon ref={cartIconRef} onOpenDrawer={openCartDrawer} />
               <div className="hidden lg:block">

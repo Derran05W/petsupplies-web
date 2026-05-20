@@ -1,52 +1,25 @@
-import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { brand } from '@/lib/config/brand';
-import { getServerAccessToken } from '@/lib/supabase/access-token';
-import { adminGetProduct } from '@/lib/api/admin/products';
-import { PageHeader } from '@/components/account/PageHeader';
 import { AdminBanner } from '@/components/admin/AdminBanner';
-import { ProductForm } from '@/components/admin/products/ProductForm';
+import { AdminFormSkeleton } from '@/components/admin/AdminLoadingSkeletons';
+import { AdminEditProductSection } from '@/components/admin/sections/AdminEditProductSection';
 
 interface EditPageProps {
   params: { id: string };
 }
 
-export async function generateMetadata({
-  params,
-}: EditPageProps): Promise<Metadata> {
-  const accessToken = await getServerAccessToken();
-  const product = await adminGetProduct(
-    params.id,
-    accessToken ? { accessToken } : {},
-  );
-  return {
-    title: product
-      ? `Admin · ${product.name} · ${brand.name}`
-      : `Admin · Edit product · ${brand.name}`,
-  };
-}
+export const metadata: Metadata = {
+  title: `Admin · Edit product · ${brand.name}`,
+};
 
-export default async function AdminEditProductPage({ params }: EditPageProps) {
-  const accessToken = await getServerAccessToken();
-  const product = await adminGetProduct(
-    params.id,
-    accessToken ? { accessToken } : {},
-  );
-
-  if (!product) notFound();
-
+export default function AdminEditProductPage({ params }: EditPageProps) {
   return (
     <>
       <AdminBanner />
-      <PageHeader
-        heading={product.name}
-        breadcrumb={[
-          { label: 'Admin', href: '/admin' },
-          { label: 'Products', href: '/admin/products' },
-          { label: product.name },
-        ]}
-      />
-      <ProductForm initialProduct={product} />
+      <Suspense fallback={<AdminFormSkeleton />}>
+        <AdminEditProductSection productId={params.id} />
+      </Suspense>
     </>
   );
 }

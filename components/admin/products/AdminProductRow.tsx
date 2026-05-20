@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Pencil, Sparkles } from 'lucide-react';
 import type { AdminProduct } from '@/types/admin';
-import { CATEGORY_LABEL, PET_TYPE_LABEL } from '@/types/product';
+import { ADMIN_PRODUCT_CATEGORY_LABEL } from '@/types/admin-product-api';
 import { formatPrice } from '@/lib/utils/format';
 import { cn } from '@/lib/utils';
 import { StockBadge } from './StockBadge';
@@ -44,11 +44,8 @@ export function AdminProductRow({ product }: AdminProductRowProps) {
           </div>
         </div>
       </td>
-      <td className="hidden px-4 py-3 font-body text-sm text-warm-900 md:table-cell">
-        {CATEGORY_LABEL[product.category]}
-      </td>
-      <td className="hidden px-4 py-3 font-body text-sm text-warm-900 md:table-cell">
-        {PET_TYPE_LABEL[product.petType]}
+      <td className="px-4 py-3 font-body text-sm text-warm-900">
+        {ADMIN_PRODUCT_CATEGORY_LABEL[product.category]}
       </td>
       <td className="px-4 py-3 font-body text-sm font-medium text-warm-900">
         {formatPrice(product.priceCents)}

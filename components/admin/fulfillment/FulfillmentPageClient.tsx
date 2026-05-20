@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/account/PageHeader';
 import { OrdersPagination } from '@/components/account/orders/OrdersPagination';
 import { OrderStatusPill } from '@/components/account/orders/OrderStatusPill';
 import { AdminBanner } from '@/components/admin/AdminBanner';
+import { AdminTableSkeleton } from '@/components/admin/AdminLoadingSkeletons';
 import { ConfirmDialog } from '@/components/account/ConfirmDialog';
 import { formatPrice } from '@/lib/utils/format';
 import { formatDate } from '@/lib/utils/format';
@@ -179,7 +180,10 @@ function FulfillmentInner() {
       )}
 
       {isPending && (
-        <p className="font-body text-sm text-warm-600">Loading queue…</p>
+        <AdminTableSkeleton
+          caption="Fulfillment queue"
+          columns={['', 'Order', 'Customer', 'Status', 'Total', 'Actions']}
+        />
       )}
       {isError && (
         <p role="alert" className="text-sm text-red-600">
@@ -343,13 +347,25 @@ function FulfillmentInner() {
   );
 }
 
+function FulfillmentPageFallback() {
+  return (
+    <>
+      <AdminBanner />
+      <PageHeader
+        heading="Fulfillment"
+        description="Queue of orders ready to ship. Select rows and add tracking in bulk."
+      />
+      <AdminTableSkeleton
+        caption="Fulfillment queue"
+        columns={['', 'Order', 'Customer', 'Status', 'Total', 'Actions']}
+      />
+    </>
+  );
+}
+
 export function FulfillmentPageClient() {
   return (
-    <Suspense
-      fallback={
-        <p className="font-body text-sm text-warm-600">Loading fulfillment…</p>
-      }
-    >
+    <Suspense fallback={<FulfillmentPageFallback />}>
       <FulfillmentInner />
     </Suspense>
   );

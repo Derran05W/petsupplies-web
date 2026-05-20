@@ -18,6 +18,7 @@
  */
 import type { OrderStatus, OrderSummary } from '@/types/order';
 import type { AdminProduct } from '@/types/admin';
+import { categoryFromLegacy } from '@/lib/api/admin/product-mapper';
 import { FEATURED_PRODUCTS } from '@/lib/placeholder/products';
 
 const PRODUCTS_KEY = 'pawsupply-admin-products-dev-v1';
@@ -37,9 +38,24 @@ function getStorage(): Storage | null {
 /* -------------------------------------------------------------------------- */
 
 function seedAdminProducts(): AdminProduct[] {
-  return FEATURED_PRODUCTS.map(
-    (product): AdminProduct => ({ ...product, isPublished: true }),
-  );
+  return FEATURED_PRODUCTS.map((product): AdminProduct => {
+    const category =
+      categoryFromLegacy(product.category) ??
+      categoryFromLegacy(product.petType) ??
+      'DOG';
+    const {
+      compareAtPriceCents: _c,
+      nutritionalInfo: _n,
+      petType: _p,
+      ...rest
+    } = product;
+    return {
+      ...rest,
+      category,
+      isPublished: true,
+      imageUrl: product.images[0]?.url ?? null,
+    };
+  });
 }
 
 export function loadAdminProducts(): AdminProduct[] {

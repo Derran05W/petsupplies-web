@@ -8,6 +8,19 @@ Reference snapshot for aligning the storefront (`petsupplies-web`) with the back
 
 ---
 
+## Environments
+
+| Surface             | URL / variable                                                      | Notes                                                                                     |
+| ------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **Web (Next.js)**   | `NEXT_PUBLIC_API_URL` in `.env.local`                               | No trailing slash. Inlined at `next dev` / `next build` start — restart after changes.    |
+| **API (Railway)**   | Your service’s `*.up.railway.app` domain from the Railway dashboard | `GET /health` → `{ "status": "ok" }`. Stale URLs return `"Application not found"`.        |
+| **API (local dev)** | `http://localhost:3001`                                             | Default when `NEXT_PUBLIC_API_URL` is unset in [lib/api/client.ts](../lib/api/client.ts). |
+| **CORS**            | API env `FRONTEND_URL`                                              | Must match the browser origin exactly (e.g. `http://localhost:3000` for local admin UI).  |
+
+Admin product images use **presigned upload** via `POST /admin/products/images/upload-url` (API creates the signed URL; browser PUTs to Supabase). The web app does not upload directly to Storage for admin products — see [lib/api/admin/product-images.ts](../lib/api/admin/product-images.ts).
+
+---
+
 ## Legend
 
 | Column   | Meaning                                                                                                                                                                |
@@ -92,6 +105,10 @@ Mounted at `/orders`.
 | ------ | ------------- | ---- |
 | GET    | `/orders`     | user |
 | GET    | `/orders/:id` | user |
+
+**`GET /orders` query:** `page` (default `1`), `limit` (default `20`, max `100`), `status` optional — `PENDING` | `PAID` | `SHIPPED` | `FULFILLED` | `CANCELLED`.
+
+**`GET /orders` response:** `{ data, page, limit, total, totalPages }` — orders newest first (`createdAt` desc). The web app maps this to `OrderListResponse` (`data` → `orders`, `limit` → `pageSize`) in [lib/api/orders.ts](../lib/api/orders.ts).
 
 ---
 
@@ -378,6 +395,16 @@ Storefront body/query:
 | PATCH  | `/admin/products/:id/images/reorder`  | admin |
 | PATCH  | `/admin/products/:id/images/:imageId` | admin |
 | DELETE | `/admin/products/:id/images/:imageId` | admin |
+
+**List query (Phase 26):** `page`, `limit`, `q`, `category` (`ProductCategory` enum), `active` (`true` \| `false`).
+
+**Create / PATCH body:** `name`, `slug?`, `description`, `price` (cents), `stock`, `category`, `active`, `tags`, `imageUrl`, optional package fields (`weightGrams`, `lengthCm`, …). Do **not** send `subscriptionEligible` on POST/PATCH — use `PATCH /admin/products/:id/subscription`.
+
+**DELETE response:** `{ "deleted": "soft" | "hard" }`.
+
+**Upload URL body:** `{ "filename", "contentType" }` → `{ uploadUrl, token, objectKey, publicUrl, maxBytes }`.
+
+**Attach image body:** `{ url, altText?, sortOrder?, isPrimary? }`.
 
 ### Product shipping package & Subscribe & Save setup
 

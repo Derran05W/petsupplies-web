@@ -1,0 +1,17 @@
+---
+description: Instant navigation — stream data behind Suspense, never block the page shell on API calls
+globs: app/**/*.tsx, components/**/*.tsx
+alwaysApply: false
+---
+
+# Streaming pages
+
+When a route needs backend data:
+
+1. Keep the **page component synchronous** — banner, `PageHeader`, toolbars, and layout chrome render immediately.
+2. Put `await getServerAccessToken()` + API calls in an **async server child** (e.g. `components/**/sections/*Section.tsx`).
+3. Wrap that child in `<Suspense fallback={…}>` with a skeleton that matches the final UI (`AdminTableSkeleton`, `AdminFormSkeleton`, etc.).
+4. Use a **`key`** on Suspense when `searchParams` change the fetch.
+5. For client fetches (React Query), show the same skeleton while `isPending` — do not replace the whole page with text.
+
+See `docs/patterns/streaming-pages.md` and `components/admin/AdminLoadingSkeletons.tsx`.
