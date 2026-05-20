@@ -6,6 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useSearchParams } from 'next/navigation';
 import { Loader2, Mail, Lock, User } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import {
+  resolvePostLoginPath,
+  withAuthRedirectQuery,
+} from '@/lib/auth/post-login-redirect';
 import { signupSchema, type SignupInput } from '@/lib/auth/schemas';
 import { AuthCard } from './AuthCard';
 import { AuthDivider } from './AuthDivider';
@@ -16,7 +20,7 @@ import { brand } from '@/lib/config/brand';
 
 export function SignupForm() {
   const searchParams = useSearchParams();
-  const redirectTarget = searchParams.get('redirect') ?? '/account';
+  const redirectTarget = resolvePostLoginPath(searchParams.get('redirect'));
   const [submitting, setSubmitting] = useState(false);
   const [checkEmail, setCheckEmail] = useState(false);
 
@@ -62,7 +66,7 @@ export function SignupForm() {
         <p className="mt-4 font-body text-sm text-warm-600">
           Already confirmed?{' '}
           <Link
-            href="/login"
+            href={withAuthRedirectQuery('/login', searchParams.get('redirect'))}
             className="font-medium text-brand-600 underline-offset-2 hover:text-brand-700 hover:underline"
           >
             Sign in
@@ -215,7 +219,7 @@ export function SignupForm() {
       <p className="mt-6 text-center font-body text-sm text-warm-600">
         Already have an account?{' '}
         <Link
-          href="/login"
+          href={withAuthRedirectQuery('/login', searchParams.get('redirect'))}
           className="font-medium text-brand-600 underline-offset-2 hover:text-brand-700 hover:underline"
         >
           Sign in

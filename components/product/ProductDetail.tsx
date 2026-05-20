@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Truck } from 'lucide-react';
 import { CATEGORY_LABEL, PET_TYPE_LABEL, type Product } from '@/types/product';
 import { formatPrice } from '@/lib/utils/format';
+import { formatFreeShippingLabel } from '@/lib/site/shipping-copy';
 import { ImageGallery } from './ImageGallery';
 import { QuantitySelector } from './QuantitySelector';
 import { SubscribeAndSavePanel } from './SubscribeAndSavePanel';
@@ -12,9 +13,13 @@ import { WishlistButton } from '@/components/wishlist/WishlistButton';
 
 interface ProductDetailProps {
   product: Product;
+  freeShippingThresholdCents: number;
 }
 
-export function ProductDetail({ product }: ProductDetailProps) {
+export function ProductDetail({
+  product,
+  freeShippingThresholdCents,
+}: ProductDetailProps) {
   const isOnSale =
     typeof product.compareAtPriceCents === 'number' &&
     product.compareAtPriceCents > product.priceCents;
@@ -132,7 +137,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
             <p className="inline-flex items-center gap-2 font-body text-xs text-warm-600">
               <Truck size={14} aria-hidden className="text-brand-600" />
-              Free shipping on orders over $50
+              {formatFreeShippingLabel(freeShippingThresholdCents)}
             </p>
 
             {product.nutritionalInfo ? (

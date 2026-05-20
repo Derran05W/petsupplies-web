@@ -2,6 +2,7 @@ import { type Metadata } from 'next';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { brand } from '@/lib/config/brand';
+import { getFreeShippingThresholdCents } from '@/lib/config/shipping';
 import { getProductBySlug } from '@/lib/api/products';
 import { ProductDetail } from '@/components/product/ProductDetail';
 import { RelatedProducts } from '@/components/product/RelatedProducts';
@@ -46,6 +47,8 @@ export default async function ProductDetailPage({
     notFound();
   }
 
+  const freeShippingThresholdCents = await getFreeShippingThresholdCents();
+
   const { page: reviewsPage, sort: reviewsSort } =
     parseReviewListingParams(searchParams);
 
@@ -53,7 +56,10 @@ export default async function ProductDetailPage({
 
   return (
     <>
-      <ProductDetail product={product} />
+      <ProductDetail
+        product={product}
+        freeShippingThresholdCents={freeShippingThresholdCents}
+      />
       <div className="px-6 pb-20 md:px-8 lg:px-12">
         <div className="mx-auto max-w-7xl">
           <Suspense fallback={<ReviewSkeleton />} key={reviewsSuspenseKey}>

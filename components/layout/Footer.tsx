@@ -1,51 +1,15 @@
 import Link from 'next/link';
-import { brand } from '@/lib/config/brand';
-
-interface FooterLink {
-  label: string;
-  href: string;
-}
-
-interface FooterColumn {
-  title: string;
-  links: FooterLink[];
-}
+import type { Brand } from '@/lib/config/brand';
+import { BrandLogo } from '@/components/brand/BrandLogo';
+import { fetchSiteNav } from '@/lib/api/site/nav';
+import { resolveFooterColumns } from '@/lib/site/nav-display';
+import type { FooterColumn } from '@/types/site';
 
 interface SocialLink {
   href: string;
   label: string;
   Icon: () => JSX.Element;
 }
-
-const COLUMNS: FooterColumn[] = [
-  {
-    title: 'Shop',
-    links: [
-      { label: 'Dogs', href: '#' },
-      { label: 'Cats', href: '#' },
-      { label: 'Birds', href: '#' },
-      { label: 'Small animals', href: '#' },
-    ],
-  },
-  {
-    title: 'Help',
-    links: [
-      { label: 'Contact', href: '#' },
-      { label: 'Shipping', href: '#' },
-      { label: 'Returns', href: '#' },
-      { label: 'FAQ', href: '#' },
-    ],
-  },
-  {
-    title: 'Company',
-    links: [
-      { label: 'About', href: '#' },
-      { label: 'Sourcing', href: '#' },
-      { label: 'Careers', href: '#' },
-      { label: 'Press', href: '#' },
-    ],
-  },
-];
 
 function InstagramIcon() {
   return (
@@ -83,47 +47,40 @@ function FacebookIcon() {
   );
 }
 
-function buildSocials(): SocialLink[] {
-  // brand.social.* values are typed as readonly string literals; cast to
-  // string before we test so empty placeholders simply render nothing.
-  const instagram = brand.social.instagram as string;
-  const facebook = brand.social.facebook as string;
+function buildSocials(brand: Brand): SocialLink[] {
   const socials: SocialLink[] = [];
-  if (instagram) {
-    socials.push({ href: instagram, label: 'Instagram', Icon: InstagramIcon });
+  if (brand.social.instagram) {
+    socials.push({
+      href: brand.social.instagram,
+      label: 'Instagram',
+      Icon: InstagramIcon,
+    });
   }
-  if (facebook) {
-    socials.push({ href: facebook, label: 'Facebook', Icon: FacebookIcon });
+  if (brand.social.facebook) {
+    socials.push({
+      href: brand.social.facebook,
+      label: 'Facebook',
+      Icon: FacebookIcon,
+    });
   }
   return socials;
 }
 
-export function Footer() {
+function footerLinkKey(columnKey: string, link: FooterColumn['links'][number]) {
+  return `${columnKey}-${link.href}-${link.position}`;
+}
+
+export async function Footer({ brand }: { brand: Brand }) {
+  const { footer } = await fetchSiteNav();
+  const columns = resolveFooterColumns(footer);
   const year = new Date().getFullYear();
-  const socials = buildSocials();
+  const socials = buildSocials(brand);
 
   return (
     <footer className="mt-24 border-t border-warm-200 bg-warm-50">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[1.4fr_1fr_1fr_1fr] md:px-8 lg:px-12">
         <div>
-          <Link
-            href="/"
-            aria-label={brand.name}
-            className="inline-flex items-baseline gap-0.5 font-body text-lg font-medium text-warm-900"
-          >
-            {(() => {
-              const words = brand.name.split(' ');
-              const n = brand.logoAccentWords ?? 1;
-              const accent = words.slice(0, n).join(' ');
-              const rest = words.slice(n).join(' ');
-              return (
-                <>
-                  <span className="text-brand-600">{accent}</span>
-                  {rest && <span>{rest}</span>}
-                </>
-              );
-            })()}
-          </Link>
+          <BrandLogo brand={brand} />
           <p className="mt-3 max-w-xs font-body text-sm leading-relaxed text-warm-600">
             {brand.tagline}
           </p>
@@ -146,22 +103,39 @@ export function Footer() {
           )}
         </div>
 
-        {COLUMNS.map((column) => (
-          <div key={column.title}>
+        {columns.map(({ column, links }) => (
+          <div key={column.key}>
             <h2 className="font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
-              {column.title}
+              {column.label}
             </h2>
             <ul className="mt-4 flex flex-col gap-2.5">
-              {column.links.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="font-body text-sm text-warm-900 transition-colors hover:text-brand-600"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              {links.map((link) => {
+                const isExternal =
+                  link.href.startsWith('http') ||
+                  link.href.startsWith('mailto:');
+                return (
+                  <li key={footerLinkKey(column.key, link)}>
+                    {isExternal ? (
+                      <a
+                        href={link.href}
+                        className="font-body text-sm text-warm-900 transition-colors hover:text-brand-600"
+                        {...(link.href.startsWith('http')
+                          ? { target: '_blank', rel: 'noopener noreferrer' }
+                          : {})}
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="font-body text-sm text-warm-900 transition-colors hover:text-brand-600"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}

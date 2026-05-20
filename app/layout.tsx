@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Fraunces, DM_Sans } from 'next/font/google';
-import { brand } from '@/lib/config/brand';
+import { getBrand } from '@/lib/config/brand';
+import { buildRootMetadata } from '@/lib/site/metadata';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
@@ -21,13 +22,10 @@ const dmSans = DM_Sans({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: `${brand.name} — ${brand.tagline}`,
-    template: `%s · ${brand.name}`,
-  },
-  description: brand.description,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const liveBrand = await getBrand();
+  return buildRootMetadata(liveBrand);
+}
 
 export default function RootLayout({
   children,

@@ -7,16 +7,20 @@ export function isLoopbackApiUrl(url: string): boolean {
   return LOOPBACK_API.test(url.replace(/\/$/, ''));
 }
 
+function isVitest(): boolean {
+  return process.env.VITEST === 'true';
+}
+
 /**
  * Base URL for petsupplies-api.
- * - Server / tests: use NEXT_PUBLIC_API_URL or http://localhost:3001
+ * - Server / Vitest: use NEXT_PUBLIC_API_URL or http://localhost:3001
  * - Browser + loopback API URL: same-origin /api-backend (Next rewrite → API, no CORS)
  */
 export function resolveApiBaseUrl(): string {
   const configured = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
   const fallback = 'http://localhost:3001';
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && !isVitest()) {
     if (
       !configured ||
       configured.length === 0 ||

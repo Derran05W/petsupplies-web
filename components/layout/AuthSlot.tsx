@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { buildLoginHref } from '@/lib/navigation/login-href';
 import { cn } from '@/lib/utils';
 
 interface AuthSlotProps {
@@ -14,6 +16,9 @@ interface AuthSlotProps {
  */
 export function AuthSlot({ className }: AuthSlotProps) {
   const { user, loading } = useAuth();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const loginHref = buildLoginHref(pathname, searchParams.toString());
 
   if (loading) {
     return (
@@ -27,7 +32,7 @@ export function AuthSlot({ className }: AuthSlotProps) {
   if (!user) {
     return (
       <Link
-        href="/login"
+        href={loginHref}
         className={cn(
           'font-body text-sm text-warm-600 transition-colors hover:text-warm-900',
           className,

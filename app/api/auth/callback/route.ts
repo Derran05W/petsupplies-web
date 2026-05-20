@@ -1,10 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { resolvePostLoginPath } from '@/lib/auth/post-login-redirect';
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/account';
+  const next = resolvePostLoginPath(searchParams.get('next'));
   const error = searchParams.get('error');
 
   if (error) {
@@ -18,8 +19,7 @@ export async function GET(request: NextRequest) {
     const { error: exchangeError } =
       await supabase.auth.exchangeCodeForSession(code);
     if (!exchangeError) {
-      const safeNext = next.startsWith('/') ? next : '/account';
-      return NextResponse.redirect(new URL(safeNext, origin));
+      return NextResponse.redirect(new URL(next, origin));
     }
   }
 

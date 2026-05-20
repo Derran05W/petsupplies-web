@@ -2,7 +2,9 @@ import {
   BarChart3,
   LayoutDashboard,
   Package,
+  Settings,
   ShoppingBag,
+  TicketPercent,
   Truck,
   Users,
 } from 'lucide-react';
@@ -70,6 +72,20 @@ export const ADMIN_NAV_LINKS: AdminNavLink[] = [
     label: 'Analytics',
     icon: BarChart3,
     match: '/admin/analytics',
+    showInBottomTabs: false,
+  },
+  {
+    href: '/admin/discounts',
+    label: 'Discounts',
+    icon: TicketPercent,
+    match: '/admin/discounts',
+    showInBottomTabs: false,
+  },
+  {
+    href: '/admin/settings',
+    label: 'Settings',
+    icon: Settings,
+    match: '/admin/settings',
     showInBottomTabs: false,
   },
 ];

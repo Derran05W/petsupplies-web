@@ -55,19 +55,19 @@ export function adminApiErrorMessage(
     context === 'image' ? IMAGE_GENERIC_ERROR_MESSAGE : GENERIC_ERROR_MESSAGE;
 
   if (err instanceof ApiError) {
+    if (err.status === 502 && context === 'image') {
+      if (/does not exist|bucket not found|Storage bucket/i.test(err.message)) {
+        return 'Supabase Storage bucket is missing. In the Supabase dashboard create a public bucket named product-images (or match SUPABASE_STORAGE_BUCKET in petsupplies-api .env). See petsupplies-api supabase/storage/product-images-bucket.sql.';
+      }
+      return err.message.length > 0
+        ? err.message
+        : 'Image storage is not configured on the API (check SUPABASE_STORAGE_BUCKET and bucket CORS in Supabase).';
+    }
     if (isBackendUnreachableError(err)) {
       if (/application not found/i.test(err.message)) {
         return API_HOST_ERROR_MESSAGE;
       }
       return network;
-    }
-    if (err.status === 502 && context === 'image') {
-      if (/does not exist|bucket not found/i.test(err.message)) {
-        return 'Supabase Storage bucket is missing. In the Supabase dashboard create a public bucket named product-images (or match SUPABASE_STORAGE_BUCKET in petsupplies-api .env).';
-      }
-      return err.message.length > 0
-        ? err.message
-        : 'Image storage is not configured on the API (check SUPABASE_STORAGE_BUCKET and bucket CORS in Supabase).';
     }
     if (err.status === 401) return session;
     if (err.status === 403) return adminForbiddenMessage(err);
