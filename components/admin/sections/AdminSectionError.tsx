@@ -1,4 +1,4 @@
-import { ApiError } from '@/lib/api/client';
+import { adminSectionErrorMessage } from '@/lib/api/admin/error-messages';
 
 interface AdminSectionErrorProps {
   err: unknown;
@@ -6,7 +6,7 @@ interface AdminSectionErrorProps {
 }
 
 export function AdminSectionError({ err, fallback }: AdminSectionErrorProps) {
-  const message = err instanceof ApiError ? err.message : fallback;
+  const message = adminSectionErrorMessage(err, fallback);
   return (
     <p
       role="alert"

@@ -128,15 +128,16 @@ export function NavbarShell() {
               >
                 <Search size={18} aria-hidden />
               </button>
+              <CartIcon ref={cartIconRef} onOpenDrawer={openCartDrawer} />
               {loading ? (
                 <div aria-hidden className="size-9 rounded-lg bg-warm-100" />
               ) : user ? (
                 <SettingsButton ref={settingsButtonRef} onOpen={openSettings} />
-              ) : null}
-              <CartIcon ref={cartIconRef} onOpenDrawer={openCartDrawer} />
-              <div className="hidden lg:block">
-                <AuthSlot />
-              </div>
+              ) : (
+                <div className="hidden lg:block">
+                  <AuthSlot />
+                </div>
+              )}
               <button
                 ref={hamburgerRef}
                 type="button"

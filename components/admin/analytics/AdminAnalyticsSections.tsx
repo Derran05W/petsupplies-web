@@ -1,4 +1,4 @@
-import { ApiError } from '@/lib/api/client';
+import { adminSectionErrorMessage } from '@/lib/api/admin/error-messages';
 import {
   adminAnalyticsDiscounts,
   adminAnalyticsLowStock,
@@ -12,12 +12,6 @@ import { TopProductsTable } from './TopProductsTable';
 import { LowStockAnalyticsPanel } from './LowStockAnalyticsPanel';
 import { SubscriptionStatsPanel } from './SubscriptionStatsPanel';
 import { DiscountStatsPanel } from './DiscountStatsPanel';
-
-function sectionErrorMessage(err: unknown): string {
-  return err instanceof ApiError
-    ? err.message
-    : 'Something went wrong loading this section.';
-}
 
 function AnalyticsSectionError({ message }: { message: string }) {
   return (
@@ -35,7 +29,14 @@ export async function AnalyticsOverviewSection() {
     const overview = await loadAdminAnalyticsOverview();
     return <AnalyticsOverviewCards overview={overview} />;
   } catch (err) {
-    return <AnalyticsSectionError message={sectionErrorMessage(err)} />;
+    return (
+      <AnalyticsSectionError
+        message={adminSectionErrorMessage(
+          err,
+          'Something went wrong loading this section.',
+        )}
+      />
+    );
   }
 }
 
@@ -48,7 +49,14 @@ export async function AnalyticsTopProductsSection() {
     const top = await adminAnalyticsTopProducts({ ...opts, limit: 10 });
     return <TopProductsTable items={top.items} currency={overview.currency} />;
   } catch (err) {
-    return <AnalyticsSectionError message={sectionErrorMessage(err)} />;
+    return (
+      <AnalyticsSectionError
+        message={adminSectionErrorMessage(
+          err,
+          'Something went wrong loading this section.',
+        )}
+      />
+    );
   }
 }
 
@@ -58,7 +66,14 @@ export async function AnalyticsLowStockSection() {
     const low = await adminAnalyticsLowStock({ ...opts, limit: 20 });
     return <LowStockAnalyticsPanel items={low.items} />;
   } catch (err) {
-    return <AnalyticsSectionError message={sectionErrorMessage(err)} />;
+    return (
+      <AnalyticsSectionError
+        message={adminSectionErrorMessage(
+          err,
+          'Something went wrong loading this section.',
+        )}
+      />
+    );
   }
 }
 
@@ -71,7 +86,14 @@ export async function AnalyticsSubscriptionsSection() {
     const subs = await adminAnalyticsSubscriptions(opts);
     return <SubscriptionStatsPanel stats={subs} currency={overview.currency} />;
   } catch (err) {
-    return <AnalyticsSectionError message={sectionErrorMessage(err)} />;
+    return (
+      <AnalyticsSectionError
+        message={adminSectionErrorMessage(
+          err,
+          'Something went wrong loading this section.',
+        )}
+      />
+    );
   }
 }
 
@@ -89,6 +111,13 @@ export async function AnalyticsDiscountsSection() {
       />
     );
   } catch (err) {
-    return <AnalyticsSectionError message={sectionErrorMessage(err)} />;
+    return (
+      <AnalyticsSectionError
+        message={adminSectionErrorMessage(
+          err,
+          'Something went wrong loading this section.',
+        )}
+      />
+    );
   }
 }

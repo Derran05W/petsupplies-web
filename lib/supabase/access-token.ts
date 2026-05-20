@@ -20,6 +20,13 @@ export const getServerAccessToken = cache(
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    return session?.access_token;
+    const token = session?.access_token;
+    if (!token && process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.warn(
+        '[getServerAccessToken] no session access_token — admin API calls may return 401',
+      );
+    }
+    return token;
   },
 );

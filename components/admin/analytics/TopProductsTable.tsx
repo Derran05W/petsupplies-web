@@ -11,7 +11,8 @@ interface TopProductsTableProps {
 const PLACEHOLDER = '/images/hero-placeholder.jpg';
 
 export function TopProductsTable({ items, currency }: TopProductsTableProps) {
-  if (items.length === 0) {
+  const rows = items ?? [];
+  if (rows.length === 0) {
     return (
       <section
         aria-label="Top products"
@@ -45,7 +46,7 @@ export function TopProductsTable({ items, currency }: TopProductsTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-warm-200">
-            {items.map((row) => (
+            {rows.map((row) => (
               <tr key={row.productId} className="hover:bg-warm-50/80">
                 <td className="px-5 py-3">
                   <Link

@@ -3,8 +3,11 @@
 Reference snapshot for aligning the storefront (`petsupplies-web`) with the backend. Mirrors the backend's `API endpoints` doc (single inventory of HTTP routes mounted by `src/app.ts` in the API repo). Update this file when the API surface changes.
 
 **Customer storefront:** use everything except `/admin/*`, `/webhooks/*`, and `/jobs/*`.
-**Admin UI:** use `/admin/*` with an authenticated user whose JWT **`app_metadata.role`** is `ADMIN` (legacy `user_metadata.role` still honored in middleware until migration — see `docs/supabase/migrate-admin-role-to-app-metadata.sql`).
-**Frontend never calls:** Stripe webhook and cron job endpoints (server-to-server only).
+**Admin UI:** two gates must align — see [docs/admin-access.md](./admin-access.md).
+
+- **Web gate:** Supabase metadata (`app_metadata.role` preferred; legacy `user_metadata.role` until migration — [migrate-admin-role-to-app-metadata.sql](./supabase/migrate-admin-role-to-app-metadata.sql)).
+- **API gate:** `public."User".role = 'ADMIN'` in Postgres. After petsupplies-api admin-access fix, JWT `app_metadata.role` can promote the DB row on first `/admin/*` request.
+  **Frontend never calls:** Stripe webhook and cron job endpoints (server-to-server only).
 
 ---
 
