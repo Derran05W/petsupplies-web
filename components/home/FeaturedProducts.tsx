@@ -1,8 +1,13 @@
 import Link from 'next/link';
 import { ProductCard } from '@/components/product/ProductCard';
+import { fetchFeaturedProducts } from '@/lib/api/site/featured-products';
 import { FEATURED_PRODUCTS } from '@/lib/placeholder/products';
+import { resolveFeaturedDisplay } from '@/lib/site/featured-display';
 
-export function FeaturedProducts() {
+export async function FeaturedProducts() {
+  const liveProducts = await fetchFeaturedProducts();
+  const products = resolveFeaturedDisplay(liveProducts, FEATURED_PRODUCTS);
+
   return (
     <section
       aria-labelledby="featured-heading"
@@ -30,7 +35,7 @@ export function FeaturedProducts() {
         </div>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {FEATURED_PRODUCTS.slice(0, 6).map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

@@ -4,10 +4,12 @@ import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { X } from 'lucide-react';
-import { brand } from '@/lib/config/brand';
+import { BrandLogo } from '@/components/brand/BrandLogo';
+import { useStorefrontBrand } from '@/components/providers/StorefrontBrandProvider';
+import { useStorefrontHeaderNav } from '@/components/providers/StorefrontNavProvider';
+import { isNavLinkActive } from '@/lib/site/nav-utils';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
-import { NAV_LINKS } from './NavLinks';
 import { AuthSlot } from './AuthSlot';
 
 interface MobileMenuProps {
@@ -16,6 +18,8 @@ interface MobileMenuProps {
 }
 
 export function MobileMenu({ open, onClose }: MobileMenuProps) {
+  const brand = useStorefrontBrand();
+  const headerLinks = useStorefrontHeaderNav();
   const { user, loading } = useAuth();
   const pathname = usePathname();
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -97,23 +101,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
         )}
       >
         <div className="flex items-center justify-between border-b border-warm-200 px-6 py-4">
-          <span
-            className="inline-flex items-baseline gap-0.5 font-body text-lg font-medium text-warm-900"
-            aria-hidden
-          >
-            {(() => {
-              const words = brand.name.split(' ');
-              const n = brand.logoAccentWords ?? 1;
-              const accent = words.slice(0, n).join(' ');
-              const rest = words.slice(n).join(' ');
-              return (
-                <>
-                  <span className="text-brand-600">{accent}</span>
-                  {rest && <span>{rest}</span>}
-                </>
-              );
-            })()}
-          </span>
+          <BrandLogo brand={brand} href={null} />
           <button
             ref={closeButtonRef}
             type="button"
@@ -127,15 +115,10 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
 
         <nav className="flex-1 overflow-y-auto px-6 py-6">
           <ul className="flex flex-col gap-1">
-            {NAV_LINKS.map((link) => {
-              const hrefPath = link.href.split('?')[0] ?? link.href;
-              const active =
-                hrefPath === '/'
-                  ? pathname === '/'
-                  : pathname === hrefPath ||
-                    pathname.startsWith(`${hrefPath}/`);
+            {headerLinks.map((link) => {
+              const active = isNavLinkActive(pathname, link.href);
               return (
-                <li key={link.href}>
+                <li key={`${link.href}-${link.position}`}>
                   <Link
                     href={link.href}
                     onClick={onClose}

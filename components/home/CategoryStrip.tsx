@@ -1,19 +1,11 @@
 import Link from 'next/link';
+import { CategoryStripIcon } from '@/components/home/CategoryStripIcon';
+import { fetchCategoryStrip } from '@/lib/api/site/category-strip';
+import { resolveActiveCategoryStripItems } from '@/lib/site/category-strip-display';
 
-interface Category {
-  label: string;
-  href: string;
-}
+export async function CategoryStrip() {
+  const items = resolveActiveCategoryStripItems(await fetchCategoryStrip());
 
-const CATEGORIES: Category[] = [
-  { label: 'All', href: '/products' },
-  { label: 'Dogs', href: '/products?petType=dog' },
-  { label: 'Cats', href: '/products?petType=cat' },
-  { label: 'Birds', href: '/products?petType=bird' },
-  { label: 'Small animals', href: '/products?petType=small-animal' },
-];
-
-export function CategoryStrip() {
   return (
     <section
       id="categories"
@@ -25,13 +17,14 @@ export function CategoryStrip() {
           className="flex snap-x snap-mandatory items-center gap-2 overflow-x-auto pb-2"
           style={{ scrollbarWidth: 'none' }}
         >
-          {CATEGORIES.map((cat) => (
-            <li key={cat.label} className="snap-start">
+          {items.map((item) => (
+            <li key={item.id} className="snap-start">
               <Link
-                href={cat.href}
-                className="inline-flex shrink-0 items-center rounded-md border border-warm-200 bg-surface-card px-3.5 py-2 font-body text-sm text-warm-900 transition-colors hover:border-warm-300 hover:bg-warm-100"
+                href={item.href}
+                className="inline-flex shrink-0 items-center gap-2 rounded-md border border-warm-200 bg-surface-card px-3.5 py-2 font-body text-sm text-warm-900 transition-colors hover:border-warm-300 hover:bg-warm-100"
               >
-                {cat.label}
+                <CategoryStripIcon item={item} />
+                {item.label}
               </Link>
             </li>
           ))}

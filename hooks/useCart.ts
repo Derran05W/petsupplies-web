@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useCartStore, type CartLine } from '@/lib/store/cart';
-import { getFreeShippingThresholdCents } from '@/lib/config/shipping';
+import { useFreeShippingThresholdCents } from '@/components/providers/FreeShippingThresholdProvider';
 
 /**
  * Narrow selector hooks for the cart store. Each subscribes to the
@@ -78,7 +78,7 @@ export interface FreeShippingProgress {
 
 export function useFreeShippingProgress(): FreeShippingProgress {
   const subtotalCents = useCartSubtotalCents();
-  const thresholdCents = getFreeShippingThresholdCents();
+  const thresholdCents = useFreeShippingThresholdCents();
 
   const remainingCents = Math.max(0, thresholdCents - subtotalCents);
   const qualifies = subtotalCents >= thresholdCents;

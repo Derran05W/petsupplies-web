@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { SignupForm } from '@/components/auth/SignupForm';
+import { resolvePostLoginPath } from '@/lib/auth/post-login-redirect';
 import { brand } from '@/lib/config/brand';
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
   const { redirect: redirectTarget } = await searchParams;
 
   if (user) {
-    redirect(redirectTarget ?? '/account');
+    redirect(resolvePostLoginPath(redirectTarget));
   }
 
   return (

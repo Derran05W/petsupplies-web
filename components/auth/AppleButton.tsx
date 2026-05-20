@@ -3,12 +3,15 @@
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { DEFAULT_POST_LOGIN_PATH } from '@/lib/auth/post-login-redirect';
 
 interface AppleButtonProps {
   redirectTarget?: string;
 }
 
-export function AppleButton({ redirectTarget = '/account' }: AppleButtonProps) {
+export function AppleButton({
+  redirectTarget = DEFAULT_POST_LOGIN_PATH,
+}: AppleButtonProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

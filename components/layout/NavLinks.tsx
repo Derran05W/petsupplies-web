@@ -2,26 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useStorefrontHeaderNav } from '@/components/providers/StorefrontNavProvider';
+import { isNavLinkActive } from '@/lib/site/nav-utils';
 import { cn } from '@/lib/utils';
-
-export interface NavLink {
-  href: string;
-  label: string;
-}
-
-export const NAV_LINKS: NavLink[] = [
-  { href: '/', label: 'Home' },
-  { href: '/products?petType=dog', label: 'Dogs' },
-  { href: '/products?petType=cat', label: 'Cats' },
-  { href: '/products?petType=bird', label: 'Birds' },
-  { href: '/products?petType=small-animal', label: 'Small animals' },
-];
-
-function isActive(pathname: string, href: string): boolean {
-  if (href === '/') return pathname === '/';
-  const hrefPath = href.split('?')[0] ?? href;
-  return pathname === hrefPath || pathname.startsWith(`${hrefPath}/`);
-}
 
 interface NavLinksProps {
   className?: string;
@@ -35,13 +18,14 @@ export function NavLinks({
   onNavigate,
 }: NavLinksProps) {
   const pathname = usePathname();
+  const links = useStorefrontHeaderNav();
 
   return (
     <ul className={cn('flex items-center gap-7', className)}>
-      {NAV_LINKS.map((link) => {
-        const active = isActive(pathname, link.href);
+      {links.map((link) => {
+        const active = isNavLinkActive(pathname, link.href);
         return (
-          <li key={link.href}>
+          <li key={`${link.href}-${link.position}`}>
             <Link
               href={link.href}
               aria-current={active ? 'page' : undefined}

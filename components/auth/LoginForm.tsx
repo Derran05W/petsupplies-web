@@ -6,6 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2, Mail, Lock } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import {
+  resolvePostLoginPath,
+  withAuthRedirectQuery,
+} from '@/lib/auth/post-login-redirect';
 import { loginSchema, type LoginInput } from '@/lib/auth/schemas';
 import { AuthCard } from './AuthCard';
 import { AuthDivider } from './AuthDivider';
@@ -17,7 +21,7 @@ import { brand } from '@/lib/config/brand';
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTarget = searchParams.get('redirect') ?? '/account';
+  const redirectTarget = resolvePostLoginPath(searchParams.get('redirect'));
   const [submitting, setSubmitting] = useState(false);
 
   const {
@@ -133,7 +137,7 @@ export function LoginForm() {
       <p className="mt-6 text-center font-body text-sm text-warm-600">
         New to {brand.name}?{' '}
         <Link
-          href="/signup"
+          href={withAuthRedirectQuery('/signup', searchParams.get('redirect'))}
           className="font-medium text-brand-600 underline-offset-2 hover:text-brand-700 hover:underline"
         >
           Create an account

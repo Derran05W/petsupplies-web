@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
 import { Menu, Search } from 'lucide-react';
-import { brand } from '@/lib/config/brand';
+import { BrandLogo } from '@/components/brand/BrandLogo';
+import { useStorefrontBrand } from '@/components/providers/StorefrontBrandProvider';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { CartDrawer } from '@/components/cart/CartDrawer';
@@ -28,6 +28,7 @@ import { SettingsDrawerContext } from './SettingsDrawerContext';
  * Stays a client component because of all the local UI state.
  */
 export function NavbarShell() {
+  const brand = useStorefrontBrand();
   const { user, loading } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -94,24 +95,7 @@ export function NavbarShell() {
           )}
         >
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-6 md:px-8 lg:px-12">
-            <Link
-              href="/"
-              aria-label={brand.name}
-              className="inline-flex items-baseline gap-1 font-body text-lg font-medium text-warm-900"
-            >
-              {(() => {
-                const words = brand.name.split(' ');
-                const n = brand.logoAccentWords ?? 1;
-                const accent = words.slice(0, n).join(' ');
-                const rest = words.slice(n).join(' ');
-                return (
-                  <>
-                    <span className="text-brand-600">{accent}</span>
-                    {rest && <span>{rest}</span>}
-                  </>
-                );
-              })()}
-            </Link>
+            <BrandLogo brand={brand} className="gap-1" />
 
             <nav
               aria-label="Primary"
