@@ -2,6 +2,11 @@
  * Settings hub sections expose stable hash targets for the global drawer.
  */
 import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/lib/api/site/settings', () => ({
+  fetchSiteSettings: vi.fn(),
+  SITE_SETTINGS_CACHE_TAG: 'site-settings',
+}));
 import { render } from '@testing-library/react';
 import { ProfileSection } from '@/components/account/settings/sections/ProfileSection';
 import { SecuritySection } from '@/components/account/settings/sections/SecuritySection';

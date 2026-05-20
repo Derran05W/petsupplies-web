@@ -38,6 +38,15 @@ describe('adminApiErrorMessage', () => {
     expect(adminApiErrorMessage(new ApiError(detail, 403))).toBe(detail);
     vi.unstubAllEnvs();
   });
+
+  it('maps 502 missing bucket to storage setup hint for image uploads', () => {
+    expect(
+      adminApiErrorMessage(
+        new ApiError('Storage error: The related resource does not exist', 502),
+        'image',
+      ),
+    ).toContain('product-images');
+  });
 });
 
 describe('adminSectionErrorMessage', () => {
