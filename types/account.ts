@@ -2,9 +2,9 @@
  * Account-surface types — orders list response shape and saved-address
  * shape consumed by the Phase 7 `/account/*` pages.
  *
- * Backend Phase 8 contract:
- *   GET    /orders?page&pageSize&status?  → `OrderListResponse`
- *   GET    /orders/:id                    → `OrderSummary`
+ * Backend contract (petsupplies-api):
+ *   GET    /orders?page&limit&status?  → `ApiOrderListResponse` (mapped to `OrderListResponse`)
+ *   GET    /orders/:id                 → `OrderSummary`
  *   GET    /addresses                     → `Address[]`
  *   POST   /addresses                     → `Address`
  *   PATCH  /addresses/:id                 → `Address`
@@ -22,6 +22,16 @@ export interface Address extends ShippingAddress {
   createdAt: string;
 }
 
+/** Raw paginated list from `GET /orders` (petsupplies-api). */
+export interface ApiOrderListResponse {
+  data: OrderSummary[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+/** Normalized list shape used by account UI components. */
 export interface OrderListResponse {
   orders: OrderSummary[];
   total: number;

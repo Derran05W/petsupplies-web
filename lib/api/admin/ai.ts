@@ -1,27 +1,8 @@
 /**
  * AI description streaming client.
- *
- * Why a bare `fetch` here, not `apiFetch`: the shared wrapper consumes
- * `response.json()` / `response.text()` at the bottom, which buffers the
- * whole body. Streaming chunked text needs `response.body!.pipeThrough(
- * new TextDecoderStream())` followed by reader iteration — fundamentally
- * incompatible with `apiFetch`'s "return parsed body" return type.
- * Refactoring `apiFetch` to expose the raw `Response` would force every
- * existing caller to juggle a discriminated return type. So we duplicate
- * the base-URL read here (the helper below) and explicitly attach
- * `Authorization: Bearer ${accessToken}` ourselves.
- *
- * Backend Phase 8 contract:
- *   POST /admin/products/generate-description
- *   Body:    { name, category, petType, ingredients?, refinement? }
- *   Returns: text/plain streamed chunks (no JSON wrapper).
- *
- * **Backend-not-ready fallback:** if the request fails with a network
- * error (TypeError from `fetch`) OR a non-2xx response, we fall through
- * to `lib/admin/ai-fallback.ts` which yields chunks identically. Single
- * console.warn per session. TODO(phase 8).
  */
 import type { Category, PetType } from '@/types/product';
+import type { AdminProductCategory } from '@/types/admin-product-api';
 import { streamFallbackDescription } from '@/lib/admin/ai-fallback';
 
 interface GenerateDescriptionInput {
@@ -34,7 +15,6 @@ interface GenerateDescriptionInput {
 
 interface StreamOptions {
   signal?: AbortSignal;
-  /** Called once per decoded chunk; UI appends to the textarea. */
   onChunk: (chunk: string) => void;
 }
 
@@ -53,6 +33,32 @@ function warnFallback(reason: string): void {
   console.warn(
     `[admin/ai] streaming endpoint unreachable (${reason}) — using local fallback for dev`,
   );
+}
+
+/** Map Phase 26 admin categories to the legacy AI prompt shape. */
+export function aiPromptFromAdminCategory(category: AdminProductCategory): {
+  category: Category;
+  petType: PetType;
+} {
+  switch (category) {
+    case 'CAT':
+      return { category: 'food', petType: 'cat' };
+    case 'BIRD':
+      return { category: 'accessories', petType: 'bird' };
+    case 'SMALL_PET':
+      return { category: 'food', petType: 'small-animal' };
+    case 'FISH':
+      return { category: 'food', petType: 'small-animal' };
+    case 'REPTILE':
+      return { category: 'healthcare', petType: 'small-animal' };
+    case 'ACCESSORIES':
+      return { category: 'accessories', petType: 'dog' };
+    case 'HEALTH':
+      return { category: 'healthcare', petType: 'dog' };
+    case 'DOG':
+    default:
+      return { category: 'food', petType: 'dog' };
+  }
 }
 
 async function streamFromBackend(
@@ -138,4 +144,14 @@ export async function generateDescriptionStream(
     warnFallback(message);
     await streamFromFallback(input, signal, onChunk);
   }
+}
+
+export async function generateDescriptionStreamForAdminCategory(
+  name: string,
+  category: AdminProductCategory,
+  accessToken: string | undefined,
+  options: StreamOptions,
+): Promise<void> {
+  const mapped = aiPromptFromAdminCategory(category);
+  return generateDescriptionStream({ name, ...mapped }, accessToken, options);
 }

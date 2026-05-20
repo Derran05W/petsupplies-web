@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { brand } from '@/lib/config/brand';
-import { getServerAccessToken } from '@/lib/supabase/access-token';
 import { PageHeader } from '@/components/account/PageHeader';
 import { AdminBanner } from '@/components/admin/AdminBanner';
 import { AdminAnalyticsDashboard } from '@/components/admin/analytics/AdminAnalyticsDashboard';
@@ -10,12 +9,10 @@ export const metadata: Metadata = {
 };
 
 /**
- * `/admin` — analytics hub (Phase 21). Server-fetches overview +
- * panels; revenue chart is a client island.
+ * `/admin` — analytics hub (Phase 21). Banner + heading paint
+ * immediately; KPIs and panels stream in via Suspense.
  */
-export default async function AdminDashboardPage() {
-  const accessToken = await getServerAccessToken();
-
+export default function AdminDashboardPage() {
   return (
     <>
       <AdminBanner />
@@ -23,7 +20,7 @@ export default async function AdminDashboardPage() {
         heading="Dashboard"
         description="Store analytics, top products, low stock, subscriptions, and discounts."
       />
-      <AdminAnalyticsDashboard accessToken={accessToken} />
+      <AdminAnalyticsDashboard />
     </>
   );
 }

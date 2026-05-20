@@ -1,72 +1,57 @@
-import { ApiError } from '@/lib/api/client';
-import {
-  adminAnalyticsDiscounts,
-  adminAnalyticsLowStock,
-  adminAnalyticsOverview,
-  adminAnalyticsSubscriptions,
-  adminAnalyticsTopProducts,
-} from '@/lib/api/admin/analytics';
-import { AnalyticsOverviewCards } from './AnalyticsOverviewCards';
+import { Suspense } from 'react';
 import { RevenueChartClient } from './RevenueChartClient';
-import { TopProductsTable } from './TopProductsTable';
-import { LowStockAnalyticsPanel } from './LowStockAnalyticsPanel';
-import { SubscriptionStatsPanel } from './SubscriptionStatsPanel';
-import { DiscountStatsPanel } from './DiscountStatsPanel';
-
-interface AdminAnalyticsDashboardProps {
-  accessToken?: string;
-}
+import {
+  AnalyticsOverviewSkeleton,
+  AnalyticsPanelSkeleton,
+} from './AdminAnalyticsSkeletons';
+import {
+  AnalyticsDiscountsSection,
+  AnalyticsLowStockSection,
+  AnalyticsOverviewSection,
+  AnalyticsSubscriptionsSection,
+  AnalyticsTopProductsSection,
+} from './AdminAnalyticsSections';
 
 /**
- * Server component: parallel fetch Phase 21 analytics (except timeseries — client chart).
+ * Analytics hub layout. Shell (banner + heading) renders on the page;
+ * each block streams in behind its own Suspense boundary.
  */
-export async function AdminAnalyticsDashboard({
-  accessToken,
-}: AdminAnalyticsDashboardProps) {
-  const opts = accessToken ? { accessToken } : {};
+export function AdminAnalyticsDashboard() {
+  return (
+    <>
+      <Suspense fallback={<AnalyticsOverviewSkeleton />}>
+        <AnalyticsOverviewSection />
+      </Suspense>
 
-  try {
-    const [overview, top, low, subs, discounts] = await Promise.all([
-      adminAnalyticsOverview(opts),
-      adminAnalyticsTopProducts({ ...opts, limit: 10 }),
-      adminAnalyticsLowStock({ ...opts, limit: 20 }),
-      adminAnalyticsSubscriptions(opts),
-      adminAnalyticsDiscounts(opts),
-    ]);
-
-    const currency = overview.currency;
-
-    return (
-      <>
-        <AnalyticsOverviewCards overview={overview} />
-
-        <div className="mt-8">
-          <RevenueChartClient />
-        </div>
-
-        <div className="mt-8 grid grid-cols-1 gap-8 xl:grid-cols-2">
-          <TopProductsTable items={top.items} currency={currency} />
-          <LowStockAnalyticsPanel items={low.items} />
-        </div>
-
-        <div className="mt-8 grid grid-cols-1 gap-8 xl:grid-cols-2">
-          <SubscriptionStatsPanel stats={subs} currency={currency} />
-          <DiscountStatsPanel items={discounts.items} currency={currency} />
-        </div>
-      </>
-    );
-  } catch (err) {
-    const message =
-      err instanceof ApiError
-        ? err.message
-        : 'Something went wrong loading analytics.';
-    return (
-      <div
-        role="alert"
-        className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 font-body text-sm text-red-800"
-      >
-        {message}
+      <div className="mt-8">
+        <RevenueChartClient />
       </div>
-    );
-  }
+
+      <div className="mt-8 grid grid-cols-1 gap-8 xl:grid-cols-2">
+        <Suspense
+          fallback={<AnalyticsPanelSkeleton title="Top products" rows={5} />}
+        >
+          <AnalyticsTopProductsSection />
+        </Suspense>
+        <Suspense
+          fallback={<AnalyticsPanelSkeleton title="Low stock" rows={5} />}
+        >
+          <AnalyticsLowStockSection />
+        </Suspense>
+      </div>
+
+      <div className="mt-8 grid grid-cols-1 gap-8 xl:grid-cols-2">
+        <Suspense
+          fallback={<AnalyticsPanelSkeleton title="Subscriptions" rows={3} />}
+        >
+          <AnalyticsSubscriptionsSection />
+        </Suspense>
+        <Suspense
+          fallback={<AnalyticsPanelSkeleton title="Discounts" rows={4} />}
+        >
+          <AnalyticsDiscountsSection />
+        </Suspense>
+      </div>
+    </>
+  );
 }

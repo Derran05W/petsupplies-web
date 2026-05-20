@@ -43,7 +43,7 @@ export function SettingsDrawerOrders({
       try {
         const data = await getOrders({
           page: 1,
-          pageSize: 3,
+          limit: 3,
           accessToken: token,
         });
         if (!cancelled) setOrders(data.orders);

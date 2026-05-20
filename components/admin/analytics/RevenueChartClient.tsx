@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import {
   CartesianGrid,
   Line,
@@ -103,7 +104,13 @@ export function RevenueChartClient() {
       </header>
 
       {isPending && (
-        <p className="font-body text-sm text-warm-600">Loading chart…</p>
+        <div
+          className="flex h-[280px] items-center justify-center"
+          role="status"
+          aria-label="Loading revenue chart"
+        >
+          <Loader2 size={28} className="animate-spin text-brand-500" />
+        </div>
       )}
       {isError && (
         <p role="alert" className="font-body text-sm text-red-600">

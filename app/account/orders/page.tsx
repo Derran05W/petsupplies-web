@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { brand } from '@/lib/config/brand';
-import { getOrders } from '@/lib/api/orders';
-import { getServerAccessToken } from '@/lib/supabase/access-token';
 import { safeReturnPath } from '@/lib/navigation/safe-return-path';
 import { PageHeader } from '@/components/account/PageHeader';
-import { OrdersList } from '@/components/account/orders/OrdersList';
+import { AccountOrdersLoading } from '@/components/account/AccountOrdersLoading';
+import { AccountOrdersSection } from '@/components/account/sections/AccountOrdersSection';
 
 export const metadata: Metadata = {
   title: `Your orders · ${brand.name}`,
@@ -23,18 +23,10 @@ function parsePage(raw: string | undefined): number {
 
 /**
  * `/account/orders` — alias for `/account` so deep links from emails
- * (e.g. order confirmation, abandoned cart) and from
- * `<SuccessContents />`'s "View your orders" CTA both land somewhere
- * sensible. We render the same content rather than 301'ing because both
- * URLs are reasonable bookmarks for the customer.
+ * land somewhere sensible. Same streaming orders section as `/account`.
  */
-export default async function OrdersAliasPage({
-  searchParams,
-}: OrdersPageProps) {
+export default function OrdersAliasPage({ searchParams }: OrdersPageProps) {
   const page = parsePage(searchParams.page);
-  const accessToken = await getServerAccessToken();
-  const data = await getOrders(accessToken ? { page, accessToken } : { page });
-
   const safeReturn = safeReturnPath(searchParams.returnTo);
   const extraQuery = safeReturn ? { returnTo: safeReturn } : undefined;
 
@@ -44,11 +36,13 @@ export default async function OrdersAliasPage({
         heading="Your orders"
         description="Everything you've ordered, with status and tracking when available."
       />
-      <OrdersList
-        data={data}
-        basePath="/account/orders"
-        extraQuery={extraQuery}
-      />
+      <Suspense key={page} fallback={<AccountOrdersLoading />}>
+        <AccountOrdersSection
+          page={page}
+          basePath="/account/orders"
+          extraQuery={extraQuery}
+        />
+      </Suspense>
     </>
   );
 }

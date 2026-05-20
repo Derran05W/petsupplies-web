@@ -1,12 +1,6 @@
 import { z } from 'zod';
+import { ADMIN_PRODUCT_CATEGORIES } from '@/types/admin-product-api';
 
-const CATEGORY_VALUES = [
-  'food',
-  'treats',
-  'accessories',
-  'healthcare',
-] as const;
-const PET_TYPE_VALUES = ['dog', 'cat', 'bird', 'small-animal'] as const;
 const ORDER_STATUS_VALUES = [
   'pending',
   'paid',
@@ -20,12 +14,6 @@ const ORDER_STATUS_VALUES = [
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const TRACKING_NUMBER_RE = /^[A-Za-z0-9 \-]{1,64}$/;
 
-/**
- * Convert a free-form product name into a URL-safe slug. Used by the
- * create flow's "auto-fill slug from name on blur" behaviour. Kept here
- * (not in `lib/utils`) because it's admin-form-specific — customer code
- * never invents slugs.
- */
 export function slugify(name: string): string {
   return name
     .toLowerCase()
@@ -38,20 +26,9 @@ export function slugify(name: string): string {
 
 const productImageSchema = z.object({
   id: z.string().min(1),
-  url: z.string().min(1),
+  url: z.string().url(),
   alt: z.string().trim().min(1, 'Alt text is required for every image'),
   isPrimary: z.boolean(),
-});
-
-const guaranteedAnalysisRowSchema = z.object({
-  nutrient: z.string().trim().min(1),
-  percentage: z.string().trim().min(1),
-});
-
-const nutritionalInfoSchema = z.object({
-  ingredients: z.string().trim().min(1),
-  guaranteedAnalysis: z.array(guaranteedAnalysisRowSchema),
-  feedingGuidelines: z.string().trim().min(1),
 });
 
 export const productSchema = z.object({
@@ -59,32 +36,31 @@ export const productSchema = z.object({
     .string()
     .trim()
     .min(2, 'Name must be at least 2 characters')
-    .max(120, 'Name must be 120 characters or fewer'),
+    .max(200, 'Name must be 200 characters or fewer'),
   slug: z
     .string()
     .trim()
     .min(2, 'Slug must be at least 2 characters')
-    .max(120, 'Slug must be 120 characters or fewer')
+    .max(200, 'Slug must be 200 characters or fewer')
     .regex(SLUG_RE, 'Use lowercase letters, numbers, and dashes only'),
   description: z
     .string()
     .trim()
-    .min(10, 'Description must be at least 10 characters')
-    .max(4000, 'Description must be 4000 characters or fewer'),
+    .min(1, 'Description is required')
+    .max(10_000, 'Description must be 10,000 characters or fewer'),
   priceCents: z
     .number({ message: 'Enter a valid price' })
     .int('Price must be a whole number of cents')
-    .min(1, 'Price must be greater than zero'),
-  compareAtPriceCents: z.number().int().min(0).optional(),
-  category: z.enum(CATEGORY_VALUES, { message: 'Select a category' }),
-  petType: z.enum(PET_TYPE_VALUES, { message: 'Select a pet type' }),
+    .positive('Price must be greater than zero'),
+  category: z.enum(ADMIN_PRODUCT_CATEGORIES, {
+    message: 'Select a category',
+  }),
   stockCount: z
     .number({ message: 'Enter a stock count' })
     .int('Stock must be a whole number')
     .min(0, 'Stock cannot be negative'),
-  tags: z.array(z.string().trim().min(1)).default([]),
+  tags: z.array(z.string().trim().min(1).max(40)).max(30).default([]),
   images: z.array(productImageSchema).min(1, 'Add at least one product image'),
-  nutritionalInfo: nutritionalInfoSchema.optional(),
   isPublished: z.boolean(),
 });
 

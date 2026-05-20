@@ -1,19 +1,40 @@
+import type { ProductImage } from '@/types/product';
 import type {
   AdminProduct,
   AdminProductInput,
   AdminProductListResponse,
   StockState,
 } from '@/types/admin';
+import type { AdminProductCategory } from '@/types/admin-product-api';
+import type {
+  ApiAdminProduct,
+  ApiAdminProductDeleteResponse,
+  ApiAdminProductListResponse,
+} from '@/types/admin-product-api';
 import { ApiError, apiFetch } from '../client';
+import { isBackendUnreachableError } from '../unreachable';
 import { loadAdminProducts, saveAdminProducts } from '@/lib/admin/storage';
-import { LOW_STOCK_THRESHOLD } from '@/lib/admin/config';
+import {
+  filterByStockState,
+  mapApiListResponse,
+  mapApiProduct,
+  toCreateBody,
+  toUpdateBody,
+} from './product-mapper';
+import { syncProductImages } from './product-images';
 
-const DEFAULT_PAGE_SIZE = 20;
+const DEFAULT_LIMIT = 20;
 
 export interface AdminProductListOptions {
   page?: number;
-  pageSize?: number;
+  /** Backend `limit` query param. */
+  limit?: number;
+  /** Backend `q` search param. */
   search?: string;
+  category?: AdminProductCategory;
+  /** Backend `active` filter (`true` / `false`). */
+  active?: boolean;
+  /** Applied client-side after fetch (API has no stock filter). */
   stockState?: StockState;
   accessToken?: string;
 }
@@ -33,8 +54,10 @@ function warnFallback(): void {
   );
 }
 
-function isNetwork(err: unknown): err is ApiError {
-  return err instanceof ApiError && err.isNetworkError;
+function fetchOpts(accessToken?: string) {
+  return accessToken
+    ? { cache: 'no-store' as const, accessToken }
+    : { cache: 'no-store' as const };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -46,27 +69,38 @@ export async function adminListProducts(
 ): Promise<AdminProductListResponse> {
   const {
     page = 1,
-    pageSize = DEFAULT_PAGE_SIZE,
+    limit = DEFAULT_LIMIT,
     search,
+    category,
+    active,
     stockState,
     accessToken,
   } = options;
 
   const params = new URLSearchParams();
   params.set('page', String(page));
-  params.set('pageSize', String(pageSize));
-  if (search && search.length > 0) params.set('search', search);
-  if (stockState && stockState !== 'all') params.set('stock', stockState);
+  params.set('limit', String(limit));
+  if (search && search.length > 0) params.set('q', search);
+  if (category) params.set('category', category);
+  if (active !== undefined) params.set('active', active ? 'true' : 'false');
 
   try {
-    return await apiFetch<AdminProductListResponse>(
+    const data = await apiFetch<ApiAdminProductListResponse>(
       `/admin/products?${params.toString()}`,
-      accessToken ? { cache: 'no-store', accessToken } : { cache: 'no-store' },
+      fetchOpts(accessToken),
     );
+    const mapped = mapApiListResponse(data);
+    if (stockState && stockState !== 'all') {
+      return {
+        ...mapped,
+        products: filterByStockState(mapped.products, stockState),
+      };
+    }
+    return mapped;
   } catch (err) {
-    if (isNetwork(err)) {
+    if (isBackendUnreachableError(err)) {
       warnFallback();
-      return localList({ page, pageSize, search, stockState });
+      return localList({ page, limit, search, stockState });
     }
     throw err;
   }
@@ -82,14 +116,15 @@ export async function adminGetProduct(
 ): Promise<AdminProduct | null> {
   const { accessToken } = options;
   try {
-    return await apiFetch<AdminProduct>(
+    const product = await apiFetch<ApiAdminProduct>(
       `/admin/products/${encodeURIComponent(id)}`,
-      accessToken ? { cache: 'no-store', accessToken } : { cache: 'no-store' },
+      fetchOpts(accessToken),
     );
+    return mapApiProduct(product);
   } catch (err) {
     if (err instanceof ApiError) {
       if (err.status === 404) return null;
-      if (err.isNetworkError) {
+      if (isBackendUnreachableError(err)) {
         warnFallback();
         return loadAdminProducts().find((p) => p.id === id) ?? null;
       }
@@ -108,39 +143,27 @@ export async function adminCreateProduct(
 ): Promise<AdminProduct> {
   const { accessToken } = options;
   try {
-    return await apiFetch<AdminProduct>(
-      '/admin/products',
-      accessToken
-        ? { method: 'POST', body: JSON.stringify(input), accessToken }
-        : { method: 'POST', body: JSON.stringify(input) },
-    );
+    const created = await apiFetch<ApiAdminProduct>('/admin/products', {
+      method: 'POST',
+      body: JSON.stringify(toCreateBody(input)),
+      ...fetchOpts(accessToken),
+    });
+
+    if (input.images.length > 0) {
+      await syncProductImages(
+        created.id,
+        input.images,
+        mapApiProduct(created).images,
+        options,
+      );
+    }
+
+    const refreshed = await adminGetProduct(created.id, options);
+    return refreshed ?? mapApiProduct(created);
   } catch (err) {
-    if (isNetwork(err)) {
+    if (isBackendUnreachableError(err)) {
       warnFallback();
-      const products = loadAdminProducts();
-      const created: AdminProduct = {
-        id: `prod_dev_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
-        slug: input.slug,
-        name: input.name,
-        description: input.description,
-        priceCents: input.priceCents,
-        ...(input.compareAtPriceCents !== undefined
-          ? { compareAtPriceCents: input.compareAtPriceCents }
-          : {}),
-        category: input.category,
-        petType: input.petType,
-        images: input.images,
-        ...(input.nutritionalInfo
-          ? { nutritionalInfo: input.nutritionalInfo }
-          : {}),
-        inStock: input.stockCount > 0,
-        stockCount: input.stockCount,
-        tags: input.tags,
-        createdAt: new Date().toISOString(),
-        isPublished: input.isPublished,
-      };
-      saveAdminProducts([created, ...products]);
-      return created;
+      return localCreate(input);
     }
     throw err;
   }
@@ -153,44 +176,30 @@ export async function adminCreateProduct(
 export async function adminUpdateProduct(
   id: string,
   input: AdminProductInput,
-  options: AdminApiOptions = {},
+  options: AdminApiOptions & { existingImages?: ProductImage[] } = {},
 ): Promise<AdminProduct> {
-  const { accessToken } = options;
+  const { accessToken, existingImages } = options;
   try {
-    return await apiFetch<AdminProduct>(
+    const updated = await apiFetch<ApiAdminProduct>(
       `/admin/products/${encodeURIComponent(id)}`,
-      accessToken
-        ? { method: 'PATCH', body: JSON.stringify(input), accessToken }
-        : { method: 'PATCH', body: JSON.stringify(input) },
+      {
+        method: 'PATCH',
+        body: JSON.stringify(toUpdateBody(input)),
+        ...fetchOpts(accessToken),
+      },
     );
+
+    const prior = existingImages ?? mapApiProduct(updated).images;
+    if (input.images.length > 0 || prior.length > 0) {
+      await syncProductImages(id, input.images, prior, options);
+    }
+
+    const refreshed = await adminGetProduct(id, options);
+    return refreshed ?? mapApiProduct(updated);
   } catch (err) {
-    if (isNetwork(err)) {
+    if (isBackendUnreachableError(err)) {
       warnFallback();
-      const products = loadAdminProducts();
-      const target = products.find((p) => p.id === id);
-      if (!target) throw new ApiError('Product not found', 404);
-      const updated: AdminProduct = {
-        ...target,
-        slug: input.slug,
-        name: input.name,
-        description: input.description,
-        priceCents: input.priceCents,
-        ...(input.compareAtPriceCents !== undefined
-          ? { compareAtPriceCents: input.compareAtPriceCents }
-          : { compareAtPriceCents: undefined }),
-        category: input.category,
-        petType: input.petType,
-        images: input.images,
-        ...(input.nutritionalInfo
-          ? { nutritionalInfo: input.nutritionalInfo }
-          : { nutritionalInfo: undefined }),
-        inStock: input.stockCount > 0,
-        stockCount: input.stockCount,
-        tags: input.tags,
-        isPublished: input.isPublished,
-      };
-      saveAdminProducts(products.map((p) => (p.id === id ? updated : p)));
-      return updated;
+      return localUpdate(id, input);
     }
     throw err;
   }
@@ -203,20 +212,22 @@ export async function adminUpdateProduct(
 export async function adminDeleteProduct(
   id: string,
   options: AdminApiOptions = {},
-): Promise<void> {
+): Promise<ApiAdminProductDeleteResponse> {
   const { accessToken } = options;
   try {
-    await apiFetch<void>(
+    return await apiFetch<ApiAdminProductDeleteResponse>(
       `/admin/products/${encodeURIComponent(id)}`,
-      accessToken ? { method: 'DELETE', accessToken } : { method: 'DELETE' },
+      {
+        method: 'DELETE',
+        ...fetchOpts(accessToken),
+      },
     );
-    return;
   } catch (err) {
-    if (isNetwork(err)) {
+    if (isBackendUnreachableError(err)) {
       warnFallback();
       const products = loadAdminProducts();
       saveAdminProducts(products.filter((p) => p.id !== id));
-      return;
+      return { deleted: 'hard' };
     }
     throw err;
   }
@@ -224,43 +235,81 @@ export async function adminDeleteProduct(
 
 /* -------------------------------------------------------------------------- */
 /* Local fallback                                                             */
-/* TODO(phase 8): remove once backend phase 8 admin endpoints are on staging. */
 /* -------------------------------------------------------------------------- */
 
 function localList(opts: {
   page: number;
-  pageSize: number;
+  limit: number;
   search?: string;
   stockState?: StockState;
 }): AdminProductListResponse {
   const all = loadAdminProducts();
   const search = opts.search?.trim().toLowerCase() ?? '';
 
-  const filtered = all.filter((product) => {
+  let filtered = all.filter((product) => {
     if (search.length > 0) {
       const haystack =
         `${product.name} ${product.description} ${product.tags.join(' ')}`.toLowerCase();
       if (!haystack.includes(search)) return false;
     }
-    if (opts.stockState && opts.stockState !== 'all') {
-      const isOut = product.stockCount <= 0;
-      const isLow = !isOut && product.stockCount <= LOW_STOCK_THRESHOLD;
-      if (opts.stockState === 'out' && !isOut) return false;
-      if (opts.stockState === 'low' && !isLow) return false;
-      if (opts.stockState === 'in_stock' && (isOut || isLow)) return false;
-    }
     return true;
   });
 
+  filtered = filterByStockState(filtered, opts.stockState);
+
   const total = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(total / opts.pageSize));
+  const pageSize = opts.limit;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(Math.max(1, opts.page), totalPages);
-  const start = (safePage - 1) * opts.pageSize;
+  const start = (safePage - 1) * pageSize;
   return {
-    products: filtered.slice(start, start + opts.pageSize),
+    products: filtered.slice(start, start + pageSize),
     total,
     page: safePage,
-    pageSize: opts.pageSize,
+    pageSize,
     totalPages,
   };
+}
+
+function localCreate(input: AdminProductInput): AdminProduct {
+  const products = loadAdminProducts();
+  const created: AdminProduct = {
+    id: `prod_dev_${Date.now().toString(36)}`,
+    slug: input.slug,
+    name: input.name,
+    description: input.description,
+    priceCents: input.priceCents,
+    category: input.category,
+    images: input.images,
+    inStock: input.stockCount > 0,
+    stockCount: input.stockCount,
+    tags: input.tags,
+    createdAt: new Date().toISOString(),
+    isPublished: input.isPublished,
+    imageUrl: input.images[0]?.url ?? null,
+  };
+  saveAdminProducts([created, ...products]);
+  return created;
+}
+
+function localUpdate(id: string, input: AdminProductInput): AdminProduct {
+  const products = loadAdminProducts();
+  const target = products.find((p) => p.id === id);
+  if (!target) throw new ApiError('Product not found', 404);
+  const updated: AdminProduct = {
+    ...target,
+    slug: input.slug,
+    name: input.name,
+    description: input.description,
+    priceCents: input.priceCents,
+    category: input.category,
+    images: input.images,
+    inStock: input.stockCount > 0,
+    stockCount: input.stockCount,
+    tags: input.tags,
+    isPublished: input.isPublished,
+    imageUrl: input.images[0]?.url ?? null,
+  };
+  saveAdminProducts(products.map((p) => (p.id === id ? updated : p)));
+  return updated;
 }
