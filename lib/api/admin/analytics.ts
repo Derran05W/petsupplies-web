@@ -8,6 +8,13 @@ import type {
   AnalyticsRevenueRange,
 } from '@/types/admin-analytics';
 import { apiFetch } from '../client';
+import {
+  normalizeAdminAnalyticsDiscounts,
+  normalizeAdminAnalyticsLowStock,
+  normalizeAdminAnalyticsOverview,
+  normalizeAdminAnalyticsSubscriptions,
+  normalizeAdminAnalyticsTopProducts,
+} from './analytics-normalize';
 
 export interface AdminApiOptions {
   accessToken?: string;
@@ -17,10 +24,11 @@ export async function adminAnalyticsOverview(
   options: AdminApiOptions = {},
 ): Promise<AdminAnalyticsOverview> {
   const { accessToken } = options;
-  return apiFetch<AdminAnalyticsOverview>('/admin/analytics/overview', {
+  const raw = await apiFetch<unknown>('/admin/analytics/overview', {
     cache: 'no-store',
     ...(accessToken ? { accessToken } : {}),
   });
+  return normalizeAdminAnalyticsOverview(raw);
 }
 
 export async function adminAnalyticsRevenueTimeseries(
@@ -40,10 +48,11 @@ export async function adminAnalyticsTopProducts(
 ): Promise<AdminAnalyticsTopProducts> {
   const { accessToken, limit = 10 } = options;
   const q = new URLSearchParams({ limit: String(limit) });
-  return apiFetch<AdminAnalyticsTopProducts>(
-    `/admin/analytics/products/top?${q}`,
-    { cache: 'no-store', ...(accessToken ? { accessToken } : {}) },
-  );
+  const raw = await apiFetch<unknown>(`/admin/analytics/products/top?${q}`, {
+    cache: 'no-store',
+    ...(accessToken ? { accessToken } : {}),
+  });
+  return normalizeAdminAnalyticsTopProducts(raw);
 }
 
 export async function adminAnalyticsLowStock(
@@ -51,28 +60,31 @@ export async function adminAnalyticsLowStock(
 ): Promise<AdminAnalyticsLowStock> {
   const { accessToken, limit = 20 } = options;
   const q = new URLSearchParams({ limit: String(limit) });
-  return apiFetch<AdminAnalyticsLowStock>(
+  const raw = await apiFetch<unknown>(
     `/admin/analytics/products/low-stock?${q}`,
     { cache: 'no-store', ...(accessToken ? { accessToken } : {}) },
   );
+  return normalizeAdminAnalyticsLowStock(raw);
 }
 
 export async function adminAnalyticsSubscriptions(
   options: AdminApiOptions = {},
 ): Promise<AdminAnalyticsSubscriptions> {
   const { accessToken } = options;
-  return apiFetch<AdminAnalyticsSubscriptions>(
-    '/admin/analytics/subscriptions',
-    { cache: 'no-store', ...(accessToken ? { accessToken } : {}) },
-  );
+  const raw = await apiFetch<unknown>('/admin/analytics/subscriptions', {
+    cache: 'no-store',
+    ...(accessToken ? { accessToken } : {}),
+  });
+  return normalizeAdminAnalyticsSubscriptions(raw);
 }
 
 export async function adminAnalyticsDiscounts(
   options: AdminApiOptions = {},
 ): Promise<AdminAnalyticsDiscounts> {
   const { accessToken } = options;
-  return apiFetch<AdminAnalyticsDiscounts>('/admin/analytics/discounts', {
+  const raw = await apiFetch<unknown>('/admin/analytics/discounts', {
     cache: 'no-store',
     ...(accessToken ? { accessToken } : {}),
   });
+  return normalizeAdminAnalyticsDiscounts(raw);
 }

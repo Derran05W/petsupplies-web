@@ -124,6 +124,14 @@ describe('SettingsDrawer', () => {
     ).toBeInTheDocument();
   });
 
+  it('links profile row to account with accessible name', () => {
+    render(<SettingsDrawer open onClose={vi.fn()} />);
+
+    expect(
+      screen.getByRole('link', { name: /go to account for pat customer/i }),
+    ).toHaveAttribute('href', '/account');
+  });
+
   it('calls onClose when Escape is pressed', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

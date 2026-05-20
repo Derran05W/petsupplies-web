@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { userHasAdminRole } from '@/lib/account/admin-role';
 import { createClient } from '@/lib/supabase/server';
+import { AdminAccessBanner } from '@/components/admin/AdminAccessBanner';
 import { AdminShell } from '@/components/admin/AdminShell';
 
 /**
@@ -29,5 +30,10 @@ export default async function AdminLayout({
     redirect('/');
   }
 
-  return <AdminShell user={user}>{children}</AdminShell>;
+  return (
+    <AdminShell user={user}>
+      <AdminAccessBanner />
+      {children}
+    </AdminShell>
+  );
 }

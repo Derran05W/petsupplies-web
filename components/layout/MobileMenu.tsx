@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { X } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
 import { NAV_LINKS } from './NavLinks';
 import { AuthSlot } from './AuthSlot';
 
@@ -15,6 +16,7 @@ interface MobileMenuProps {
 }
 
 export function MobileMenu({ open, onClose }: MobileMenuProps) {
+  const { user, loading } = useAuth();
   const pathname = usePathname();
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -153,9 +155,11 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           </ul>
         </nav>
 
-        <div className="border-t border-warm-200 px-6 py-5">
-          <AuthSlot />
-        </div>
+        {!loading && !user ? (
+          <div className="border-t border-warm-200 px-6 py-5">
+            <AuthSlot />
+          </div>
+        ) : null}
       </div>
     </div>
   );

@@ -2,17 +2,16 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  getAccountDisplayName,
-  getAccountInitial,
-} from '@/lib/account/user-display';
 import { cn } from '@/lib/utils';
-import { AccountAvatarLink } from './AccountAvatarLink';
 
 interface AuthSlotProps {
   className?: string;
 }
 
+/**
+ * Navbar sign-in affordance for guests. Signed-in users open Settings
+ * from the gear icon and reach account via the settings drawer profile row.
+ */
 export function AuthSlot({ className }: AuthSlotProps) {
   const { user, loading } = useAuth();
 
@@ -39,14 +38,5 @@ export function AuthSlot({ className }: AuthSlotProps) {
     );
   }
 
-  const displayName = getAccountDisplayName(user);
-  const initial = getAccountInitial(displayName);
-
-  return (
-    <AccountAvatarLink
-      ariaLabel={`Go to account for ${displayName}`}
-      initial={initial}
-      className={className}
-    />
-  );
+  return null;
 }

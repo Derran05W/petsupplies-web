@@ -13,6 +13,7 @@
  */
 
 import { parseApiErrorMessage } from './errors';
+import { resolveApiBaseUrl } from './resolve-api-base-url';
 
 interface ApiErrorBody {
   message?: string;
@@ -46,11 +47,7 @@ export class ApiError extends Error {
 
 /** Base URL for petsupplies-api (exported for tests and dev diagnostics). */
 export function getApiBaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_API_URL;
-  if (!url || url.length === 0) {
-    return 'http://localhost:3001';
-  }
-  return url.replace(/\/$/, '');
+  return resolveApiBaseUrl();
 }
 
 function formatUrlForError(url: string): string {
