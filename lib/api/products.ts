@@ -4,7 +4,6 @@ import {
   type Product,
   type ProductFilters,
   type ProductListResponse,
-  type ProductSort,
 } from '@/types/product';
 import { ApiError, apiFetch } from './client';
 import {
@@ -14,6 +13,11 @@ import {
   type ApiCatalogProductListResponse,
 } from './product-mapper';
 import { FEATURED_PRODUCTS } from '@/lib/placeholder/products';
+import {
+  filterAndPaginateProducts,
+  CLIENT_FILTER_PAGE_SIZE,
+  needsClientSideProductFilter,
+} from '@/lib/products/filter-products';
 
 const DEFAULT_PAGE_SIZE = 12;
 const RELATED_LIMIT = 4;
@@ -46,28 +50,70 @@ function toQueryString(filters: ProductFilters): string {
  * unreachable so the UI never crashes during local dev / preview.
  * TODO(phase 4): remove fallback once backend phase 4 is on staging.
  */
+function mapProductListResponse(
+  raw: ApiCatalogProductListResponse | ProductListResponse,
+): ProductListResponse {
+  if (
+    raw &&
+    typeof raw === 'object' &&
+    'products' in raw &&
+    typeof (raw as ApiCatalogProductListResponse).limit === 'number'
+  ) {
+    return mapCatalogProductListResponse(raw as ApiCatalogProductListResponse);
+  }
+
+  const legacy = raw as ProductListResponse;
+  return {
+    ...legacy,
+    products: (legacy.products ?? []).map(mapCatalogProduct),
+  };
+}
+
+async function fetchCatalogForClientFiltering(
+  filters: ProductFilters,
+): Promise<Product[]> {
+  const apiFilters: ProductFilters = {
+    minPriceCents: filters.minPriceCents,
+    maxPriceCents: filters.maxPriceCents,
+    sort: filters.sort,
+    pageSize: CLIENT_FILTER_PAGE_SIZE,
+  };
+
+  const products: Product[] = [];
+  let page = 1;
+  let total = Number.POSITIVE_INFINITY;
+
+  while (products.length < total) {
+    const raw = await apiFetch<
+      ApiCatalogProductListResponse | ProductListResponse
+    >(`/products${toQueryString({ ...apiFilters, page })}`, {
+      cache: 'no-store',
+    });
+    const mapped = mapProductListResponse(raw);
+    products.push(...mapped.products);
+    total = mapped.total;
+    if (mapped.products.length === 0) break;
+    page += 1;
+    if (page > 50) break;
+  }
+
+  return products;
+}
+
 export async function getProducts(
   filters: ProductFilters = {},
 ): Promise<ProductListResponse> {
   try {
+    if (needsClientSideProductFilter(filters)) {
+      const products = await fetchCatalogForClientFiltering(filters);
+      return filterAndPaginateProducts(products, filters);
+    }
+
     const raw = await apiFetch<
       ApiCatalogProductListResponse | ProductListResponse
     >(`/products${toQueryString(filters)}`, { cache: 'no-store' });
-    if (
-      raw &&
-      typeof raw === 'object' &&
-      'products' in raw &&
-      typeof (raw as ApiCatalogProductListResponse).limit === 'number'
-    ) {
-      return mapCatalogProductListResponse(
-        raw as ApiCatalogProductListResponse,
-      );
-    }
-    const legacy = raw as ProductListResponse;
-    return {
-      ...legacy,
-      products: (legacy.products ?? []).map(mapCatalogProduct),
-    };
+
+    return mapProductListResponse(raw);
   } catch (err) {
     if (err instanceof ApiError && err.isNetworkError) {
       return localFilter(filters);
@@ -154,57 +200,6 @@ export async function getRelatedProducts(
 /* TODO(phase 4): remove once backend phase 4 is on staging.                  */
 /* -------------------------------------------------------------------------- */
 
-function compareBySort(sort: ProductSort) {
-  return (a: Product, b: Product): number => {
-    switch (sort) {
-      case 'price_asc':
-        return a.priceCents - b.priceCents;
-      case 'price_desc':
-        return b.priceCents - a.priceCents;
-      case 'newest':
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-      case 'relevance':
-      default:
-        return 0;
-    }
-  };
-}
-
 function localFilter(filters: ProductFilters): ProductListResponse {
-  const search = filters.search?.trim().toLowerCase() ?? '';
-
-  const matches = FEATURED_PRODUCTS.filter((p) => {
-    if (filters.category && p.category !== filters.category) return false;
-    if (filters.petType && p.petType !== filters.petType) return false;
-    if (
-      typeof filters.minPriceCents === 'number' &&
-      p.priceCents < filters.minPriceCents
-    )
-      return false;
-    if (
-      typeof filters.maxPriceCents === 'number' &&
-      p.priceCents > filters.maxPriceCents
-    )
-      return false;
-    if (search.length > 0) {
-      const haystack =
-        `${p.name} ${p.description} ${p.tags.join(' ')}`.toLowerCase();
-      if (!haystack.includes(search)) return false;
-    }
-    return true;
-  });
-
-  const sorted = [...matches].sort(compareBySort(filters.sort ?? 'relevance'));
-
-  const pageSize = filters.pageSize ?? DEFAULT_PAGE_SIZE;
-  const page = filters.page && filters.page > 0 ? filters.page : 1;
-  const total = sorted.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const safePage = Math.min(page, totalPages);
-  const start = (safePage - 1) * pageSize;
-  const products = sorted.slice(start, start + pageSize);
-
-  return { products, total, page: safePage, pageSize, totalPages };
+  return filterAndPaginateProducts(FEATURED_PRODUCTS, filters);
 }

@@ -20,6 +20,10 @@ describe('formatPrice', () => {
     expect(out).toContain('12.99');
     expect(out.toLowerCase()).toContain('£');
   });
+
+  it('falls back to zero for invalid cent values', () => {
+    expect(formatPrice(Number.NaN)).toBe('$0.00');
+  });
 });
 
 describe('formatDate', () => {

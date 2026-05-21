@@ -7,7 +7,13 @@ import type { ProductSubscriptionInfo } from './subscription';
  * the response with no transformation layer.
  */
 
-export type PetType = 'dog' | 'cat' | 'bird' | 'small-animal';
+export type PetType =
+  | 'dog'
+  | 'cat'
+  | 'bird'
+  | 'fish'
+  | 'reptile'
+  | 'small-animal';
 
 export type Category = 'food' | 'treats' | 'accessories' | 'healthcare';
 
@@ -84,6 +90,8 @@ export const PET_TYPE_LABEL: Record<PetType, string> = {
   dog: 'Dogs',
   cat: 'Cats',
   bird: 'Birds',
+  fish: 'Fish',
+  reptile: 'Reptiles',
   'small-animal': 'Small animals',
 };
 

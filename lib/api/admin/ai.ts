@@ -48,9 +48,9 @@ export function aiPromptFromAdminCategory(category: AdminProductCategory): {
     case 'SMALL_PET':
       return { category: 'food', petType: 'small-animal' };
     case 'FISH':
-      return { category: 'food', petType: 'small-animal' };
+      return { category: 'food', petType: 'fish' };
     case 'REPTILE':
-      return { category: 'healthcare', petType: 'small-animal' };
+      return { category: 'healthcare', petType: 'reptile' };
     case 'ACCESSORIES':
       return { category: 'accessories', petType: 'dog' };
     case 'HEALTH':

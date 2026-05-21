@@ -7,13 +7,20 @@ import {
   PET_TYPE_LABEL,
   type Category,
   type PetType,
+  type ProductFilters,
 } from '@/types/product';
+import {
+  buildProductListingSearchParams,
+  parseProductFilters,
+} from '@/lib/utils/searchParams';
 import { cn } from '@/lib/utils';
 
 const PET_TYPES: ReadonlyArray<PetType> = [
   'dog',
   'cat',
   'bird',
+  'fish',
+  'reptile',
   'small-animal',
 ];
 const CATEGORIES: ReadonlyArray<Category> = [
@@ -42,16 +49,25 @@ export function FilterControls({
 }: FilterControlsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const rawSearchParams = useMemo(
+    () => Object.fromEntries(searchParams.entries()),
+    [searchParams],
+  );
+  const filters = useMemo(
+    () => parseProductFilters(rawSearchParams),
+    [rawSearchParams],
+  );
 
-  const currentPetType = searchParams.get('petType');
-  const currentCategory = searchParams.get('category');
+  const currentPetType = filters.petType;
+  const currentCategory = filters.category;
   const currentMinPrice = searchParams.get('minPrice') ?? '';
   const currentMaxPrice = searchParams.get('maxPrice') ?? '';
 
-  const replaceWith = useCallback(
-    (mutate: (params: URLSearchParams) => void) => {
-      const params = new URLSearchParams(searchParams.toString());
-      mutate(params);
+  const replaceFilters = useCallback(
+    (mutate: (next: ProductFilters) => void) => {
+      const next: ProductFilters = { ...filters };
+      mutate(next);
+      const params = buildProductListingSearchParams(next, rawSearchParams);
       params.delete('page');
       const qs = params.toString();
       router.replace(qs.length > 0 ? `/products?${qs}` : '/products', {
@@ -59,37 +75,44 @@ export function FilterControls({
       });
       if (onAfterChange) onAfterChange();
     },
-    [router, searchParams, onAfterChange],
+    [filters, rawSearchParams, router, onAfterChange],
   );
 
   const togglePetType = (value: PetType) => {
-    replaceWith((params) => {
-      if (currentPetType === value) {
-        params.delete('petType');
+    replaceFilters((next) => {
+      if (next.petType === value) {
+        delete next.petType;
       } else {
-        params.set('petType', value);
+        next.petType = value;
       }
     });
   };
 
   const toggleCategory = (value: Category) => {
-    replaceWith((params) => {
-      if (currentCategory === value) {
-        params.delete('category');
+    replaceFilters((next) => {
+      if (next.category === value) {
+        delete next.category;
       } else {
-        params.set('category', value);
+        next.category = value;
       }
     });
   };
 
   const handlePriceChange = (key: 'minPrice' | 'maxPrice', value: string) => {
-    replaceWith((params) => {
-      if (value.length === 0) {
-        params.delete(key);
-      } else {
-        params.set(key, value);
-      }
+    const params = new URLSearchParams(
+      buildProductListingSearchParams(filters, rawSearchParams).toString(),
+    );
+    if (value.length === 0) {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
+    params.delete('page');
+    const qs = params.toString();
+    router.replace(qs.length > 0 ? `/products?${qs}` : '/products', {
+      scroll: false,
     });
+    if (onAfterChange) onAfterChange();
   };
 
   const hasAnyFilter = useMemo(
@@ -99,21 +122,22 @@ export function FilterControls({
         currentCategory ||
         currentMinPrice ||
         currentMaxPrice ||
-        searchParams.get('search'),
+        filters.search,
       ),
     [
       currentPetType,
       currentCategory,
       currentMinPrice,
       currentMaxPrice,
-      searchParams,
+      filters.search,
     ],
   );
 
   const clearAll = () => {
-    const sort = searchParams.get('sort');
     const params = new URLSearchParams();
-    if (sort) params.set('sort', sort);
+    if (filters.sort && filters.sort !== 'relevance') {
+      params.set('sort', filters.sort);
+    }
     const qs = params.toString();
     router.replace(qs.length > 0 ? `/products?${qs}` : '/products', {
       scroll: false,

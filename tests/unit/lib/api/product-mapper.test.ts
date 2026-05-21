@@ -26,6 +26,16 @@ describe('mapCatalogProduct', () => {
     expect(product.priceCents).toBe(3799);
   });
 
+  it('coerces string prices from API payloads', () => {
+    const product = mapCatalogProduct({ ...apiProduct, price: '3799' });
+    expect(product.priceCents).toBe(3799);
+  });
+
+  it('falls back to zero for invalid prices', () => {
+    const product = mapCatalogProduct({ ...apiProduct, price: Number.NaN });
+    expect(product.priceCents).toBe(0);
+  });
+
   it('infers petType from tags', () => {
     expect(mapCatalogProduct(apiProduct).petType).toBe('cat');
   });

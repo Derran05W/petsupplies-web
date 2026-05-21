@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { redirect } from 'next/navigation';
 import { type Metadata } from 'next';
 import { brand } from '@/lib/config/brand';
 import { getProducts } from '@/lib/api/products';
@@ -11,6 +12,7 @@ import { SortDropdown } from '@/components/product/SortDropdown';
 import { Pagination } from '@/components/product/Pagination';
 import {
   activeFilterCount,
+  legacyProductListingRedirectPath,
   parseProductFilters,
 } from '@/lib/utils/searchParams';
 
@@ -53,6 +55,9 @@ async function ProductsResults({
 }
 
 export default function ProductsPage({ searchParams }: ProductsPageProps) {
+  const redirectPath = legacyProductListingRedirectPath(searchParams);
+  if (redirectPath) redirect(redirectPath);
+
   const filters = parseProductFilters(searchParams);
   const filterCount = activeFilterCount(filters);
   const suspenseKey = JSON.stringify(filters);
