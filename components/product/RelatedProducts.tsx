@@ -9,9 +9,7 @@ interface RelatedProductsProps {
 
 /**
  * "You might also like" row at the bottom of the product detail page.
- * Server component — runs its own fetch independently of the parent
- * detail fetch, so a slow related lookup doesn't block first paint of the
- * main product info (Next streams it via the parent `<Suspense>`).
+ * Wrapped in `<Suspense>` by `RelatedProductsSection` on the PDP.
  *
  * Rendering nothing when there are no related products is intentional —
  * a row with one item or zero looks worse than no row at all.

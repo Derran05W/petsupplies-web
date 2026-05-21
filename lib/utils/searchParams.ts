@@ -28,11 +28,27 @@ const VALID_SORTS: ReadonlyArray<ProductSort> = [
 ];
 
 const VALID_REVIEW_SORTS: ReadonlyArray<ReviewSort> = [
-  'recent',
-  'helpful',
+  'newest',
+  'oldest',
   'rating_desc',
   'rating_asc',
 ];
+
+/** Pre-contract URL values; mapped to API sort on read. */
+const LEGACY_REVIEW_SORT: Readonly<Record<string, ReviewSort>> = {
+  recent: 'newest',
+  helpful: 'newest',
+};
+
+function parseReviewSort(raw: string | undefined): ReviewSort {
+  if (raw && (VALID_REVIEW_SORTS as readonly string[]).includes(raw)) {
+    return raw as ReviewSort;
+  }
+  if (raw && raw in LEGACY_REVIEW_SORT) {
+    return LEGACY_REVIEW_SORT[raw]!;
+  }
+  return 'newest';
+}
 
 /**
  * Pull a single string value out of a Next.js `searchParams` page prop.
@@ -134,12 +150,13 @@ export function parseReviewListingParams(
   let page = Number.parseInt(pageRaw ?? '1', 10);
   if (!Number.isFinite(page) || page < 1) page = 1;
 
-  const sortRaw = firstParam(searchParams['reviewsSort']);
-  const sort =
-    sortRaw &&
-    (VALID_REVIEW_SORTS as readonly string[]).includes(sortRaw as ReviewSort)
-      ? (sortRaw as ReviewSort)
-      : 'recent';
+  const sort = parseReviewSort(firstParam(searchParams['reviewsSort']));
 
   return { page, sort };
+}
+
+/** Clamp review list page to [1, totalPages] after the API responds. */
+export function clampReviewPage(page: number, totalPages: number): number {
+  if (totalPages < 1) return 1;
+  return Math.min(Math.max(1, page), totalPages);
 }

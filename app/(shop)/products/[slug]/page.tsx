@@ -1,11 +1,11 @@
 import { type Metadata } from 'next';
 import { Suspense } from 'react';
-import { notFound } from 'next/navigation';
 import { brand } from '@/lib/config/brand';
-import { getFreeShippingThresholdCents } from '@/lib/config/shipping';
 import { getProductBySlug } from '@/lib/api/products';
-import { ProductDetail } from '@/components/product/ProductDetail';
-import { RelatedProducts } from '@/components/product/RelatedProducts';
+import { ProductDetailSkeleton } from '@/components/product/ProductDetailSkeleton';
+import { ProductDetailSection } from '@/components/product/sections/ProductDetailSection';
+import { RelatedProductsSkeleton } from '@/components/product/RelatedProductsSkeleton';
+import { RelatedProductsSection } from '@/components/product/sections/RelatedProductsSection';
 import { ReviewsSection } from '@/components/product/reviews/ReviewsSection';
 import { ReviewSkeleton } from '@/components/product/reviews/ReviewSkeleton';
 import { parseReviewListingParams } from '@/lib/utils/searchParams';
@@ -38,42 +38,36 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductDetailPage({
+export default function ProductDetailPage({
   params,
   searchParams,
 }: ProductDetailPageProps) {
-  const product = await getProductBySlug(params.slug);
-  if (!product) {
-    notFound();
-  }
-
-  const freeShippingThresholdCents = await getFreeShippingThresholdCents();
-
   const { page: reviewsPage, sort: reviewsSort } =
     parseReviewListingParams(searchParams);
 
-  const reviewsSuspenseKey = `reviews-${product.slug}-${reviewsPage}-${reviewsSort}`;
+  const reviewsSuspenseKey = `reviews-${params.slug}-${reviewsPage}-${reviewsSort}`;
+  const relatedSuspenseKey = `related-${params.slug}`;
 
   return (
     <>
-      <ProductDetail
-        product={product}
-        freeShippingThresholdCents={freeShippingThresholdCents}
-      />
+      <Suspense fallback={<ProductDetailSkeleton />}>
+        <ProductDetailSection slug={params.slug} />
+      </Suspense>
       <div className="px-6 pb-20 md:px-8 lg:px-12">
         <div className="mx-auto max-w-7xl">
           <Suspense fallback={<ReviewSkeleton />} key={reviewsSuspenseKey}>
             <ReviewsSection
-              slug={product.slug}
+              slug={params.slug}
               page={reviewsPage}
               sort={reviewsSort}
-              productRating={product.rating}
             />
           </Suspense>
-          <RelatedProducts
-            petType={product.petType}
-            excludeSlug={product.slug}
-          />
+          <Suspense
+            fallback={<RelatedProductsSkeleton />}
+            key={relatedSuspenseKey}
+          >
+            <RelatedProductsSection slug={params.slug} />
+          </Suspense>
         </div>
       </div>
     </>

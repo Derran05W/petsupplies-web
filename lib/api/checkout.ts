@@ -42,7 +42,7 @@ export interface CreateCheckoutSessionResponse {
 let warnedAboutFallback = false;
 
 /**
- * POST `/checkout` to petsupplies-api. The backend creates a Stripe
+ * POST `/checkout/session` to petsupplies-api. The backend creates a Stripe
  * Checkout Session and returns its URL + ID — the frontend then does a
  * full-page navigation to `url`.
  *
@@ -60,7 +60,7 @@ export async function createCheckoutSession(
   snapshot: PendingCheckoutSnapshot,
 ): Promise<CreateCheckoutSessionResponse> {
   try {
-    return await apiFetch<CreateCheckoutSessionResponse>('/checkout', {
+    return await apiFetch<CreateCheckoutSessionResponse>('/checkout/session', {
       method: 'POST',
       body: JSON.stringify(request),
     });

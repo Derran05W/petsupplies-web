@@ -72,10 +72,11 @@ export function ProductDetail({
             </h1>
 
             {product.rating ? (
-              <div
+              <a
+                href="#reviews"
                 role="img"
-                aria-label={`Rated ${product.rating.avg.toFixed(1)} out of 5 stars based on ${product.rating.count} reviews`}
-                className="inline-flex w-fit items-center gap-1.5 rounded-md bg-warm-100 px-2.5 py-1.5 font-body text-sm text-warm-900"
+                aria-label={`Rated ${product.rating.avg.toFixed(1)} out of 5 stars based on ${product.rating.count} reviews — jump to customer reviews`}
+                className="inline-flex w-fit items-center gap-1.5 rounded-md bg-warm-100 px-2.5 py-1.5 font-body text-sm text-warm-900 transition-colors hover:bg-warm-200"
               >
                 <RatingStars
                   variant="aggregate"
@@ -90,7 +91,7 @@ export function ProductDetail({
                   ({product.rating.count}{' '}
                   {product.rating.count === 1 ? 'review' : 'reviews'})
                 </span>
-              </div>
+              </a>
             ) : null}
 
             <p className="flex items-baseline gap-3">

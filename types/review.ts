@@ -3,10 +3,35 @@
  * Adjust field names here if the backend contract differs.
  */
 
-export type ReviewSort = 'recent' | 'helpful' | 'rating_desc' | 'rating_asc';
+/** Matches petsupplies-api `GET /products/:slug/reviews` sort query. */
+export type ReviewSort = 'newest' | 'oldest' | 'rating_desc' | 'rating_asc';
 
 export type StarRating = 1 | 2 | 3 | 4 | 5;
 
+/** Raw review row from petsupplies-api list/detail endpoints. */
+export interface ApiReview {
+  id: string;
+  productId: string;
+  userId: string;
+  displayName?: string;
+  rating: number;
+  title: string | null;
+  body: string;
+  verified: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+/** Paginated list from `GET /products/:slug/reviews`. */
+export interface ApiReviewListResponse {
+  data: ApiReview[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+/** Normalized list shape used by PDP review UI. */
 export interface Review {
   id: string;
   productId: string;

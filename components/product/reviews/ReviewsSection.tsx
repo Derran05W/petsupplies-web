@@ -1,7 +1,10 @@
 import { Suspense } from 'react';
 import { ApiError } from '@/lib/api/client';
+import { getProductBySlug } from '@/lib/api/products';
 import { listProductReviews } from '@/lib/api/reviews';
-import type { Rating } from '@/types/product';
+import { accountFirstNameFromUser } from '@/lib/reviews/display-name';
+import { getServerUser } from '@/lib/supabase/server-user';
+import { clampReviewPage } from '@/lib/utils/searchParams';
 import type { ReviewSort } from '@/types/review';
 import { ReviewSummary } from './ReviewSummary';
 import { ReviewForm } from './ReviewForm';
@@ -20,24 +23,41 @@ interface ReviewsSectionProps {
   slug: string;
   page: number;
   sort: ReviewSort;
-  productRating?: Rating;
 }
 
 export async function ReviewsSection({
   slug,
   page,
   sort,
-  productRating,
 }: ReviewsSectionProps) {
+  const product = await getProductBySlug(slug);
+  const productRating = product?.rating;
+  const viewer = await getServerUser();
+  const viewerUserId = viewer?.id;
+  const viewerFirstName = viewer ? accountFirstNameFromUser(viewer) : undefined;
+
   let data;
   try {
     data = await listProductReviews(slug, { page, pageSize: 10, sort });
+    const displayPage = clampReviewPage(page, data.totalPages);
+    if (displayPage !== page) {
+      data = await listProductReviews(slug, {
+        page: displayPage,
+        pageSize: 10,
+        sort,
+      });
+    }
   } catch (err) {
-    if (err instanceof ApiError && err.isNetworkError) {
+    if (err instanceof ApiError) {
       return <ReviewsUnavailable />;
     }
     throw err;
   }
+
+  const viewerReview =
+    viewerUserId != null
+      ? data.reviews.find((r) => r.userId === viewerUserId)
+      : undefined;
 
   return (
     <section
@@ -62,7 +82,11 @@ export async function ReviewsSection({
 
           <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
             <aside className="w-full shrink-0 lg:max-w-sm">
-              <ReviewForm slug={slug} />
+              <ReviewForm
+                slug={slug}
+                existingReview={viewerReview}
+                viewerFirstName={viewerFirstName}
+              />
             </aside>
 
             <div className="min-w-0 flex-1 space-y-6">
@@ -73,7 +97,7 @@ export async function ReviewsSection({
                   sort={sort}
                 />
               </Suspense>
-              {data.reviews.length === 0 ? (
+              {(data.reviews?.length ?? 0) === 0 ? (
                 <ReviewsEmpty slug={slug} />
               ) : (
                 <ReviewList reviews={data.reviews} />
