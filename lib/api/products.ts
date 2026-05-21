@@ -7,6 +7,12 @@ import {
   type ProductSort,
 } from '@/types/product';
 import { ApiError, apiFetch } from './client';
+import {
+  mapCatalogProduct,
+  mapCatalogProductListResponse,
+  type ApiCatalogProduct,
+  type ApiCatalogProductListResponse,
+} from './product-mapper';
 import { FEATURED_PRODUCTS } from '@/lib/placeholder/products';
 
 const DEFAULT_PAGE_SIZE = 12;
@@ -14,17 +20,20 @@ const RELATED_LIMIT = 4;
 
 function toQueryString(filters: ProductFilters): string {
   const params = new URLSearchParams();
-  if (filters.category) params.set('category', filters.category);
-  if (filters.petType) params.set('petType', filters.petType);
-  if (typeof filters.minPriceCents === 'number')
-    params.set('minPriceCents', String(filters.minPriceCents));
-  if (typeof filters.maxPriceCents === 'number')
-    params.set('maxPriceCents', String(filters.maxPriceCents));
-  if (filters.search && filters.search.length > 0)
-    params.set('search', filters.search);
-  if (filters.sort) params.set('sort', filters.sort);
+  if (filters.search && filters.search.length > 0) {
+    params.set('q', filters.search);
+  }
+  if (typeof filters.minPriceCents === 'number') {
+    params.set('minPrice', String(filters.minPriceCents));
+  }
+  if (typeof filters.maxPriceCents === 'number') {
+    params.set('maxPrice', String(filters.maxPriceCents));
+  }
+  if (filters.sort && filters.sort !== 'relevance') {
+    params.set('sort', filters.sort);
+  }
   if (filters.page) params.set('page', String(filters.page));
-  if (filters.pageSize) params.set('pageSize', String(filters.pageSize));
+  params.set('limit', String(filters.pageSize ?? DEFAULT_PAGE_SIZE));
   const qs = params.toString();
   return qs.length > 0 ? `?${qs}` : '';
 }
@@ -41,10 +50,24 @@ export async function getProducts(
   filters: ProductFilters = {},
 ): Promise<ProductListResponse> {
   try {
-    return await apiFetch<ProductListResponse>(
-      `/products${toQueryString(filters)}`,
-      { cache: 'no-store' },
-    );
+    const raw = await apiFetch<
+      ApiCatalogProductListResponse | ProductListResponse
+    >(`/products${toQueryString(filters)}`, { cache: 'no-store' });
+    if (
+      raw &&
+      typeof raw === 'object' &&
+      'products' in raw &&
+      typeof (raw as ApiCatalogProductListResponse).limit === 'number'
+    ) {
+      return mapCatalogProductListResponse(
+        raw as ApiCatalogProductListResponse,
+      );
+    }
+    const legacy = raw as ProductListResponse;
+    return {
+      ...legacy,
+      products: (legacy.products ?? []).map(mapCatalogProduct),
+    };
   } catch (err) {
     if (err instanceof ApiError && err.isNetworkError) {
       return localFilter(filters);
@@ -67,9 +90,11 @@ export async function getProducts(
 export const getProductBySlug = cache(
   async (slug: string): Promise<Product | null> => {
     try {
-      return await apiFetch<Product>(`/products/${encodeURIComponent(slug)}`, {
-        cache: 'no-store',
-      });
+      const raw = await apiFetch<ApiCatalogProduct | Product>(
+        `/products/${encodeURIComponent(slug)}`,
+        { cache: 'no-store' },
+      );
+      return mapCatalogProduct(raw);
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 404) return null;
@@ -92,11 +117,26 @@ export async function getRelatedProducts(
   excludeSlug: string,
 ): Promise<Product[]> {
   try {
-    const response = await apiFetch<ProductListResponse>(
-      `/products?petType=${encodeURIComponent(petType)}&pageSize=${RELATED_LIMIT + 1}`,
-      { cache: 'no-store' },
-    );
+    const raw = await apiFetch<
+      ApiCatalogProductListResponse | ProductListResponse
+    >(`/products?limit=${RELATED_LIMIT + 5}`, { cache: 'no-store' });
+    const response =
+      raw &&
+      typeof raw === 'object' &&
+      'limit' in raw &&
+      typeof (raw as ApiCatalogProductListResponse).limit === 'number'
+        ? mapCatalogProductListResponse(raw as ApiCatalogProductListResponse)
+        : {
+            products: ((raw as ProductListResponse).products ?? []).map(
+              mapCatalogProduct,
+            ),
+            total: 0,
+            page: 1,
+            pageSize: RELATED_LIMIT + 5,
+            totalPages: 1,
+          };
     return response.products
+      .filter((p) => p.petType === petType)
       .filter((p) => p.slug !== excludeSlug)
       .slice(0, RELATED_LIMIT);
   } catch (err) {

@@ -8,7 +8,7 @@
  *     without flake (UI changes, captcha, occasional 3DS challenges,
  *     latency spikes).
  *   - The frontend's job is to (a) collect a valid shipping address,
- *     (b) POST it to /checkout, and (c) navigate to the returned URL.
+ *     (b) POST it to /checkout/session, and (c) navigate to the returned URL.
  *     Mocking (b) lets us assert (a) and (c) deterministically without
  *     leaving our origin.
  *

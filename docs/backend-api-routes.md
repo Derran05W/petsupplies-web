@@ -2,6 +2,8 @@
 
 Reference snapshot for aligning the storefront (`petsupplies-web`) with the backend. Mirrors the backend's `API endpoints` doc (single inventory of HTTP routes mounted by `src/app.ts` in the API repo). Update this file when the API surface changes.
 
+**Contract summary (enums, query mapping, fallbacks):** [api-contracts.md](./api-contracts.md).
+
 **Customer storefront:** use everything except `/admin/*`, `/webhooks/*`, and `/jobs/*`.
 **Admin UI:** two gates must align — see [docs/admin-access.md](./admin-access.md).
 
@@ -59,6 +61,8 @@ Mounted at `/products`. Listing and detail are public; creating a review require
 | GET    | `/products/:slug/reviews` | none |
 | POST   | `/products/:slug/reviews` | user |
 
+**`GET /products/:slug/reviews` query:** `page` (default `1`), `limit` (default `20`, max `100`), `sort` — `newest` | `oldest` | `rating_desc` | `rating_asc`. Response: `{ data, page, limit, total, totalPages }` — mapped to storefront `ReviewListResponse` in [lib/api/reviews.ts](../lib/api/reviews.ts). PDP URL keys: `reviewsPage`, `reviewsSort`; legacy `recent` / `helpful` → `newest` in [lib/utils/searchParams.ts](../lib/utils/searchParams.ts).
+
 Listing filters: query params per `listQuerySchema` on the backend.
 
 ---
@@ -86,7 +90,7 @@ Mounted at `/cart`. All routes require auth.
 | POST   | `/checkout/session` | user |
 | POST   | `/shipping/quote`   | user |
 
-> **Checkout path note (one-time orders):** the canonical backend path is `POST /checkout/session`. The storefront historically called `POST /checkout` from `lib/api/checkout.ts`. Align the storefront with `/checkout/session` and remove the legacy path in a dedicated follow-up; update this doc + `checkout.ts` together.
+> **Checkout:** the storefront calls `POST /checkout/session` from [lib/api/checkout.ts](../lib/api/checkout.ts). See [api-contracts.md](./api-contracts.md).
 
 ---
 

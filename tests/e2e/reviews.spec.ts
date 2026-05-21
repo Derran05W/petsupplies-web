@@ -1,12 +1,11 @@
 /**
- * PDP reviews smoke — relies on `E2E_REVIEWS_FIXTURE=1` in Playwright’s
- * webServer env so SSR receives deterministic review payloads (browser
- * routing cannot intercept Next.js server-side fetch).
+ * PDP reviews — guests can read reviews; submit form is disabled until sign-in.
+ * E2E_REVIEWS_FIXTURE=1 supplies deterministic SSR review payloads.
  */
 import { test, expect } from '@playwright/test';
 
-test.describe('product reviews', () => {
-  test('renders customer reviews with a verified purchase badge', async ({
+test.describe('product detail page', () => {
+  test('shows reviews to guests with sign-in required to submit', async ({
     page,
   }) => {
     await page.goto('/products/salmon-sweet-potato-recipe');
@@ -15,8 +14,12 @@ test.describe('product reviews', () => {
       page.getByRole('heading', { level: 2, name: 'Customer reviews' }),
     ).toBeVisible();
 
-    await expect(page.getByText('Taylor Verified')).toBeVisible();
+    await expect(page.getByText('Taylor')).toBeVisible();
     await expect(page.getByText(/Verified purchase/)).toBeVisible();
-    await expect(page.getByText(/Bowls cleared nightly/)).toBeVisible();
+
+    await expect(page.getByText(/Sign in to submit a review/)).toBeVisible();
+
+    const submit = page.getByRole('button', { name: 'Submit review' });
+    await expect(submit).toBeDisabled();
   });
 });

@@ -4,15 +4,15 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import type { ReviewSort } from '@/types/review';
 
 const REVIEW_SORT_LABEL: Record<ReviewSort, string> = {
-  recent: 'Most recent',
-  helpful: 'Most helpful',
+  newest: 'Newest first',
+  oldest: 'Oldest first',
   rating_desc: 'Highest rated',
   rating_asc: 'Lowest rated',
 };
 
 const SORT_OPTIONS: ReviewSort[] = [
-  'recent',
-  'helpful',
+  'newest',
+  'oldest',
   'rating_desc',
   'rating_asc',
 ];

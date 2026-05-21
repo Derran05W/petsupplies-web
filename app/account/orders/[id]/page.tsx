@@ -9,6 +9,7 @@ import { safeReturnPath } from '@/lib/navigation/safe-return-path';
 import { preserveReturnOnAccountHref } from '@/lib/navigation/append-return-to';
 import { PageHeader } from '@/components/account/PageHeader';
 import { OrderSummaryCard } from '@/components/checkout/OrderSummaryCard';
+import { OrderReviewLinks } from '@/components/account/orders/OrderReviewLinks';
 import { OrderTracking } from '@/components/account/orders/OrderTracking';
 
 interface OrderDetailPageProps {
@@ -65,6 +66,7 @@ export default async function OrderDetailPage({
 
       <div className="flex flex-col items-stretch">
         <OrderSummaryCard order={order} />
+        <OrderReviewLinks order={order} />
         <OrderTracking order={order} />
 
         <div className="mt-8">
