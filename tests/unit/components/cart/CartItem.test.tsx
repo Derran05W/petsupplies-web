@@ -23,6 +23,38 @@ import { installCartStorageStub } from '@/tests/mocks/cart-storage';
 import { oneFeaturedProduct } from '@/tests/fixtures/products';
 import { formatPrice } from '@/lib/utils/format';
 
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: null,
+    loading: false,
+    signOut: vi.fn(),
+    refreshUser: vi.fn(),
+  }),
+}));
+
+vi.mock('@/hooks/useServerCart', () => ({
+  useServerCartQuery: () => ({
+    data: undefined,
+    isLoading: false,
+    isFetching: false,
+  }),
+  useAddCartItemMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useUpdateCartItemMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useRemoveCartItemMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useApplyCartDiscountMutation: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+  useRemoveCartDiscountMutation: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+  useClearServerCartMutation: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+}));
+
 beforeEach(() => {
   installCartStorageStub();
   useCartStore.setState({

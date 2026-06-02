@@ -4,13 +4,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useCartActions } from '@/hooks/useCart';
-import { type CartLine } from '@/lib/store/cart';
+import { type CartViewLine } from '@/types/cart';
 import { CATEGORY_LABEL } from '@/types/product';
 import { formatPrice } from '@/lib/utils/format';
 import { cn } from '@/lib/utils';
 
 interface CartItemProps {
-  line: CartLine;
+  line: CartViewLine;
   /** When inside the drawer, clicking the product link should close it. */
   onNavigate?: () => void;
 }
@@ -52,9 +52,11 @@ export function CartItem({ line, onNavigate }: CartItemProps) {
               <h3 className="truncate">{line.name}</h3>
             </Link>
             <div className="flex items-center gap-2">
-              <span className="rounded-md bg-brand-50 px-2 py-0.5 font-body text-[11px] font-medium text-brand-600">
-                {CATEGORY_LABEL[line.category]}
-              </span>
+              {line.category ? (
+                <span className="rounded-md bg-brand-50 px-2 py-0.5 font-body text-[11px] font-medium text-brand-600">
+                  {CATEGORY_LABEL[line.category]}
+                </span>
+              ) : null}
               <span className="font-body text-xs text-warm-600">
                 {formatPrice(line.priceCents)}
               </span>

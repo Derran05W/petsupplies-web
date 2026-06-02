@@ -44,7 +44,7 @@ export function CartContents({ variant, onClose }: CartContentsProps) {
         <ul className="flex flex-1 flex-col divide-y divide-warm-200 overflow-y-auto px-6">
           {lines.map((line) => (
             <CartItem
-              key={line.productId}
+              key={line.cartItemId ?? line.productId}
               line={line}
               {...(onClose ? { onNavigate: onClose } : {})}
             />
@@ -62,7 +62,7 @@ export function CartContents({ variant, onClose }: CartContentsProps) {
       <div className="rounded-2xl border border-warm-200 bg-surface-card">
         <ul className="flex flex-col divide-y divide-warm-200 px-5">
           {lines.map((line) => (
-            <CartItem key={line.productId} line={line} />
+            <CartItem key={line.cartItemId ?? line.productId} line={line} />
           ))}
         </ul>
       </div>

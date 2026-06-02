@@ -67,6 +67,8 @@ export interface CartState {
    * as {@link clear}.
    */
   replaceLines: (lines: CartLine[]) => void;
+  /** Increment badge bounce counter (server cart add animation). */
+  bump: () => void;
   _setHasHydrated: (value: boolean) => void;
 }
 
@@ -254,6 +256,8 @@ export const useCartStore = create<CartState>()(
               lastRemovedAt: empty ? Date.now() : state.lastRemovedAt,
             };
           }),
+
+        bump: () => set((state) => ({ bumpCounter: state.bumpCounter + 1 })),
 
         _setHasHydrated: (value) => set({ hasHydrated: value }),
       }),

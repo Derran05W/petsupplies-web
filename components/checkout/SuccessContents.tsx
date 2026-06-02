@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { useOrderByCheckoutSession } from '@/hooks/useOrderByCheckoutSession';
 import { useCartActions } from '@/hooks/useCart';
 import { clearPendingCheckout } from '@/lib/checkout/storage';
+import { clearPendingOrderId } from '@/lib/checkout/pending-order';
 import { OrderSummaryCard } from './OrderSummaryCard';
 
 interface SuccessContentsProps {
@@ -39,6 +40,7 @@ export function SuccessContents({ sessionId }: SuccessContentsProps) {
       clearedRef.current = true;
       clear();
       clearPendingCheckout();
+      clearPendingOrderId();
     }
   }, [phase, clear]);
 

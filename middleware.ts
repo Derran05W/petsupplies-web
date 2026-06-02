@@ -4,7 +4,11 @@ import { updateSession } from '@/lib/supabase/middleware';
 
 // `/email/*` stays public — not listed in `isProtected` below.
 function isProtected(pathname: string): boolean {
-  return pathname.startsWith('/account') || pathname.startsWith('/admin');
+  return (
+    pathname.startsWith('/account') ||
+    pathname.startsWith('/admin') ||
+    pathname === '/checkout'
+  );
 }
 
 function isAdminOnly(pathname: string): boolean {

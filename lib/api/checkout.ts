@@ -1,72 +1,66 @@
-import type {
-  OrderLine,
-  OrderStatus,
-  OrderSummary,
-  ShippingAddress,
-} from '@/types/order';
+import type { OrderSummary } from '@/types/order';
+import type { ShippingSelectionInput } from '@/types/shipping';
 import { ApiError, apiFetch } from './client';
+import { getOrderById } from './orders';
 import {
   loadPendingCheckout,
   savePendingCheckout,
   type PendingCheckoutSnapshot,
 } from '@/lib/checkout/storage';
+import {
+  clearPendingOrderId,
+  loadPendingOrderId,
+  savePendingOrderId,
+} from '@/lib/checkout/pending-order';
 
 /**
  * Sentinel session ID used by the placeholder fallback so the success
  * page can recognise the dev path and synthesise an order from the cart
  * snapshot in sessionStorage.
- *
- * TODO(phase 6): remove once backend phase 6 + 7 are on staging.
  */
 export const PLACEHOLDER_SESSION_ID = 'cs_test_placeholder';
 
-export interface CheckoutLineRequest {
-  productId: string;
-  quantity: number;
+export interface CreateCheckoutSessionRequest {
+  shippingSelection?: ShippingSelectionInput;
 }
 
-export interface CreateCheckoutSessionRequest {
-  email: string;
-  shippingAddress: ShippingAddress;
-  lines: CheckoutLineRequest[];
-  /** Supabase `user.id` when the customer is signed in. */
-  clientReferenceId?: string;
+export interface CreateCheckoutSessionOptions {
+  accessToken: string;
 }
 
 export interface CreateCheckoutSessionResponse {
-  /** Stripe Checkout Session URL — the frontend redirects here. */
   url: string;
-  sessionId: string;
+  orderId: string;
 }
 
 let warnedAboutFallback = false;
 
 /**
- * POST `/checkout/session` to petsupplies-api. The backend creates a Stripe
- * Checkout Session and returns its URL + ID — the frontend then does a
- * full-page navigation to `url`.
- *
- * **Backend-not-ready fallback:** when the request fails with a network
- * error (status 0), we write the pending-checkout snapshot to
- * sessionStorage and return a sentinel response that points at our own
- * `/checkout/success?session_id=cs_test_placeholder`. This keeps the
- * entire Phase 6 surface exercisable against an offline / not-yet-deployed
- * backend, mirroring the Phase 4 product-fetch fallback.
- *
- * TODO(phase 6): remove fallback once backend phase 6 + 7 are on staging.
+ * POST `/checkout/session` — body is `{}` or `{ shippingSelection }`.
+ * Backend reads the authenticated user's server cart.
  */
 export async function createCheckoutSession(
   request: CreateCheckoutSessionRequest,
-  snapshot: PendingCheckoutSnapshot,
+  options: CreateCheckoutSessionOptions,
 ): Promise<CreateCheckoutSessionResponse> {
+  const body =
+    request.shippingSelection !== undefined
+      ? { shippingSelection: request.shippingSelection }
+      : {};
+
   try {
-    return await apiFetch<CreateCheckoutSessionResponse>('/checkout/session', {
-      method: 'POST',
-      body: JSON.stringify(request),
-    });
+    const result = await apiFetch<CreateCheckoutSessionResponse>(
+      '/checkout/session',
+      {
+        method: 'POST',
+        body: JSON.stringify(body),
+        accessToken: options.accessToken,
+      },
+    );
+    savePendingOrderId(result.orderId);
+    return result;
   } catch (err) {
     if (err instanceof ApiError && err.isNetworkError) {
-      savePendingCheckout(snapshot);
       if (!warnedAboutFallback) {
         warnedAboutFallback = true;
         // eslint-disable-next-line no-console
@@ -76,34 +70,54 @@ export async function createCheckoutSession(
       }
       return {
         url: `/checkout/success?session_id=${PLACEHOLDER_SESSION_ID}`,
-        sessionId: PLACEHOLDER_SESSION_ID,
+        orderId: `ord_dev_${Date.now().toString(36)}`,
       };
     }
     throw err;
   }
 }
 
+export interface GetOrderByCheckoutSessionOptions {
+  accessToken?: string;
+}
+
 /**
- * GET `/orders/by-checkout-session/:sessionId` from petsupplies-api.
- *
- * Returns `null` when the order doesn't exist yet (HTTP 404) — the
- * success-page poll uses that as the "still waiting on the webhook"
- * signal and keeps polling.
- *
- * **Backend-not-ready fallback:** when the request fails with a network
- * error AND the session ID is the placeholder, synthesise an
- * `OrderSummary` from the sessionStorage snapshot so the dev success
- * page renders a believable order.
- *
- * TODO(phase 6): remove fallback once backend phase 6 + 7 are on staging.
+ * Poll order status after Stripe redirect. Uses pending order id saved at
+ * session creation (backend has no by-checkout-session route).
  */
 export async function getOrderByCheckoutSession(
   sessionId: string,
+  options: GetOrderByCheckoutSessionOptions = {},
 ): Promise<OrderSummary | null> {
+  const { accessToken } = options;
+
+  if (sessionId === PLACEHOLDER_SESSION_ID) {
+    return synthesisePlaceholderOrder(sessionId);
+  }
+
+  const pendingOrderId = loadPendingOrderId();
+  if (pendingOrderId && accessToken) {
+    try {
+      const order = await getOrderById(pendingOrderId, { accessToken });
+      if (order) {
+        const status = String(order.status).toLowerCase();
+        if (status === 'pending') {
+          return null;
+        }
+        clearPendingOrderId();
+        return { ...order, checkoutSessionId: sessionId };
+      }
+    } catch (err) {
+      if (!(err instanceof ApiError && err.status === 404)) {
+        throw err;
+      }
+    }
+  }
+
   try {
     return await apiFetch<OrderSummary>(
       `/orders/by-checkout-session/${encodeURIComponent(sessionId)}`,
-      { cache: 'no-store' },
+      accessToken ? { cache: 'no-store', accessToken } : { cache: 'no-store' },
     );
   } catch (err) {
     if (err instanceof ApiError) {
@@ -116,35 +130,33 @@ export async function getOrderByCheckoutSession(
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/* Local fallback — runs only when the backend is unreachable.                */
-/* TODO(phase 6): remove once backend phase 6 + 7 are on staging.            */
-/* -------------------------------------------------------------------------- */
+/** @deprecated Dev-only snapshot helper for placeholder checkout. */
+export function saveDevCheckoutSnapshot(
+  snapshot: PendingCheckoutSnapshot,
+): void {
+  savePendingCheckout(snapshot);
+}
 
 function synthesisePlaceholderOrder(sessionId: string): OrderSummary | null {
   const snapshot = loadPendingCheckout();
   if (!snapshot) return null;
 
-  const lines: OrderLine[] = snapshot.lines.map((line) => ({
-    id: `ol_${line.productId}`,
-    productId: line.productId,
-    slug: line.slug,
-    name: line.name,
-    imageUrl: line.imageUrl,
-    quantity: line.quantity,
-    unitPriceCents: line.priceCents,
-    lineTotalCents: line.priceCents * line.quantity,
-  }));
-
-  const status: OrderStatus = 'paid';
-
   return {
     id: `ord_dev_${Date.now().toString(36)}`,
     checkoutSessionId: sessionId,
-    status,
+    status: 'paid',
     email: snapshot.email,
     shippingAddress: snapshot.shippingAddress,
-    lines,
+    lines: snapshot.lines.map((line) => ({
+      id: `ol_${line.productId}`,
+      productId: line.productId,
+      slug: line.slug,
+      name: line.name,
+      imageUrl: line.imageUrl,
+      quantity: line.quantity,
+      unitPriceCents: line.priceCents,
+      lineTotalCents: line.priceCents * line.quantity,
+    })),
     subtotalCents: snapshot.subtotalCents,
     shippingCents: snapshot.shippingCents,
     taxCents: snapshot.taxCents,

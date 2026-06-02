@@ -1,39 +1,36 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
 import { useForm, type FieldError } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Lock } from 'lucide-react';
 import {
-  checkoutFormSchema,
+  shippingAddressSchema,
   SUPPORTED_COUNTRIES,
-  type CheckoutFormInput,
+  type ShippingAddressInput,
 } from '@/lib/checkout/schemas';
 import {
   useCartHasHydrated,
   useCartLines,
-  useCartSubtotalCents,
+  useCartTotals,
   useFreeShippingProgress,
 } from '@/hooks/useCart';
-import { useAuth } from '@/hooks/useAuth';
-import {
-  createCheckoutSession,
-  type CreateCheckoutSessionRequest,
-} from '@/lib/api/checkout';
+import { createCheckoutSession } from '@/lib/api/checkout';
 import { ApiError } from '@/lib/api/client';
-import type { PendingCheckoutSnapshot } from '@/lib/checkout/storage';
+import { isShippingRateStaleError } from '@/lib/api/shipping';
+import { getBrowserAccessToken } from '@/lib/supabase/browser-access-token';
+import type { ShippingSelectionInput } from '@/types/shipping';
+import { DiscountCodeForm } from '@/components/cart/DiscountCodeForm';
+import { ShippingRateSelector } from '@/components/checkout/ShippingRateSelector';
 import { cn } from '@/lib/utils';
 
 const NETWORK_ERROR_MESSAGE =
   "Couldn't reach the payment service. Try again or check back shortly.";
 const GENERIC_ERROR_MESSAGE =
   'Something went wrong starting your checkout. Please try again.';
+const STALE_SHIPPING_MESSAGE =
+  'Your shipping rate expired. Please select a rate again and retry.';
 
-/**
- * Maps a React Hook Form `FieldError` to the props every input needs to
- * announce its error state to assistive tech.
- */
 function fieldErrorProps(name: string, error: FieldError | undefined) {
   if (!error) {
     return { 'aria-invalid': false as const };
@@ -47,50 +44,49 @@ function fieldErrorProps(name: string, error: FieldError | undefined) {
 const inputBase =
   'w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2.5 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
 const inputError = 'border-red-400 focus:ring-red-400';
-
 const labelBase =
   'mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600';
 
-export function CheckoutForm() {
+interface CheckoutFormProps {
+  onShippingAmountChange?: (amountCents: number | null) => void;
+}
+
+export function CheckoutForm({ onShippingAmountChange }: CheckoutFormProps) {
   const hasHydrated = useCartHasHydrated();
   const lines = useCartLines();
-  const subtotalCents = useCartSubtotalCents();
+  const totals = useCartTotals();
   const { qualifies } = useFreeShippingProgress();
-  const { user } = useAuth();
+  const hideShippingSelector =
+    qualifies || totals?.discountType === 'FREE_SHIPPING';
 
   const [submitting, setSubmitting] = useState(false);
+  const [shippingSelection, setShippingSelection] =
+    useState<ShippingSelectionInput | null>(null);
+  const [rateKey, setRateKey] = useState(0);
 
   const {
     register,
     handleSubmit,
+    watch,
     setError,
     clearErrors,
-    setValue,
     formState: { errors },
-  } = useForm<CheckoutFormInput>({
-    resolver: zodResolver(checkoutFormSchema),
+  } = useForm<ShippingAddressInput>({
+    resolver: zodResolver(shippingAddressSchema),
     defaultValues: {
-      email: '',
       fullName: '',
       line1: '',
       line2: '',
       city: '',
       state: '',
       postalCode: '',
-      country: 'US',
+      country: 'CA',
     },
   });
 
-  // Pre-fill email once Supabase hydrates the signed-in user. We use
-  // `setValue` (rather than `defaultValues`) so we don't reset other
-  // fields the user has already started typing.
-  useEffect(() => {
-    if (user?.email) {
-      setValue('email', user.email, { shouldValidate: false });
-    }
-  }, [user?.email, setValue]);
+  const watchedAddress = watch();
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmit = handleSubmit(async () => {
     clearErrors('root');
     if (lines.length === 0) {
       setError('root', {
@@ -98,60 +94,49 @@ export function CheckoutForm() {
       });
       return;
     }
+
+    if (
+      watchedAddress.country === 'CA' &&
+      !hideShippingSelector &&
+      !shippingSelection
+    ) {
+      setError('root', {
+        message: 'Select a shipping method before continuing.',
+      });
+      return;
+    }
+
     setSubmitting(true);
 
-    const shippingCents = qualifies ? 0 : 0; // backend computes real shipping
-    const taxCents = 0;
-    const totalCents = subtotalCents + shippingCents + taxCents;
-
-    const snapshot: PendingCheckoutSnapshot = {
-      email: values.email,
-      shippingAddress: {
-        fullName: values.fullName,
-        line1: values.line1,
-        ...(values.line2 && values.line2.length > 0
-          ? { line2: values.line2 }
-          : {}),
-        city: values.city,
-        state: values.state,
-        postalCode: values.postalCode,
-        country: values.country,
-      },
-      lines,
-      subtotalCents,
-      shippingCents,
-      taxCents,
-      totalCents,
-      currency: 'usd',
-      createdAt: new Date().toISOString(),
-    };
-
-    const request: CreateCheckoutSessionRequest = {
-      email: values.email,
-      shippingAddress: snapshot.shippingAddress,
-      lines: lines.map((line) => ({
-        productId: line.productId,
-        quantity: line.quantity,
-      })),
-      ...(user?.id ? { clientReferenceId: user.id } : {}),
-    };
-
     try {
-      const { url } = await createCheckoutSession(request, snapshot);
-      // Full-page nav: the destination is checkout.stripe.com (or the
-      // dev placeholder /checkout/success?session_id=cs_test_placeholder).
+      const accessToken = await getBrowserAccessToken();
+      if (!accessToken) {
+        setError('root', { message: 'Sign in to continue to payment.' });
+        setSubmitting(false);
+        return;
+      }
+
+      const body =
+        watchedAddress.country === 'CA' &&
+        shippingSelection &&
+        !hideShippingSelector
+          ? { shippingSelection }
+          : {};
+
+      const { url } = await createCheckoutSession(body, { accessToken });
       window.location.href = url;
     } catch (err) {
       setSubmitting(false);
+      if (isShippingRateStaleError(err)) {
+        setRateKey((k) => k + 1);
+        setShippingSelection(null);
+        onShippingAmountChange?.(null);
+        setError('root', { message: STALE_SHIPPING_MESSAGE });
+        return;
+      }
       if (err instanceof ApiError) {
         if (err.isNetworkError) {
           setError('root', { message: NETWORK_ERROR_MESSAGE });
-          return;
-        }
-        if (err.validationErrors) {
-          setError('root', {
-            message: err.message || GENERIC_ERROR_MESSAGE,
-          });
           return;
         }
         setError('root', { message: err.message || GENERIC_ERROR_MESSAGE });
@@ -179,47 +164,7 @@ export function CheckoutForm() {
         </div>
       )}
 
-      <fieldset className="flex flex-col gap-4">
-        <legend className="mb-1 font-display text-lg tracking-[-0.02em] text-warm-900">
-          Contact
-        </legend>
-
-        <div>
-          <label htmlFor="email" className={labelBase}>
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            {...register('email')}
-            {...fieldErrorProps('email', errors.email)}
-            className={cn(inputBase, errors.email && inputError)}
-          />
-          {errors.email && (
-            <p
-              id="email-error"
-              role="alert"
-              className="mt-1 font-body text-xs text-red-600"
-            >
-              {errors.email.message}
-            </p>
-          )}
-          {!user && (
-            <p className="mt-2 font-body text-xs text-warm-600">
-              Have an account?{' '}
-              <Link
-                href="/login?redirect=/checkout"
-                className="font-medium text-brand-600 underline-offset-2 hover:text-brand-700 hover:underline"
-              >
-                Sign in
-              </Link>{' '}
-              for faster checkout.
-            </p>
-          )}
-        </div>
-      </fieldset>
+      <DiscountCodeForm />
 
       <fieldset className="flex flex-col gap-4">
         <legend className="mb-1 font-display text-lg tracking-[-0.02em] text-warm-900">
@@ -290,15 +235,6 @@ export function CheckoutForm() {
             {...fieldErrorProps('line2', errors.line2)}
             className={cn(inputBase, errors.line2 && inputError)}
           />
-          {errors.line2 && (
-            <p
-              id="line2-error"
-              role="alert"
-              className="mt-1 font-body text-xs text-red-600"
-            >
-              {errors.line2.message}
-            </p>
-          )}
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -310,7 +246,7 @@ export function CheckoutForm() {
               id="city"
               type="text"
               autoComplete="address-level2"
-              placeholder="Brooklyn"
+              placeholder="Toronto"
               {...register('city')}
               {...fieldErrorProps('city', errors.city)}
               className={cn(inputBase, errors.city && inputError)}
@@ -327,13 +263,13 @@ export function CheckoutForm() {
           </div>
           <div>
             <label htmlFor="state" className={labelBase}>
-              State / region
+              Province / region
             </label>
             <input
               id="state"
               type="text"
               autoComplete="address-level1"
-              placeholder="NY"
+              placeholder="ON"
               {...register('state')}
               {...fieldErrorProps('state', errors.state)}
               className={cn(inputBase, errors.state && inputError)}
@@ -359,7 +295,7 @@ export function CheckoutForm() {
               id="postalCode"
               type="text"
               autoComplete="postal-code"
-              placeholder="11201"
+              placeholder="M5V 2T6"
               {...register('postalCode')}
               {...fieldErrorProps('postalCode', errors.postalCode)}
               className={cn(inputBase, errors.postalCode && inputError)}
@@ -391,18 +327,19 @@ export function CheckoutForm() {
                 </option>
               ))}
             </select>
-            {errors.country && (
-              <p
-                id="country-error"
-                role="alert"
-                className="mt-1 font-body text-xs text-red-600"
-              >
-                {errors.country.message}
-              </p>
-            )}
           </div>
         </div>
       </fieldset>
+
+      <ShippingRateSelector
+        key={rateKey}
+        address={watchedAddress}
+        hideWhenFreeShipping={hideShippingSelector}
+        onSelectionChange={(selection, amountCents) => {
+          setShippingSelection(selection);
+          onShippingAmountChange?.(amountCents);
+        }}
+      />
 
       <div className="flex flex-col gap-3">
         <button
@@ -417,7 +354,9 @@ export function CheckoutForm() {
         </button>
         <p className="inline-flex items-center gap-1.5 font-body text-xs text-warm-600">
           <Lock size={12} aria-hidden className="text-warm-600" />
-          <span>Secure payment via Stripe</span>
+          <span>
+            Secure payment via Stripe — email collected on the next step
+          </span>
         </p>
       </div>
     </form>

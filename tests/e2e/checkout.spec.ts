@@ -27,6 +27,13 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('checkout pages', () => {
+  test('redirects unauthenticated users from /checkout to login', async ({
+    page,
+  }) => {
+    await page.goto('/checkout');
+    await expect(page).toHaveURL(/\/login\?redirect=%2Fcheckout/);
+  });
+
   test('/checkout/cancel renders the cancel panel without clearing the cart', async ({
     page,
   }) => {
