@@ -15,6 +15,7 @@ import { AuthSlot } from './AuthSlot';
 import { SettingsButton } from './SettingsButton';
 import { SettingsDrawer } from './SettingsDrawer';
 import { SettingsDrawerContext } from './SettingsDrawerContext';
+import { SearchOverlay } from './SearchOverlay';
 
 /**
  * Top-level navbar wrapper. Owns:
@@ -34,13 +35,16 @@ export function NavbarShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const hamburgerRef = useRef<HTMLButtonElement | null>(null);
   const cartIconRef = useRef<HTMLButtonElement | null>(null);
   const settingsButtonRef = useRef<HTMLButtonElement | null>(null);
+  const searchButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const openSettings = useCallback(() => {
     setDrawerOpen(false);
     setMobileOpen(false);
+    setSearchOpen(false);
     setSettingsOpen(true);
   }, []);
 
@@ -76,13 +80,27 @@ export function NavbarShell() {
   function openCartDrawer() {
     setSettingsOpen(false);
     setMobileOpen(false);
+    setSearchOpen(false);
     setDrawerOpen(true);
   }
 
   function openMobileMenu() {
     setSettingsOpen(false);
     setDrawerOpen(false);
+    setSearchOpen(false);
     setMobileOpen(true);
+  }
+
+  function openSearch() {
+    setSettingsOpen(false);
+    setDrawerOpen(false);
+    setMobileOpen(false);
+    setSearchOpen(true);
+  }
+
+  function closeSearch() {
+    setSearchOpen(false);
+    searchButtonRef.current?.focus();
   }
 
   return (
@@ -106,9 +124,12 @@ export function NavbarShell() {
 
             <div className="flex items-center gap-1.5 sm:gap-2">
               <button
+                ref={searchButtonRef}
                 type="button"
                 aria-label="Search"
-                className="hidden size-9 items-center justify-center rounded-lg text-warm-900 transition-colors hover:bg-warm-100 lg:inline-flex"
+                aria-expanded={searchOpen}
+                onClick={openSearch}
+                className="inline-flex size-9 items-center justify-center rounded-lg text-warm-900 transition-colors hover:bg-warm-100"
               >
                 <Search size={18} aria-hidden />
               </button>
@@ -136,7 +157,12 @@ export function NavbarShell() {
           </div>
         </header>
 
-        <MobileMenu open={mobileOpen} onClose={closeMobile} />
+        <MobileMenu
+          open={mobileOpen}
+          onClose={closeMobile}
+          onOpenSearch={openSearch}
+        />
+        <SearchOverlay open={searchOpen} onClose={closeSearch} />
         <CartDrawer open={drawerOpen} onClose={closeCartDrawer} />
         <SettingsDrawer open={settingsOpen} onClose={closeSettingsDrawer} />
         <CartLiveRegion />

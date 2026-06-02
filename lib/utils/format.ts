@@ -4,10 +4,11 @@
  * market — multi-currency arrives with backend Phase 6.
  */
 export function formatPrice(cents: number, currency: string = 'usd'): string {
+  const safeCents = Number.isFinite(cents) ? cents : 0;
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency.toUpperCase(),
-  }).format(cents / 100);
+  }).format(safeCents / 100);
 }
 
 /**

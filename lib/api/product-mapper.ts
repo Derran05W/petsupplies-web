@@ -67,6 +67,8 @@ function inferPetType(tags: string[], apiCategory: string): PetType {
   if (joined.includes('dog')) return 'dog';
   if (joined.includes('cat')) return 'cat';
   if (joined.includes('bird')) return 'bird';
+  if (joined.includes('fish')) return 'fish';
+  if (joined.includes('reptile')) return 'reptile';
   if (
     joined.includes('small-animal') ||
     joined.includes('hamster') ||
@@ -81,6 +83,10 @@ function inferPetType(tags: string[], apiCategory: string): PetType {
       return 'cat';
     case 'BIRD':
       return 'bird';
+    case 'FISH':
+      return 'fish';
+    case 'REPTILE':
+      return 'reptile';
     case 'SMALL_PET':
       return 'small-animal';
     default:
@@ -104,6 +110,22 @@ function isNormalizedProduct(raw: unknown): raw is Product {
     typeof (raw as Product).priceCents === 'number' &&
     Number.isFinite((raw as Product).priceCents)
   );
+}
+
+function coercePriceCents(raw: Record<string, unknown>): number {
+  for (const key of ['priceCents', 'price'] as const) {
+    const value = raw[key];
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return Math.round(value);
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (trimmed.length === 0) continue;
+      const parsed = Number.parseFloat(trimmed);
+      if (Number.isFinite(parsed)) return Math.round(parsed);
+    }
+  }
+  return 0;
 }
 
 /** Map petsupplies-api catalog product → storefront `Product`. */
@@ -139,7 +161,7 @@ export function mapCatalogProduct(raw: unknown): Product {
     slug: p.slug,
     name: p.name,
     description: p.description,
-    priceCents: typeof p.price === 'number' ? p.price : 0,
+    priceCents: coercePriceCents(p as unknown as Record<string, unknown>),
     category: mapStorefrontCategory(tags, p.category ?? ''),
     petType: inferPetType(tags, p.category ?? ''),
     images,

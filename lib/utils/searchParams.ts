@@ -17,8 +17,54 @@ const VALID_PET_TYPES: ReadonlyArray<PetType> = [
   'dog',
   'cat',
   'bird',
+  'fish',
+  'reptile',
   'small-animal',
 ];
+
+/** Nav links often use `?category=CAT` (API enum) instead of `?petType=cat`. */
+const API_PET_CATEGORY_PARAM: Readonly<Record<string, PetType>> = {
+  dog: 'dog',
+  cat: 'cat',
+  bird: 'bird',
+  fish: 'fish',
+  reptile: 'reptile',
+  small_pet: 'small-animal',
+};
+
+/** API shelf enums mapped to storefront category slugs. */
+const API_SHELF_CATEGORY_PARAM: Readonly<Record<string, Category>> = {
+  accessories: 'accessories',
+  health: 'healthcare',
+};
+
+const PRODUCT_LISTING_KEYS = [
+  'category',
+  'petType',
+  'search',
+  'sort',
+  'minPrice',
+  'maxPrice',
+  'page',
+] as const;
+
+function normalizeCategoryQueryParam(
+  raw: string,
+): Pick<ProductFilters, 'category' | 'petType'> {
+  const lower = raw.toLowerCase();
+  if ((VALID_CATEGORIES as readonly string[]).includes(lower)) {
+    return { category: lower as Category };
+  }
+
+  const petKey = lower.replace(/-/g, '_');
+  const petType = API_PET_CATEGORY_PARAM[petKey];
+  if (petType) return { petType };
+
+  const shelf = API_SHELF_CATEGORY_PARAM[petKey];
+  if (shelf) return { category: shelf };
+
+  return {};
+}
 
 const VALID_SORTS: ReadonlyArray<ProductSort> = [
   'relevance',
@@ -90,18 +136,23 @@ function parsePriceCents(value: string | undefined): number | undefined {
 export function parseProductFilters(
   searchParams: Record<string, string | string[] | undefined>,
 ): ProductFilters {
-  const category = firstParam(searchParams['category']);
-  const petType = firstParam(searchParams['petType']);
+  const categoryParam = firstParam(searchParams['category']);
+  const petTypeParam = firstParam(searchParams['petType']);
   const sort = firstParam(searchParams['sort']);
 
   const filters: ProductFilters = {};
 
-  if (category && (VALID_CATEGORIES as readonly string[]).includes(category)) {
-    filters.category = category as Category;
+  if (
+    petTypeParam &&
+    (VALID_PET_TYPES as readonly string[]).includes(petTypeParam)
+  ) {
+    filters.petType = petTypeParam as PetType;
+  } else if (categoryParam) {
+    const fromCategory = normalizeCategoryQueryParam(categoryParam);
+    if (fromCategory.petType) filters.petType = fromCategory.petType;
+    if (fromCategory.category) filters.category = fromCategory.category;
   }
-  if (petType && (VALID_PET_TYPES as readonly string[]).includes(petType)) {
-    filters.petType = petType as PetType;
-  }
+
   if (sort && (VALID_SORTS as readonly string[]).includes(sort)) {
     filters.sort = sort as ProductSort;
   }
@@ -119,6 +170,56 @@ export function parseProductFilters(
   if (typeof page === 'number' && page >= 1) filters.page = page;
 
   return filters;
+}
+
+/** Canonical `/products` query string from parsed filters + raw price/page params. */
+export function buildProductListingSearchParams(
+  filters: ProductFilters,
+  searchParams: Record<string, string | string[] | undefined> = {},
+): URLSearchParams {
+  const params = new URLSearchParams();
+
+  if (filters.petType) params.set('petType', filters.petType);
+  if (filters.category) params.set('category', filters.category);
+  if (filters.search) params.set('search', filters.search);
+  if (filters.sort && filters.sort !== 'relevance') {
+    params.set('sort', filters.sort);
+  }
+
+  for (const key of ['minPrice', 'maxPrice', 'page'] as const) {
+    const value = firstParam(searchParams[key]);
+    if (value) params.set(key, value);
+  }
+
+  return params;
+}
+
+function serializeProductListingSearchParams(
+  searchParams: Record<string, string | string[] | undefined>,
+): string {
+  const params = new URLSearchParams();
+  for (const key of PRODUCT_LISTING_KEYS) {
+    const value = firstParam(searchParams[key]);
+    if (value) params.set(key, value);
+  }
+  return params.toString();
+}
+
+/**
+ * Rewrite legacy nav URLs such as `/products?category=CAT` to
+ * `/products?petType=cat` so filter checkboxes and fetches stay in sync.
+ */
+export function legacyProductListingRedirectPath(
+  searchParams: Record<string, string | string[] | undefined>,
+): string | null {
+  const canonical = buildProductListingSearchParams(
+    parseProductFilters(searchParams),
+    searchParams,
+  );
+  const raw = serializeProductListingSearchParams(searchParams);
+  const canon = canonical.toString();
+  if (raw === canon) return null;
+  return canon.length > 0 ? `/products?${canon}` : '/products';
 }
 
 /**

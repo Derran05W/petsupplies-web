@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { X } from 'lucide-react';
+import { X, Search } from 'lucide-react';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { useStorefrontBrand } from '@/components/providers/StorefrontBrandProvider';
 import { useStorefrontHeaderNav } from '@/components/providers/StorefrontNavProvider';
@@ -15,9 +15,10 @@ import { AuthSlot } from './AuthSlot';
 interface MobileMenuProps {
   open: boolean;
   onClose: () => void;
+  onOpenSearch?: () => void;
 }
 
-export function MobileMenu({ open, onClose }: MobileMenuProps) {
+export function MobileMenu({ open, onClose, onOpenSearch }: MobileMenuProps) {
   const brand = useStorefrontBrand();
   const headerLinks = useStorefrontHeaderNav();
   const { user, loading } = useAuth();
@@ -114,6 +115,19 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
         </div>
 
         <nav className="flex-1 overflow-y-auto px-6 py-6">
+          {onOpenSearch ? (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenSearch();
+              }}
+              className="mb-4 flex w-full items-center gap-3 rounded-lg border border-warm-200 bg-surface-card px-3 py-3 font-body text-base text-warm-600 transition-colors hover:border-warm-300 hover:bg-warm-100 hover:text-warm-900"
+            >
+              <Search size={18} aria-hidden className="text-warm-400" />
+              Search products
+            </button>
+          ) : null}
           <ul className="flex flex-col gap-1">
             {headerLinks.map((link) => {
               const active = isNavLinkActive(pathname, link.href);
