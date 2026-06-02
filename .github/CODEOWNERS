@@ -1,0 +1,6 @@
+# Default owners for everything in this repository.
+# GitHub auto-requests their review on pull requests that touch matching paths.
+#
+# To make code owner approval required (not just requested), enable
+# "Require review from Code Owners" in branch protection for main.
+* @Derran05W

@@ -1,25 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCheckoutSession } from '@/lib/api/checkout';
-import type { PendingCheckoutSnapshot } from '@/lib/checkout/storage';
-
-const snapshot: PendingCheckoutSnapshot = {
-  email: 'buyer@example.com',
-  shippingAddress: {
-    fullName: 'Taylor Verified',
-    line1: '1 Main St',
-    city: 'Portland',
-    state: 'OR',
-    postalCode: '97201',
-    country: 'US',
-  },
-  lines: [],
-  subtotalCents: 0,
-  shippingCents: 0,
-  taxCents: 0,
-  totalCents: 0,
-  currency: 'usd',
-  createdAt: new Date().toISOString(),
-};
 
 describe('lib/api/checkout', () => {
   beforeEach(() => {
@@ -31,12 +11,37 @@ describe('lib/api/checkout', () => {
     vi.restoreAllMocks();
   });
 
-  it('POSTs to /checkout/session', async () => {
+  it('POSTs {} to /checkout/session with auth', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () =>
         Response.json(
-          { url: 'https://checkout.stripe.com/cs_test', sessionId: 'cs_test' },
+          { url: 'https://checkout.stripe.com/cs_test', orderId: 'ord_1' },
+          { status: 200 },
+        ),
+      ),
+    );
+
+    await createCheckoutSession({}, { accessToken: 'token-abc' });
+
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
+      'http://localhost:3001/checkout/session',
+      expect.objectContaining({
+        method: 'POST',
+        body: '{}',
+        headers: expect.objectContaining({
+          Authorization: 'Bearer token-abc',
+        }),
+      }),
+    );
+  });
+
+  it('POSTs shippingSelection when provided', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        Response.json(
+          { url: 'https://checkout.stripe.com/cs_test', orderId: 'ord_2' },
           { status: 200 },
         ),
       ),
@@ -44,16 +49,26 @@ describe('lib/api/checkout', () => {
 
     await createCheckoutSession(
       {
-        email: 'buyer@example.com',
-        shippingAddress: snapshot.shippingAddress,
-        lines: [{ productId: 'p1', quantity: 1 }],
+        shippingSelection: {
+          selectionToken: 'tok',
+          serviceCode: 'DOM.EP',
+          amountCents: 1299,
+          line1: '1 Main',
+          city: 'Toronto',
+          region: 'ON',
+          postalCode: 'M5V2T6',
+          country: 'CA',
+        },
       },
-      snapshot,
+      { accessToken: 'token-abc' },
     );
 
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       'http://localhost:3001/checkout/session',
-      expect.objectContaining({ method: 'POST' }),
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('shippingSelection'),
+      }),
     );
   });
 });

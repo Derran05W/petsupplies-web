@@ -1,36 +1,68 @@
 'use client';
 
 import Link from 'next/link';
-import { useCartSubtotalCents } from '@/hooks/useCart';
+import { useCartSubtotalCents, useCartTotals } from '@/hooks/useCart';
 import { formatPrice } from '@/lib/utils/format';
 import { FreeShippingProgress } from './FreeShippingProgress';
+import { DiscountCodeForm } from './DiscountCodeForm';
 
 interface CartSummaryProps {
-  /**
-   * `'drawer'` shows a "Continue shopping" button that closes the drawer
-   * via `onClose`. `'page'` shows a "Continue shopping" link that
-   * navigates to /products.
-   */
   variant: 'drawer' | 'page';
   onClose?: () => void;
 }
 
 export function CartSummary({ variant, onClose }: CartSummaryProps) {
   const subtotalCents = useCartSubtotalCents();
+  const totals = useCartTotals();
+
+  const discountCents = totals?.appliedDiscountCents ?? 0;
+  const shippingCents = totals?.shippingCents;
+  const totalCents = totals?.totalCents ?? subtotalCents;
 
   return (
     <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-warm-100 p-5">
-      <div className="flex items-center justify-between font-body text-sm">
-        <span className="text-warm-600">Subtotal</span>
-        <span className="font-medium text-warm-900">
-          {formatPrice(subtotalCents)}
-        </span>
+      <div className="flex flex-col gap-3 font-body text-sm">
+        <div className="flex items-center justify-between">
+          <span className="text-warm-600">Subtotal</span>
+          <span className="font-medium text-warm-900">
+            {formatPrice(subtotalCents)}
+          </span>
+        </div>
+        {discountCents > 0 ? (
+          <div className="flex items-center justify-between text-brand-700">
+            <span>
+              Discount
+              {totals?.discountCode ? ` (${totals.discountCode})` : ''}
+            </span>
+            <span>-{formatPrice(discountCents)}</span>
+          </div>
+        ) : null}
+        {shippingCents !== undefined ? (
+          <div className="flex items-center justify-between">
+            <span className="text-warm-600">Shipping</span>
+            <span className="font-medium text-warm-900">
+              {shippingCents === 0 ? 'Free' : formatPrice(shippingCents)}
+            </span>
+          </div>
+        ) : null}
+        {totals ? (
+          <div className="flex items-center justify-between border-t border-warm-200 pt-3">
+            <span className="font-medium text-warm-900">Estimated total</span>
+            <span className="font-display text-lg text-warm-900">
+              {formatPrice(totalCents)}
+            </span>
+          </div>
+        ) : null}
       </div>
+
+      <DiscountCodeForm compact />
 
       <FreeShippingProgress />
 
       <p className="font-body text-xs text-warm-600">
-        Taxes and shipping calculated at checkout.
+        {totals
+          ? 'Shipping and tax finalized at checkout.'
+          : 'Taxes and shipping calculated at checkout.'}
       </p>
 
       <Link

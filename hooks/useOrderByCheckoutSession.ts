@@ -3,11 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { getOrderByCheckoutSession } from '@/lib/api/checkout';
+import { getBrowserAccessToken } from '@/lib/supabase/browser-access-token';
 import type { OrderSummary } from '@/types/order';
 
-/** How often to poll the backend while the order hasn't appeared yet. */
 const POLL_INTERVAL_MS = 1500;
-/** Hard ceiling on how long we keep polling before giving up. */
 const POLL_TIMEOUT_MS = 30_000;
 
 export type CheckoutPollPhase =
@@ -24,24 +23,6 @@ export interface UseOrderByCheckoutSessionResult {
   query: UseQueryResult<OrderSummary | null, Error>;
 }
 
-/**
- * Polls `GET /orders/by-checkout-session/:sessionId` until the order
- * appears (the Stripe webhook may land slightly after the customer
- * redirect) or the 30s timeout fires.
- *
- * The hook owns three pieces of state:
- *   - the underlying `useQuery` (cache + refetch driver)
- *   - a `timedOut` flag flipped once the wall-clock window elapses
- *   - a derived `phase` that callers render from
- *
- * Polling stops when:
- *   - the query returns a non-null `OrderSummary` → `phase = 'confirmed'`
- *   - the wall-clock timer fires → `phase = 'timeout'`
- *   - the query throws (non-404 / non-network error) → `phase = 'error'`
- *
- * Callers must pass `enabled: false` when the session ID is missing so
- * we don't fire a request with an empty path.
- */
 export function useOrderByCheckoutSession(
   sessionId: string | null,
 ): UseOrderByCheckoutSessionResult {
@@ -54,7 +35,8 @@ export function useOrderByCheckoutSession(
     queryKey: ['order-by-session', sessionId],
     queryFn: async () => {
       if (!sessionId) return null;
-      return getOrderByCheckoutSession(sessionId);
+      const accessToken = await getBrowserAccessToken();
+      return getOrderByCheckoutSession(sessionId, { accessToken });
     },
     enabled,
     refetchInterval: (q) => {
@@ -68,9 +50,6 @@ export function useOrderByCheckoutSession(
     gcTime: 60_000,
   });
 
-  // Wall-clock 30s timeout. The interval also stops once the data shows
-  // up (via the `refetchInterval` returning false above), so the only
-  // job of this effect is the upper-bound cap.
   useEffect(() => {
     if (!sessionId) return;
     if (query.data) return;

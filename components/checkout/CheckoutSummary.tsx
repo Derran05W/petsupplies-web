@@ -4,28 +4,49 @@ import Image from 'next/image';
 import {
   useCartLines,
   useCartSubtotalCents,
+  useCartTotals,
   useFreeShippingProgress,
 } from '@/hooks/useCart';
 import { formatPrice } from '@/lib/utils/format';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
+import { DiscountCodeForm } from '@/components/cart/DiscountCodeForm';
 
 const FALLBACK_IMAGE = '/images/hero-placeholder.jpg';
 
-/**
- * Sticky right-rail summary on `/checkout`. Mirrors the look of
- * `<CartSummary />` but renders the actual line items (with thumbnails
- * + qty pills) above the totals so the customer sees exactly what
- * they're about to pay for.
- *
- * The displayed pricing is the cart snapshot — instant render, no extra
- * round trip. Backend re-validates against live prices and stock when it
- * creates the Stripe Checkout Session, so what the customer actually
- * pays at Stripe is the source of truth.
- */
-export function CheckoutSummary() {
+interface CheckoutSummaryProps {
+  selectedShippingCents?: number | null;
+}
+
+export function CheckoutSummary({
+  selectedShippingCents = null,
+}: CheckoutSummaryProps) {
   const lines = useCartLines();
   const subtotalCents = useCartSubtotalCents();
+  const totals = useCartTotals();
   const { qualifies } = useFreeShippingProgress();
+
+  const discountCents = totals?.appliedDiscountCents ?? 0;
+  const serverShippingCents = totals?.shippingCents;
+  const shippingLabel = (() => {
+    if (qualifies || totals?.discountType === 'FREE_SHIPPING') return 'Free';
+    if (selectedShippingCents !== null) {
+      return selectedShippingCents === 0
+        ? 'Free'
+        : formatPrice(selectedShippingCents);
+    }
+    if (serverShippingCents !== undefined) {
+      return serverShippingCents === 0
+        ? 'Free'
+        : formatPrice(serverShippingCents);
+    }
+    return qualifies ? 'Free' : 'Calculated at payment';
+  })();
+
+  const totalCents =
+    totals?.totalCents ??
+    subtotalCents -
+      discountCents +
+      (selectedShippingCents ?? (qualifies ? 0 : 0));
 
   return (
     <aside
@@ -39,7 +60,7 @@ export function CheckoutSummary() {
 
         <ul className="flex flex-col gap-4">
           {lines.map((line) => (
-            <li key={line.productId} className="flex gap-3">
+            <li key={line.cartItemId ?? line.productId} className="flex gap-3">
               <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-warm-100">
                 <Image
                   src={
@@ -81,13 +102,22 @@ export function CheckoutSummary() {
               {formatPrice(subtotalCents)}
             </span>
           </div>
+          {discountCents > 0 ? (
+            <div className="flex items-center justify-between text-brand-700">
+              <span>
+                Discount
+                {totals?.discountCode ? ` (${totals.discountCode})` : ''}
+              </span>
+              <span>-{formatPrice(discountCents)}</span>
+            </div>
+          ) : null}
           <div className="flex items-center justify-between">
             <span className="text-warm-600">Shipping</span>
-            <span className="font-medium text-warm-900">
-              {qualifies ? 'Free' : 'Calculated at payment'}
-            </span>
+            <span className="font-medium text-warm-900">{shippingLabel}</span>
           </div>
         </div>
+
+        <DiscountCodeForm compact className="lg:hidden" />
 
         <FreeShippingProgress />
 
@@ -100,7 +130,7 @@ export function CheckoutSummary() {
         <div className="flex items-baseline justify-between">
           <span className="font-display text-base text-warm-900">Total</span>
           <span className="font-display text-2xl tracking-[-0.02em] text-warm-900">
-            {formatPrice(subtotalCents)}
+            {formatPrice(totalCents)}
           </span>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { buildRootMetadata } from '@/lib/site/metadata';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { CartMergeProvider } from '@/components/providers/CartMergeProvider';
 import { ThemeScript } from '@/components/theme/ThemeScript';
 import './globals.css';
 
@@ -46,7 +47,9 @@ export default function RootLayout({
         <ThemeScript />
         <QueryProvider>
           <AuthProvider>
-            <ThemeProvider>{children}</ThemeProvider>
+            <CartMergeProvider>
+              <ThemeProvider>{children}</ThemeProvider>
+            </CartMergeProvider>
           </AuthProvider>
         </QueryProvider>
       </body>
