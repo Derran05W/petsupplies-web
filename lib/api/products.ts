@@ -17,6 +17,11 @@ import {
   CLIENT_FILTER_PAGE_SIZE,
   needsClientSideProductFilter,
 } from '@/lib/products/filter-products';
+import {
+  getE2eCatalogProduct,
+  isE2eCatalogFixtureEnabled,
+  listE2eCatalogProducts,
+} from './e2e/catalog-fixture';
 
 const DEFAULT_PAGE_SIZE = 12;
 const RELATED_LIMIT = 4;
@@ -67,6 +72,10 @@ function mapProductListResponse(
 async function fetchCatalogForClientFiltering(
   filters: ProductFilters,
 ): Promise<Product[]> {
+  if (isE2eCatalogFixtureEnabled()) {
+    return listE2eCatalogProducts();
+  }
+
   const apiFilters: ProductFilters = {
     minPriceCents: filters.minPriceCents,
     maxPriceCents: filters.maxPriceCents,
@@ -98,6 +107,10 @@ async function fetchCatalogForClientFiltering(
 export async function getProducts(
   filters: ProductFilters = {},
 ): Promise<ProductListResponse> {
+  if (isE2eCatalogFixtureEnabled()) {
+    return filterAndPaginateProducts(listE2eCatalogProducts(), filters);
+  }
+
   if (needsClientSideProductFilter(filters)) {
     const products = await fetchCatalogForClientFiltering(filters);
     return filterAndPaginateProducts(products, filters);
@@ -127,6 +140,11 @@ function applyE2eOutOfStockOverride(slug: string, product: Product): Product {
  */
 export const getProductBySlug = cache(
   async (slug: string): Promise<Product | null> => {
+    if (isE2eCatalogFixtureEnabled()) {
+      const product = getE2eCatalogProduct(slug);
+      return product ? applyE2eOutOfStockOverride(slug, product) : null;
+    }
+
     try {
       const raw = await apiFetch<ApiCatalogProduct | Product>(
         `/products/${encodeURIComponent(slug)}`,

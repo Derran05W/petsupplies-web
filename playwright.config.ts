@@ -45,6 +45,8 @@ export default defineConfig({
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'test-anon-key',
           NEXT_PUBLIC_API_URL:
             process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001',
+          /** SSR catalogue fixture — Playwright cannot intercept Next server fetch. */
+          E2E_CATALOG_FIXTURE: '1',
           /** SSR reviews fixture — Playwright cannot intercept Next server fetch. */
           E2E_REVIEWS_FIXTURE: '1',
           /** Force one staging slug OOS on SSR for back-in-stock notify UI. */
