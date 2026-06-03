@@ -1,22 +1,73 @@
 /**
- * Thin facade over `lib/placeholder/products.ts` so unit tests don't
- * pin to `FEATURED_PRODUCTS[0]!.something` (brittle if the catalogue
- * is reordered or extended). Each helper returns a *cloned* product
- * so a test that mutates the result can't leak into other tests.
+ * Minimal inline product fixtures for unit tests. These are standalone
+ * and do not rely on any placeholder catalogue modules.
  *
  * Keep the shape of these helpers narrow — anything more elaborate
- * belongs in the placeholder catalogue itself.
+ * belongs in the test that needs it.
  */
-import { FEATURED_PRODUCTS } from '@/lib/placeholder/products';
 import type { Product } from '@/types/product';
 
 function clone<T>(value: T): T {
   return structuredClone(value);
 }
 
+const FIXTURE_CATALOGUE: Product[] = [
+  {
+    id: 'fix-prod-1',
+    slug: 'salmon-dry-dog-food',
+    name: 'Salmon Dry Dog Food',
+    description: 'Premium grain-free salmon kibble for adult dogs.',
+    priceCents: 2999,
+    compareAtPriceCents: 3499,
+    category: 'food',
+    petType: 'dog',
+    images: [
+      {
+        id: 'img-1',
+        url: '/images/salmon-kibble.jpg',
+        alt: 'Salmon Dry Dog Food bag',
+        isPrimary: true,
+      },
+    ],
+    inStock: true,
+    stockCount: 48,
+    tags: ['grain-free', 'salmon', 'adult'],
+    rating: { avg: 4.8, count: 24 },
+    createdAt: '2026-01-10T09:00:00.000Z',
+  },
+  {
+    id: 'fix-prod-2',
+    slug: 'tuna-cat-treats',
+    name: 'Tuna Cat Treats',
+    description: 'Irresistible tuna-flavoured treats for cats.',
+    priceCents: 899,
+    category: 'treats',
+    petType: 'cat',
+    images: [],
+    inStock: false,
+    stockCount: 0,
+    tags: ['cat', 'tuna', 'treats'],
+    createdAt: '2026-01-12T09:00:00.000Z',
+  },
+  {
+    id: 'fix-prod-3',
+    slug: 'bird-seed-mix',
+    name: 'Bird Seed Mix',
+    description: 'Nutritious seed blend for pet birds.',
+    priceCents: 1299,
+    category: 'food',
+    petType: 'bird',
+    images: [],
+    inStock: true,
+    stockCount: 15,
+    tags: ['seed', 'bird'],
+    createdAt: '2026-01-15T09:00:00.000Z',
+  },
+];
+
 function pick(predicate: (product: Product) => boolean): Product {
-  const found = FEATURED_PRODUCTS.find(predicate);
-  if (!found) throw new Error('Fixture not found in placeholder catalogue');
+  const found = FIXTURE_CATALOGUE.find(predicate);
+  if (!found) throw new Error('Fixture not found in test catalogue');
   return clone(found);
 }
 
@@ -38,7 +89,6 @@ export function outOfStockProduct(): Product {
 
 /** A product without a rating chip. */
 export function productWithoutRating(): Product {
-  // The placeholder catalogue has no rating-less product, so derive one.
   const base = pick(() => true);
   delete base.rating;
   return base;

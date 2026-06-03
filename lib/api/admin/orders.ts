@@ -5,14 +5,7 @@ import type {
   AdminOrderUpdateInput,
 } from '@/types/admin';
 import type { OrderStatus } from '@/types/order';
-import { ApiError, apiFetch } from '../client';
-import { PLACEHOLDER_ORDERS } from '@/lib/placeholder/orders';
-import {
-  applyOrderOverride,
-  loadOrderOverrides,
-  setOrderOverride,
-} from '@/lib/admin/storage';
-import { loadPendingCheckout } from '@/lib/checkout/storage';
+import { apiFetch } from '../client';
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -25,21 +18,6 @@ export interface AdminOrderListOptions {
 
 export interface AdminApiOptions {
   accessToken?: string;
-}
-
-let warnedAboutAdminOrdersFallback = false;
-
-function warnFallback(): void {
-  if (warnedAboutAdminOrdersFallback) return;
-  warnedAboutAdminOrdersFallback = true;
-  // eslint-disable-next-line no-console
-  console.warn(
-    '[admin/orders] backend unreachable — using placeholder orders + override store for dev',
-  );
-}
-
-function isNetwork(err: unknown): err is ApiError {
-  return err instanceof ApiError && err.isNetworkError;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -61,18 +39,10 @@ export async function adminListOrders(
   params.set('pageSize', String(pageSize));
   if (status) params.set('status', status);
 
-  try {
-    return await apiFetch<AdminOrderListResponse>(
-      `/admin/orders?${params.toString()}`,
-      accessToken ? { cache: 'no-store', accessToken } : { cache: 'no-store' },
-    );
-  } catch (err) {
-    if (isNetwork(err)) {
-      warnFallback();
-      return localList({ page, pageSize, status });
-    }
-    throw err;
-  }
+  return apiFetch<AdminOrderListResponse>(
+    `/admin/orders?${params.toString()}`,
+    accessToken ? { cache: 'no-store', accessToken } : { cache: 'no-store' },
+  );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -85,36 +55,12 @@ export async function adminUpdateOrder(
   options: AdminApiOptions = {},
 ): Promise<AdminOrderSummary> {
   const { accessToken } = options;
-  try {
-    return await apiFetch<AdminOrderSummary>(
-      `/admin/orders/${encodeURIComponent(id)}`,
-      accessToken
-        ? {
-            method: 'PATCH',
-            body: JSON.stringify(input),
-            accessToken,
-          }
-        : { method: 'PATCH', body: JSON.stringify(input) },
-    );
-  } catch (err) {
-    if (isNetwork(err)) {
-      warnFallback();
-      setOrderOverride(id, {
-        ...(input.status !== undefined ? { status: input.status } : {}),
-        ...(input.trackingNumber !== undefined
-          ? { trackingNumber: input.trackingNumber }
-          : {}),
-        ...(input.trackingUrl !== undefined
-          ? { trackingUrl: input.trackingUrl }
-          : {}),
-      });
-      const all = getAllAdminOrders();
-      const updated = all.find((o) => o.id === id);
-      if (!updated) throw new ApiError('Order not found', 404);
-      return updated;
-    }
-    throw err;
-  }
+  return apiFetch<AdminOrderSummary>(
+    `/admin/orders/${encodeURIComponent(id)}`,
+    accessToken
+      ? { method: 'PATCH', body: JSON.stringify(input), accessToken }
+      : { method: 'PATCH', body: JSON.stringify(input) },
+  );
 }
 
 export async function patchOrderTracking(
@@ -123,113 +69,10 @@ export async function patchOrderTracking(
   options: AdminApiOptions = {},
 ): Promise<AdminOrderSummary> {
   const { accessToken } = options;
-  try {
-    return await apiFetch<AdminOrderSummary>(
-      `/admin/orders/${encodeURIComponent(id)}/tracking`,
-      accessToken
-        ? {
-            method: 'PATCH',
-            body: JSON.stringify(input),
-            accessToken,
-          }
-        : { method: 'PATCH', body: JSON.stringify(input) },
-    );
-  } catch (err) {
-    if (isNetwork(err)) {
-      warnFallback();
-      setOrderOverride(id, {
-        ...(input.trackingNumber !== undefined
-          ? { trackingNumber: input.trackingNumber }
-          : {}),
-        ...(input.trackingUrl !== undefined
-          ? { trackingUrl: input.trackingUrl }
-          : {}),
-      });
-      const all = getAllAdminOrders();
-      const updated = all.find((o) => o.id === id);
-      if (!updated) throw new ApiError('Order not found', 404);
-      return updated;
-    }
-    throw err;
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/* Local fallback                                                             */
-/* TODO(phase 8): remove once backend phase 8 admin endpoints are on staging. */
-/* -------------------------------------------------------------------------- */
-
-function synthesisePendingCheckoutOrder(): AdminOrderSummary | null {
-  const snapshot = loadPendingCheckout();
-  if (!snapshot) return null;
-  return {
-    id: 'ord_dev_pending_snapshot',
-    checkoutSessionId: 'cs_test_pending_snapshot',
-    status: 'paid',
-    email: snapshot.email,
-    shippingAddress: snapshot.shippingAddress,
-    lines: snapshot.lines.map((line) => ({
-      id: `ol_${line.productId}`,
-      productId: line.productId,
-      slug: line.slug,
-      name: line.name,
-      imageUrl: line.imageUrl,
-      quantity: line.quantity,
-      unitPriceCents: line.priceCents,
-      lineTotalCents: line.priceCents * line.quantity,
-    })),
-    subtotalCents: snapshot.subtotalCents,
-    shippingCents: snapshot.shippingCents,
-    taxCents: snapshot.taxCents,
-    totalCents: snapshot.totalCents,
-    currency: snapshot.currency,
-    createdAt: snapshot.createdAt,
-    customerEmail: snapshot.email,
-    customerId: 'usr_dev_pending',
-    customerName: snapshot.shippingAddress.fullName,
-  };
-}
-
-function getAllAdminOrders(): AdminOrderSummary[] {
-  const overrides = loadOrderOverrides();
-  const seeded: AdminOrderSummary[] = PLACEHOLDER_ORDERS.map((order) =>
-    applyOrderOverride(
-      {
-        ...order,
-        customerEmail: order.email,
-        customerId: 'usr_dev_seed',
-        customerName: order.shippingAddress.fullName,
-      },
-      overrides,
-    ),
+  return apiFetch<AdminOrderSummary>(
+    `/admin/orders/${encodeURIComponent(id)}/tracking`,
+    accessToken
+      ? { method: 'PATCH', body: JSON.stringify(input), accessToken }
+      : { method: 'PATCH', body: JSON.stringify(input) },
   );
-  const orders: AdminOrderSummary[] = [];
-  const pending = synthesisePendingCheckoutOrder();
-  if (pending) orders.push(applyOrderOverride(pending, overrides));
-  orders.push(...seeded);
-  return orders.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
-}
-
-function localList(opts: {
-  page: number;
-  pageSize: number;
-  status?: OrderStatus;
-}): AdminOrderListResponse {
-  let all = getAllAdminOrders();
-  if (opts.status) {
-    all = all.filter((order) => order.status === opts.status);
-  }
-  const total = all.length;
-  const totalPages = Math.max(1, Math.ceil(total / opts.pageSize));
-  const safePage = Math.min(Math.max(1, opts.page), totalPages);
-  const start = (safePage - 1) * opts.pageSize;
-  return {
-    orders: all.slice(start, start + opts.pageSize),
-    total,
-    page: safePage,
-    pageSize: opts.pageSize,
-    totalPages,
-  };
 }
