@@ -44,10 +44,6 @@ function toQueryString(filters: ProductFilters): string {
 /**
  * List products. Server-side callers receive fresh data on every request
  * (`cache: 'no-store'`); Phase 9 can introduce per-route revalidation.
- *
- * Falls back to filtering `FEATURED_PRODUCTS` when the backend is
- * unreachable so the UI never crashes during local dev / preview.
- * TODO(phase 4): remove fallback once backend phase 4 is on staging.
  */
 function mapProductListResponse(
   raw: ApiCatalogProductListResponse | ProductListResponse,
@@ -114,6 +110,14 @@ export async function getProducts(
   return mapProductListResponse(raw);
 }
 
+/** When E2E_STOCK_ALERT_FIXTURE=1, force one slug OOS so Playwright can exercise notify UI. */
+function applyE2eOutOfStockOverride(slug: string, product: Product): Product {
+  if (process.env.E2E_STOCK_ALERT_FIXTURE !== '1') return product;
+  const oosSlug = process.env.E2E_OOS_PRODUCT_SLUG?.trim();
+  if (!oosSlug || slug !== oosSlug) return product;
+  return { ...product, inStock: false, stockCount: 0 };
+}
+
 /**
  * Fetch a single product by slug. Returns `null` on 404 — pages should call `notFound()`.
  *
@@ -128,7 +132,7 @@ export const getProductBySlug = cache(
         `/products/${encodeURIComponent(slug)}`,
         { cache: 'no-store' },
       );
-      return mapCatalogProduct(raw);
+      return applyE2eOutOfStockOverride(slug, mapCatalogProduct(raw));
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) return null;
       throw err;

@@ -47,6 +47,10 @@ export default defineConfig({
             process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001',
           /** SSR reviews fixture — Playwright cannot intercept Next server fetch. */
           E2E_REVIEWS_FIXTURE: '1',
+          /** Force one staging slug OOS on SSR for back-in-stock notify UI. */
+          E2E_STOCK_ALERT_FIXTURE: '1',
+          E2E_PRODUCT_SLUG: 'cat-cocktail',
+          E2E_OOS_PRODUCT_SLUG: 'dog-shoes',
           // Avoids EMFILE from file watchers on low-ulimit runners (e.g. some CI sandboxes).
           ...(process.env.CI ? { WATCHPACK_POLLING: '1' } : {}),
         },
