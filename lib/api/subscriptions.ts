@@ -10,21 +10,6 @@ export interface SubscriptionsApiOptions {
   accessToken?: string;
 }
 
-let warnedSubscriptionsFallback = false;
-
-function warnListFallback(): void {
-  if (warnedSubscriptionsFallback) return;
-  warnedSubscriptionsFallback = true;
-  // eslint-disable-next-line no-console
-  console.warn(
-    '[subscriptions] backend unreachable — empty list for dev / offline',
-  );
-}
-
-function isNetwork(err: unknown): err is ApiError {
-  return err instanceof ApiError && err.isNetworkError;
-}
-
 /** Canonical path per docs/backend-api-routes.md */
 const BASE = '/users/me/subscriptions';
 
@@ -52,21 +37,13 @@ function normalizeSubscriptionsPayload(raw: unknown): Subscription[] {
 export async function listSubscriptions(
   options: SubscriptionsApiOptions = {},
 ): Promise<Subscription[]> {
-  try {
-    const raw = await apiFetch<unknown>(
-      BASE,
-      options.accessToken
-        ? { cache: 'no-store', accessToken: options.accessToken }
-        : { cache: 'no-store' },
-    );
-    return normalizeSubscriptionsPayload(raw);
-  } catch (err) {
-    if (isNetwork(err)) {
-      warnListFallback();
-      return [];
-    }
-    throw err;
-  }
+  const raw = await apiFetch<unknown>(
+    BASE,
+    options.accessToken
+      ? { cache: 'no-store', accessToken: options.accessToken }
+      : { cache: 'no-store' },
+  );
+  return normalizeSubscriptionsPayload(raw);
 }
 
 export async function getSubscription(

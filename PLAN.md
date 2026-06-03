@@ -543,7 +543,7 @@ ship features that depend on a backend phase that has not yet merged to
 - [x] Phase 7 — Account & Order History (consumes backend Phase 8) (commit: `feat(account): add order history, addresses, and settings`)
 - [x] Phase 8 — Admin Panel + AI description generator (consumes backend Phase 8) (commit: `feat(admin): add admin panel with AI description generator`)
 - [x] Phase 9 — Testing (Vitest + Playwright, 80 % coverage threshold) (commit: `test: add unit and e2e test coverage`)
-- [ ] Phase 10 — CI/CD + Vercel deploy (staging + prod)
+- [~] Phase 10 — CI/CD + Vercel deploy (staging + prod) (CI live; Vercel staging deploy in progress on `vercel-deploy` — see `docs/deployment.md`)
 
 🚀 **MVP launch milestone — Phase 10 ships a buyable site.**
 

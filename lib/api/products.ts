@@ -12,7 +12,6 @@ import {
   type ApiCatalogProduct,
   type ApiCatalogProductListResponse,
 } from './product-mapper';
-import { FEATURED_PRODUCTS } from '@/lib/placeholder/products';
 import {
   filterAndPaginateProducts,
   CLIENT_FILTER_PAGE_SIZE,
@@ -103,35 +102,24 @@ async function fetchCatalogForClientFiltering(
 export async function getProducts(
   filters: ProductFilters = {},
 ): Promise<ProductListResponse> {
-  try {
-    if (needsClientSideProductFilter(filters)) {
-      const products = await fetchCatalogForClientFiltering(filters);
-      return filterAndPaginateProducts(products, filters);
-    }
-
-    const raw = await apiFetch<
-      ApiCatalogProductListResponse | ProductListResponse
-    >(`/products${toQueryString(filters)}`, { cache: 'no-store' });
-
-    return mapProductListResponse(raw);
-  } catch (err) {
-    if (err instanceof ApiError && err.isNetworkError) {
-      return localFilter(filters);
-    }
-    throw err;
+  if (needsClientSideProductFilter(filters)) {
+    const products = await fetchCatalogForClientFiltering(filters);
+    return filterAndPaginateProducts(products, filters);
   }
+
+  const raw = await apiFetch<
+    ApiCatalogProductListResponse | ProductListResponse
+  >(`/products${toQueryString(filters)}`, { cache: 'no-store' });
+
+  return mapProductListResponse(raw);
 }
 
 /**
- * Fetch a single product by slug. Returns `null` if the product is not
- * found OR if the backend is unreachable and no matching placeholder
- * exists. Pages should call `notFound()` on `null`.
+ * Fetch a single product by slug. Returns `null` on 404 — pages should call `notFound()`.
  *
  * Wrapped in `React.cache` so `generateMetadata` and the page's default
  * export share a single underlying request — with `cache: 'no-store'`,
  * Next does not dedupe the underlying `fetch` automatically.
- *
- * TODO(phase 4): remove fallback once backend phase 4 is on staging.
  */
 export const getProductBySlug = cache(
   async (slug: string): Promise<Product | null> => {
@@ -142,12 +130,7 @@ export const getProductBySlug = cache(
       );
       return mapCatalogProduct(raw);
     } catch (err) {
-      if (err instanceof ApiError) {
-        if (err.status === 404) return null;
-        if (err.isNetworkError) {
-          return FEATURED_PRODUCTS.find((p) => p.slug === slug) ?? null;
-        }
-      }
+      if (err instanceof ApiError && err.status === 404) return null;
       throw err;
     }
   },
@@ -156,50 +139,31 @@ export const getProductBySlug = cache(
 /**
  * Fetch products related to a given pet type, excluding one slug. Used by
  * the "You might also like" row on the product detail page.
- * TODO(phase 4): remove fallback once backend phase 4 is on staging.
  */
 export async function getRelatedProducts(
   petType: PetType,
   excludeSlug: string,
 ): Promise<Product[]> {
-  try {
-    const raw = await apiFetch<
-      ApiCatalogProductListResponse | ProductListResponse
-    >(`/products?limit=${RELATED_LIMIT + 5}`, { cache: 'no-store' });
-    const response =
-      raw &&
-      typeof raw === 'object' &&
-      'limit' in raw &&
-      typeof (raw as ApiCatalogProductListResponse).limit === 'number'
-        ? mapCatalogProductListResponse(raw as ApiCatalogProductListResponse)
-        : {
-            products: ((raw as ProductListResponse).products ?? []).map(
-              mapCatalogProduct,
-            ),
-            total: 0,
-            page: 1,
-            pageSize: RELATED_LIMIT + 5,
-            totalPages: 1,
-          };
-    return response.products
-      .filter((p) => p.petType === petType)
-      .filter((p) => p.slug !== excludeSlug)
-      .slice(0, RELATED_LIMIT);
-  } catch (err) {
-    if (err instanceof ApiError && err.isNetworkError) {
-      return FEATURED_PRODUCTS.filter(
-        (p) => p.petType === petType && p.slug !== excludeSlug,
-      ).slice(0, RELATED_LIMIT);
-    }
-    throw err;
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/* Local fallback — runs only when the backend is unreachable.                */
-/* TODO(phase 4): remove once backend phase 4 is on staging.                  */
-/* -------------------------------------------------------------------------- */
-
-function localFilter(filters: ProductFilters): ProductListResponse {
-  return filterAndPaginateProducts(FEATURED_PRODUCTS, filters);
+  const raw = await apiFetch<
+    ApiCatalogProductListResponse | ProductListResponse
+  >(`/products?limit=${RELATED_LIMIT + 5}`, { cache: 'no-store' });
+  const response =
+    raw &&
+    typeof raw === 'object' &&
+    'limit' in raw &&
+    typeof (raw as ApiCatalogProductListResponse).limit === 'number'
+      ? mapCatalogProductListResponse(raw as ApiCatalogProductListResponse)
+      : {
+          products: ((raw as ProductListResponse).products ?? []).map(
+            mapCatalogProduct,
+          ),
+          total: 0,
+          page: 1,
+          pageSize: RELATED_LIMIT + 5,
+          totalPages: 1,
+        };
+  return response.products
+    .filter((p) => p.petType === petType)
+    .filter((p) => p.slug !== excludeSlug)
+    .slice(0, RELATED_LIMIT);
 }
