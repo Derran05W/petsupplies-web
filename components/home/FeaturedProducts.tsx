@@ -1,12 +1,9 @@
 import Link from 'next/link';
 import { ProductCard } from '@/components/product/ProductCard';
 import { fetchFeaturedProducts } from '@/lib/api/site/featured-products';
-import { FEATURED_PRODUCTS } from '@/lib/placeholder/products';
-import { resolveFeaturedDisplay } from '@/lib/site/featured-display';
 
 export async function FeaturedProducts() {
-  const liveProducts = await fetchFeaturedProducts();
-  const products = resolveFeaturedDisplay(liveProducts, FEATURED_PRODUCTS);
+  const products = await fetchFeaturedProducts();
 
   return (
     <section

@@ -49,7 +49,7 @@ describe('lib/api/wishlist', () => {
     expect(rows).toEqual([item]);
   });
 
-  it('GET returns [] on network failure', async () => {
+  it('GET throws on network failure', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => {
@@ -57,7 +57,9 @@ describe('lib/api/wishlist', () => {
       }),
     );
 
-    await expect(listWishlist({ accessToken: 'tok' })).resolves.toEqual([]);
+    await expect(listWishlist({ accessToken: 'tok' })).rejects.toBeInstanceOf(
+      ApiError,
+    );
   });
 
   it('GET rethrows non-network ApiError', async () => {
@@ -109,7 +111,7 @@ describe('lib/api/wishlist', () => {
     expect(result.addedAt).toBeDefined();
   });
 
-  it('POST synthesises on network error when product snapshot exists', async () => {
+  it('POST throws on network error', async () => {
     const item = sampleWishlistItem();
     const product = item.product;
     vi.stubGlobal(
@@ -119,11 +121,9 @@ describe('lib/api/wishlist', () => {
       }),
     );
 
-    const result = await addWishlistItem(product.id, {
-      accessToken: 'tok',
-      product,
-    });
-    expect(result.product).toEqual(product);
+    await expect(
+      addWishlistItem(product.id, { accessToken: 'tok', product }),
+    ).rejects.toBeInstanceOf(ApiError);
   });
 
   it('DELETE succeeds on 204', async () => {
@@ -152,7 +152,7 @@ describe('lib/api/wishlist', () => {
     ).resolves.toBeUndefined();
   });
 
-  it('DELETE no-ops on network error', async () => {
+  it('DELETE throws on network error', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => {
@@ -162,6 +162,6 @@ describe('lib/api/wishlist', () => {
 
     await expect(
       removeWishlistItem('prod-1', { accessToken: 'tok' }),
-    ).resolves.toBeUndefined();
+    ).rejects.toBeInstanceOf(ApiError);
   });
 });

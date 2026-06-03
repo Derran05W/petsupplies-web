@@ -67,7 +67,7 @@ describe('lib/api/stockAlerts', () => {
     expect(rows).toEqual([row]);
   });
 
-  it('GET returns [] on network failure', async () => {
+  it('GET throws on network failure', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => {
@@ -75,7 +75,9 @@ describe('lib/api/stockAlerts', () => {
       }),
     );
 
-    await expect(listStockAlerts({ accessToken: 'tok' })).resolves.toEqual([]);
+    await expect(
+      listStockAlerts({ accessToken: 'tok' }),
+    ).rejects.toBeInstanceOf(ApiError);
   });
 
   it('GET rethrows non-network ApiError', async () => {
@@ -126,7 +128,7 @@ describe('lib/api/stockAlerts', () => {
     expect(result.createdAt.length).toBeGreaterThan(0);
   });
 
-  it('POST synthesises on network error when product snapshot exists', async () => {
+  it('POST throws on network error', async () => {
     const row = sampleStockAlert();
     vi.stubGlobal(
       'fetch',
@@ -135,11 +137,12 @@ describe('lib/api/stockAlerts', () => {
       }),
     );
 
-    const result = await createStockAlert(row.productId, {
-      accessToken: 'tok',
-      product: row.product,
-    });
-    expect(result.product).toEqual(row.product);
+    await expect(
+      createStockAlert(row.productId, {
+        accessToken: 'tok',
+        product: row.product,
+      }),
+    ).rejects.toBeInstanceOf(ApiError);
   });
 
   it('DELETE swallows 404', async () => {
@@ -153,7 +156,7 @@ describe('lib/api/stockAlerts', () => {
     ).resolves.toBeUndefined();
   });
 
-  it('DELETE no-ops on network error', async () => {
+  it('DELETE throws on network error', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => {
@@ -163,7 +166,7 @@ describe('lib/api/stockAlerts', () => {
 
     await expect(
       deleteStockAlert('pid', { accessToken: 'tok' }),
-    ).resolves.toBeUndefined();
+    ).rejects.toBeInstanceOf(ApiError);
   });
 
   it('DELETE rethrows other ApiErrors', async () => {
