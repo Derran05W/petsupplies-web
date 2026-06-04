@@ -41,3 +41,7 @@ next-env.d.ts
 # nix / direnv
 .direnv/
 result
+
+# local IDE / agent planning artifacts
+.cursor/
+.planning/

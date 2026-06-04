@@ -14,8 +14,8 @@ import path from 'node:path';
  * actually exercises (the five PLAN-named targets plus the helpers each
  * test naturally pulls in). Files outside this list are validated by
  * Playwright e2e or are thin SSR wrappers that are not worth covering
- * in jsdom: RSC pages, Supabase SSR plumbing, the placeholder fixture
- * catalogues, and the Next/Tailwind config.
+ * in jsdom: RSC pages, Supabase SSR plumbing, test fixtures, and the
+ * Next/Tailwind config.
  *
  * If a future phase adds a unit-tested surface, append it here so the
  * threshold remains a real signal instead of a denominator bomb.
@@ -43,12 +43,7 @@ export default defineConfig({
         'lib/api/email.ts',
         'lib/api/cart-recovery.ts',
       ],
-      exclude: [
-        '**/*.d.ts',
-        '**/types/**',
-        'lib/placeholder/**',
-        'lib/supabase/**',
-      ],
+      exclude: ['**/*.d.ts', '**/types/**', 'lib/supabase/**'],
       thresholds: {
         lines: 80,
         statements: 80,
