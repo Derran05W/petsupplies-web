@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { PetIcon } from './PetIcon';
 import { SectionHeader } from './SectionHeader';
@@ -19,6 +20,16 @@ interface VideoBandProps {
    */
   videoSrc?: string;
   poster?: string;
+  /** CSS object-position for the footage, e.g. `'50% 60%'` to keep the subject in frame. */
+  videoPosition?: string;
+  /**
+   * Still placeholder shown full-bleed (with the play affordance) until
+   * `videoSrc` exists. Ignored when `videoSrc` is set.
+   */
+  imageSrc?: string;
+  imageAlt?: string;
+  /** CSS object-position for the still, e.g. `'50% 30%'` to keep the subject in frame. */
+  imagePosition?: string;
   className?: string;
 }
 
@@ -40,6 +51,10 @@ export function VideoBand({
   children,
   videoSrc,
   poster,
+  videoPosition = '50% 50%',
+  imageSrc,
+  imageAlt = '',
+  imagePosition = '50% 50%',
   className,
 }: VideoBandProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -87,7 +102,7 @@ export function VideoBand({
       ref={sectionRef}
       className={cn(
         'relative flex min-h-[72vh] items-end overflow-hidden bg-ink px-[5vw] py-20 text-paper',
-        !videoSrc && 'bg-film-glow',
+        !videoSrc && !imageSrc && 'bg-film-glow',
         className,
       )}
     >
@@ -95,6 +110,7 @@ export function VideoBand({
         inView ? (
           <video
             className="absolute inset-0 h-full w-full object-cover"
+            style={{ objectPosition: videoPosition }}
             src={videoSrc}
             poster={poster}
             autoPlay={!reducedMotion}
@@ -106,26 +122,37 @@ export function VideoBand({
         ) : null
       ) : (
         <>
+          {imageSrc ? (
+            <Image
+              src={imageSrc}
+              alt={imageAlt}
+              fill
+              sizes="100vw"
+              className="object-cover"
+              style={{ objectPosition: imagePosition }}
+            />
+          ) : (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 opacity-[0.08]"
+            >
+              {PAWS.map((paw, i) => (
+                <PetIcon
+                  key={i}
+                  name="paw"
+                  className="absolute size-[70px] text-paper"
+                  style={{
+                    left: paw.left,
+                    top: paw.top,
+                    transform: `rotate(${paw.rotate})`,
+                  }}
+                />
+              ))}
+            </div>
+          )}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-[0.08]"
-          >
-            {PAWS.map((paw, i) => (
-              <PetIcon
-                key={i}
-                name="paw"
-                className="absolute size-[70px] text-paper"
-                style={{
-                  left: paw.left,
-                  top: paw.top,
-                  transform: `rotate(${paw.rotate})`,
-                }}
-              />
-            ))}
-          </div>
-          <div
-            aria-hidden
-            className="absolute left-1/2 top-1/2 flex size-[92px] -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--paper)_50%,transparent)] bg-[color-mix(in_srgb,var(--paper)_6%,transparent)] backdrop-blur-sm transition-all duration-[400ms] ease-soft hover:scale-[1.12] hover:bg-[color-mix(in_srgb,var(--paper)_14%,transparent)] motion-reduce:transform-none"
+            className="absolute left-1/2 top-1/2 z-[1] flex size-[92px] -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--paper)_50%,transparent)] bg-[color-mix(in_srgb,var(--paper)_6%,transparent)] backdrop-blur-sm transition-all duration-[400ms] ease-soft hover:scale-[1.12] hover:bg-[color-mix(in_srgb,var(--paper)_14%,transparent)] motion-reduce:transform-none"
           >
             <svg
               viewBox="0 0 24 24"
@@ -137,10 +164,10 @@ export function VideoBand({
           </div>
         </>
       )}
-      {videoSrc ? (
+      {videoSrc || imageSrc ? (
         <div
           aria-hidden
-          className="absolute inset-0 bg-[color-mix(in_srgb,var(--ink)_35%,transparent)]"
+          className="pointer-events-none absolute inset-0 bg-[color-mix(in_srgb,var(--ink)_35%,transparent)]"
         />
       ) : null}
       <div className="relative z-[2] max-w-[520px]">

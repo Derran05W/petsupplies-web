@@ -1,15 +1,25 @@
+import Image from 'next/image';
 import { emphasize, PetIcon, Reveal, SectionHeader } from '@/components/ui';
 import { HOME_CONTENT } from '@/lib/site/home-content';
 
 /**
  * Mascot band (mockup `.mascot`): a 4:5 portrait stage next to the
- * "Chief Eating Officer" copy. The stage shows the line-art stand-in
- * until `HOME_CONTENT.mascot.videoSrc` points at portrait footage.
+ * "Chief Eating Officer" copy. The stage shows the official portrait
+ * still until `HOME_CONTENT.mascot.videoSrc` points at portrait footage
+ * (and the line-art stand-in when neither is set).
  * Carries the `#about` anchor for nav links.
  */
 export function MascotBand() {
-  const { kicker, heading, paragraphs, signature, videoSrc, stageCaption } =
-    HOME_CONTENT.mascot;
+  const {
+    kicker,
+    heading,
+    paragraphs,
+    signature,
+    videoSrc,
+    imageSrc,
+    imageAlt,
+    stageCaption,
+  } = HOME_CONTENT.mascot;
 
   return (
     <section
@@ -28,6 +38,14 @@ export function MascotBand() {
                 muted
                 loop
                 playsInline
+              />
+            ) : imageSrc ? (
+              <Image
+                src={imageSrc}
+                alt={imageAlt}
+                fill
+                sizes="(min-width: 768px) 44vw, 90vw"
+                className="object-cover"
               />
             ) : (
               <>

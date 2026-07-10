@@ -37,9 +37,17 @@ export const HOME_CONTENT = {
     kicker: 'Behind the shop',
     heading: 'Thirty seconds of extremely serious quality control.',
     body: 'Every product is field-tested by the resident inspector before it earns a spot on the shelf.',
-    /** Brand-film footage — autoplays muted on loop when set; the tonal stand-in renders until then. */
-    videoSrc: undefined as string | undefined,
-    poster: undefined as string | undefined,
+    /** Brand-film footage — autoplays muted on loop when set; the still placeholder renders until then. */
+    videoSrc: '/videos/milo-jump.mp4' as string | undefined,
+    poster: '/images/milo-jump-poster.jpg' as string | undefined,
+    /** object-position for the footage — the action sits low in the portrait frame. */
+    videoPosition: '50% 72%',
+    /** Still shown full-bleed behind the copy until `videoSrc` points at real footage. */
+    imageSrc: '/images/milo-with-treats.jpg' as string | undefined,
+    imageAlt:
+      'Milo the cocker spaniel surveying a large pile of treats and snacks awaiting inspection',
+    /** object-position keeping the inspector in frame across viewport crops. */
+    imagePosition: '50% 30%',
   },
 
   categories: {
@@ -57,8 +65,11 @@ export const HOME_CONTENT = {
       'Standards are high. Attention spans are not.',
     ],
     signature: '— Management (the four-legged one)',
-    /** Portrait footage (vertical 4:5, loops muted) — the line-art stand-in renders until set. */
+    /** Portrait footage (vertical 4:5, loops muted) — the portrait still renders until set. */
     videoSrc: undefined as string | undefined,
+    /** Official portrait shown in the stage until `videoSrc` points at footage. */
+    imageSrc: '/images/milo-sit.jpg' as string | undefined,
+    imageAlt: 'Milo the cocker spaniel sitting at attention among his toys',
     stageCaption:
       'Awaiting an official portrait. The inspector is busy inspecting.',
   },
