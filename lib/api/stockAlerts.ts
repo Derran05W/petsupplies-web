@@ -45,21 +45,6 @@ function isApiStockAlertProduct(raw: unknown): raw is ApiStockAlertProduct {
   );
 }
 
-let warnedAboutStockAlertsFallback = false;
-
-function warnFallback(): void {
-  if (warnedAboutStockAlertsFallback) return;
-  warnedAboutStockAlertsFallback = true;
-  // eslint-disable-next-line no-console
-  console.warn(
-    '[stock-alerts] backend unreachable — empty list fallback for dev',
-  );
-}
-
-function isNetwork(err: unknown): err is ApiError {
-  return err instanceof ApiError && err.isNetworkError;
-}
-
 /** Canonical path per docs/backend-api-routes.md */
 const BASE = '/users/me/stock-alerts';
 
@@ -96,7 +81,7 @@ function normalizeListPayload(raw: unknown): StockAlert[] {
   if (Array.isArray(raw)) {
     rows = raw;
   } else if (raw && typeof raw === 'object') {
-    // Backend paginated envelope is `{ data: [...] }`; `items` kept for fallbacks.
+    // Backend paginated envelope is `{ data: [...] }`; `items` tolerated too.
     for (const key of ['data', 'items'] as const) {
       const value = (raw as Record<string, unknown>)[key];
       if (Array.isArray(value)) {
@@ -110,27 +95,16 @@ function normalizeListPayload(raw: unknown): StockAlert[] {
     .filter((x): x is StockAlert => x !== null);
 }
 
-/**
- * GET active stock alerts for the current user.
- * Network failures → [] (wishlist-aligned dev ergonomics).
- */
+/** GET active stock alerts for the current user. */
 export async function listStockAlerts(
   options: StockAlertsApiOptions = {},
 ): Promise<StockAlert[]> {
   const { accessToken } = options;
-  try {
-    const raw = await apiFetch<unknown>(
-      BASE,
-      accessToken ? { cache: 'no-store', accessToken } : { cache: 'no-store' },
-    );
-    return normalizeListPayload(raw);
-  } catch (err) {
-    if (isNetwork(err)) {
-      warnFallback();
-      return [];
-    }
-    throw err;
-  }
+  const raw = await apiFetch<unknown>(
+    BASE,
+    accessToken ? { cache: 'no-store', accessToken } : { cache: 'no-store' },
+  );
+  return normalizeListPayload(raw);
 }
 
 export interface CreateStockAlertOptions extends StockAlertsApiOptions {
@@ -171,17 +145,6 @@ export async function createStockAlert(
         createdAt: new Date().toISOString(),
       };
     }
-    if (isNetwork(err)) {
-      warnFallback();
-      if (!product) {
-        throw new ApiError('Stock-alert create fallback requires product', 0);
-      }
-      return {
-        productId,
-        product,
-        createdAt: new Date().toISOString(),
-      };
-    }
     throw err;
   }
 }
@@ -202,10 +165,6 @@ export async function deleteStockAlert(
     );
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) {
-      return;
-    }
-    if (isNetwork(err)) {
-      warnFallback();
       return;
     }
     throw err;

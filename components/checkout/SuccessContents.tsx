@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useOrderByCheckoutSession } from '@/hooks/useOrderByCheckoutSession';
 import { useCartActions } from '@/hooks/useCart';
-import { clearPendingCheckout } from '@/lib/checkout/storage';
 import { clearPendingOrderId } from '@/lib/checkout/pending-order';
 import { Button, TONE_CLASSES } from '@/components/ui';
 import { OrderSummaryCard } from './OrderSummaryCard';
@@ -39,7 +38,6 @@ export function SuccessContents({ sessionId }: SuccessContentsProps) {
     if (phase === 'confirmed' && !clearedRef.current) {
       clearedRef.current = true;
       clear();
-      clearPendingCheckout();
       clearPendingOrderId();
     }
   }, [phase, clear]);

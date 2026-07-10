@@ -3,12 +3,13 @@
  * E2E_REVIEWS_FIXTURE=1 supplies deterministic SSR review payloads.
  */
 import { test, expect } from '@playwright/test';
+import { E2E_PRODUCT_SLUG } from './helpers/catalog';
 
 test.describe('product detail page', () => {
   test('shows reviews to guests with sign-in required to submit', async ({
     page,
   }) => {
-    await page.goto('/products/salmon-sweet-potato-recipe');
+    await page.goto(`/products/${E2E_PRODUCT_SLUG}`);
 
     await expect(
       page.getByRole('heading', { level: 2, name: 'Customer reviews' }),

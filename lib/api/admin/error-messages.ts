@@ -1,5 +1,4 @@
 import { ApiError } from '@/lib/api/client';
-import { isBackendUnreachableError } from '@/lib/api/unreachable';
 
 const NETWORK_ERROR_MESSAGE =
   "Couldn't reach the server. Try again or check back shortly.";
@@ -63,7 +62,7 @@ export function adminApiErrorMessage(
         ? err.message
         : 'Image storage is not configured on the API (check SUPABASE_STORAGE_BUCKET and bucket CORS in Supabase).';
     }
-    if (isBackendUnreachableError(err)) {
+    if (err.isNetworkError) {
       if (/application not found/i.test(err.message)) {
         return API_HOST_ERROR_MESSAGE;
       }

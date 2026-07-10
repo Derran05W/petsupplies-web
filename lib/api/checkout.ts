@@ -4,22 +4,10 @@ import { ApiError, apiFetch } from './client';
 import { getOrderById } from './orders';
 import { mapApiOrder, type ApiOrderDetail } from './order-mapper';
 import {
-  loadPendingCheckout,
-  savePendingCheckout,
-  type PendingCheckoutSnapshot,
-} from '@/lib/checkout/storage';
-import {
   clearPendingOrderId,
   loadPendingOrderId,
   savePendingOrderId,
 } from '@/lib/checkout/pending-order';
-
-/**
- * Sentinel session ID used by the placeholder fallback so the success
- * page can recognise the dev path and synthesise an order from the cart
- * snapshot in sessionStorage.
- */
-export const PLACEHOLDER_SESSION_ID = 'cs_test_placeholder';
 
 export interface CreateCheckoutSessionRequest {
   shippingSelection?: ShippingSelectionInput;
@@ -34,12 +22,7 @@ export interface CreateCheckoutSessionResponse {
   orderId: string;
 }
 
-let warnedAboutFallback = false;
-
-/**
- * POST `/checkout/session` — body is `{}` or `{ shippingSelection }`.
- * Backend reads the authenticated user's server cart.
- */
+/** POST `/checkout/session` — body is `{}` or `{ shippingSelection }`. Backend reads the authenticated user's server cart. */
 export async function createCheckoutSession(
   request: CreateCheckoutSessionRequest,
   options: CreateCheckoutSessionOptions,
@@ -49,52 +32,28 @@ export async function createCheckoutSession(
       ? { shippingSelection: request.shippingSelection }
       : {};
 
-  try {
-    const result = await apiFetch<CreateCheckoutSessionResponse>(
-      '/checkout/session',
-      {
-        method: 'POST',
-        body: JSON.stringify(body),
-        accessToken: options.accessToken,
-      },
-    );
-    savePendingOrderId(result.orderId);
-    return result;
-  } catch (err) {
-    if (err instanceof ApiError && err.isNetworkError) {
-      if (!warnedAboutFallback) {
-        warnedAboutFallback = true;
-        // eslint-disable-next-line no-console
-        console.warn(
-          '[checkout] backend unreachable — using placeholder Stripe session for dev',
-        );
-      }
-      return {
-        url: `/checkout/success?session_id=${PLACEHOLDER_SESSION_ID}`,
-        orderId: `ord_dev_${Date.now().toString(36)}`,
-      };
-    }
-    throw err;
-  }
+  const result = await apiFetch<CreateCheckoutSessionResponse>(
+    '/checkout/session',
+    {
+      method: 'POST',
+      body: JSON.stringify(body),
+      accessToken: options.accessToken,
+    },
+  );
+  savePendingOrderId(result.orderId);
+  return result;
 }
 
 export interface GetOrderByCheckoutSessionOptions {
   accessToken?: string;
 }
 
-/**
- * Poll order status after Stripe redirect. Uses pending order id saved at
- * session creation (backend has no by-checkout-session route).
- */
+/** Poll order status after Stripe redirect. Uses pending order id saved at session creation. */
 export async function getOrderByCheckoutSession(
   sessionId: string,
   options: GetOrderByCheckoutSessionOptions = {},
 ): Promise<OrderSummary | null> {
   const { accessToken } = options;
-
-  if (sessionId === PLACEHOLDER_SESSION_ID) {
-    return synthesisePlaceholderOrder(sessionId);
-  }
 
   const pendingOrderId = loadPendingOrderId();
   if (pendingOrderId && accessToken) {
@@ -127,48 +86,7 @@ export async function getOrderByCheckoutSession(
     );
     return { ...mapApiOrder(raw), checkoutSessionId: sessionId };
   } catch (err) {
-    if (err instanceof ApiError) {
-      if (err.status === 404) return null;
-      if (err.isNetworkError && sessionId === PLACEHOLDER_SESSION_ID) {
-        return synthesisePlaceholderOrder(sessionId);
-      }
-    }
+    if (err instanceof ApiError && err.status === 404) return null;
     throw err;
   }
-}
-
-/** @deprecated Dev-only snapshot helper for placeholder checkout. */
-export function saveDevCheckoutSnapshot(
-  snapshot: PendingCheckoutSnapshot,
-): void {
-  savePendingCheckout(snapshot);
-}
-
-function synthesisePlaceholderOrder(sessionId: string): OrderSummary | null {
-  const snapshot = loadPendingCheckout();
-  if (!snapshot) return null;
-
-  return {
-    id: `ord_dev_${Date.now().toString(36)}`,
-    checkoutSessionId: sessionId,
-    status: 'paid',
-    email: snapshot.email,
-    shippingAddress: snapshot.shippingAddress,
-    lines: snapshot.lines.map((line) => ({
-      id: `ol_${line.productId}`,
-      productId: line.productId,
-      slug: line.slug,
-      name: line.name,
-      imageUrl: line.imageUrl,
-      quantity: line.quantity,
-      unitPriceCents: line.priceCents,
-      lineTotalCents: line.priceCents * line.quantity,
-    })),
-    subtotalCents: snapshot.subtotalCents,
-    shippingCents: snapshot.shippingCents,
-    taxCents: snapshot.taxCents,
-    totalCents: snapshot.totalCents,
-    currency: snapshot.currency,
-    createdAt: snapshot.createdAt,
-  };
 }

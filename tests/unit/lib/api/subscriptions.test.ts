@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
+import { ApiError } from '@/lib/api/client';
 import {
   cancelSubscription,
   createSubscriptionCheckout,
@@ -94,18 +94,14 @@ describe('lib/api/subscriptions', () => {
     expect(rows).toEqual([MAPPED]);
   });
 
-  it('GET returns [] on network error with one console warn', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('GET throws ApiError on network failure', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => {
         throw new TypeError('Failed to fetch');
       }),
     );
-    const rows = await listSubscriptions({});
-    expect(rows).toEqual([]);
-    expect(warn).toHaveBeenCalledTimes(1);
-    warn.mockRestore();
+    await expect(listSubscriptions({})).rejects.toBeInstanceOf(ApiError);
   });
 
   it('POST /subscriptions sends only strict fields (uppercase interval) and maps checkoutSessionId', async () => {

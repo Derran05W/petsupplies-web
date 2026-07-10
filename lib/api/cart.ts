@@ -5,33 +5,6 @@ export interface CartApiOptions {
   accessToken?: string;
 }
 
-let warnedAboutCartFallback = false;
-
-function warnFallback(): void {
-  if (warnedAboutCartFallback) return;
-  warnedAboutCartFallback = true;
-  // eslint-disable-next-line no-console
-  console.warn('[cart] backend unreachable — using empty cart for dev');
-}
-
-function isNetwork(err: unknown): err is ApiError {
-  return err instanceof ApiError && err.isNetworkError;
-}
-
-function emptyCart(): ServerCart {
-  return {
-    id: '',
-    items: [],
-    subtotalCents: 0,
-    appliedDiscountCents: 0,
-    shippingCents: 0,
-    shippingDiscountCents: 0,
-    totalCents: 0,
-    freeShippingThresholdCents: 5000,
-    freeShippingRemainingCents: 5000,
-  };
-}
-
 function authInit(
   options: CartApiOptions,
   init: RequestInit = {},
@@ -47,15 +20,7 @@ function authInit(
 export async function getCart(
   options: CartApiOptions = {},
 ): Promise<ServerCart> {
-  try {
-    return await apiFetch<ServerCart>('/cart', authInit(options));
-  } catch (err) {
-    if (isNetwork(err)) {
-      warnFallback();
-      return emptyCart();
-    }
-    throw err;
-  }
+  return apiFetch<ServerCart>('/cart', authInit(options));
 }
 
 export async function addCartItem(

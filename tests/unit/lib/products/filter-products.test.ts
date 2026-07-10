@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FEATURED_PRODUCTS } from '@/lib/placeholder/products';
+import type { Product } from '@/types/product';
 import {
   filterAndPaginateProducts,
   hasShelfFilters,
@@ -7,7 +7,50 @@ import {
   productMatchesSearch,
   productMatchesShelfFilters,
 } from '@/lib/products/filter-products';
-import type { Product } from '@/types/product';
+const TEST_CATALOGUE: Product[] = [
+  {
+    id: 't1',
+    slug: 'dog-training-treats',
+    name: 'Dog Training Treats',
+    description: 'Crunchy mini-bites perfect for dog training.',
+    priceCents: 999,
+    category: 'treats',
+    petType: 'dog',
+    images: [],
+    inStock: true,
+    stockCount: 30,
+    tags: ['dog', 'training', 'treats'],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 't2',
+    slug: 'cat-tuna-treats',
+    name: 'Cat Tuna Treats',
+    description: 'Irresistible tuna-flavoured rewards for cats.',
+    priceCents: 799,
+    category: 'treats',
+    petType: 'cat',
+    images: [],
+    inStock: true,
+    stockCount: 20,
+    tags: ['cat', 'tuna'],
+    createdAt: '2026-01-02T00:00:00.000Z',
+  },
+  {
+    id: 't3',
+    slug: 'salmon-dry-food',
+    name: 'Salmon Dry Food',
+    description: 'Grain-free salmon kibble.',
+    priceCents: 2999,
+    category: 'food',
+    petType: 'dog',
+    images: [],
+    inStock: true,
+    stockCount: 50,
+    tags: ['salmon', 'grain-free'],
+    createdAt: '2026-01-03T00:00:00.000Z',
+  },
+];
 
 const sampleProduct: Product = {
   id: '1',
@@ -77,8 +120,8 @@ describe('productMatchesShelfFilters', () => {
 });
 
 describe('filterAndPaginateProducts', () => {
-  it('filters placeholder catalogue by category and search together', () => {
-    const result = filterAndPaginateProducts(FEATURED_PRODUCTS, {
+  it('filters catalogue by category and search together', () => {
+    const result = filterAndPaginateProducts(TEST_CATALOGUE, {
       category: 'treats',
       search: 'dog',
       page: 1,
@@ -95,13 +138,13 @@ describe('filterAndPaginateProducts', () => {
   });
 
   it('paginates filtered results', () => {
-    const result = filterAndPaginateProducts(FEATURED_PRODUCTS, {
+    const result = filterAndPaginateProducts(TEST_CATALOGUE, {
       page: 1,
       pageSize: 2,
     });
 
     expect(result.products).toHaveLength(2);
-    expect(result.total).toBe(FEATURED_PRODUCTS.length);
-    expect(result.totalPages).toBe(Math.ceil(FEATURED_PRODUCTS.length / 2));
+    expect(result.total).toBe(TEST_CATALOGUE.length);
+    expect(result.totalPages).toBe(Math.ceil(TEST_CATALOGUE.length / 2));
   });
 });

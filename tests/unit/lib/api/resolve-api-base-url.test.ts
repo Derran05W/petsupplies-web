@@ -2,7 +2,24 @@
  * @vitest-environment node
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { resolveApiBaseUrl } from '@/lib/api/resolve-api-base-url';
+import {
+  normalizeConfiguredApiUrl,
+  resolveApiBaseUrl,
+} from '@/lib/api/resolve-api-base-url';
+
+describe('normalizeConfiguredApiUrl', () => {
+  it('adds https when the secret is a bare hostname', () => {
+    expect(
+      normalizeConfiguredApiUrl('petsupplies-api.example.railway.app'),
+    ).toBe('https://petsupplies-api.example.railway.app');
+  });
+
+  it('trims whitespace and trailing slashes', () => {
+    expect(normalizeConfiguredApiUrl('  https://api.test/  ')).toBe(
+      'https://api.test',
+    );
+  });
+});
 
 describe('resolveApiBaseUrl (server)', () => {
   afterEach(() => {

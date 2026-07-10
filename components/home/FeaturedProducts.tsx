@@ -7,8 +7,6 @@ import {
   TILE_TONES,
 } from '@/components/ui';
 import { fetchFeaturedProducts } from '@/lib/api/site/featured-products';
-import { FEATURED_PRODUCTS } from '@/lib/placeholder/products';
-import { resolveFeaturedDisplay } from '@/lib/site/featured-display';
 import { HOME_CONTENT } from '@/lib/site/home-content';
 
 /**
@@ -16,8 +14,7 @@ import { HOME_CONTENT } from '@/lib/site/home-content';
  * image-first cards with cycling tonal tiles and hover quick-add.
  */
 export async function FeaturedProducts() {
-  const liveProducts = await fetchFeaturedProducts();
-  const products = resolveFeaturedDisplay(liveProducts, FEATURED_PRODUCTS);
+  const products = await fetchFeaturedProducts();
   const { kicker, heading, viewAllLabel } = HOME_CONTENT.featured;
 
   return (
