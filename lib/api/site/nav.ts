@@ -31,7 +31,10 @@ export const fetchSiteNav = cache(async (): Promise<SiteNavPublic> => {
     });
     return withSupportedLinks(nav);
   } catch (err) {
-    if (err instanceof ApiError && (err.isNetworkError || err.status >= 500)) {
+    // Chrome data must never take the page down: any API failure — network,
+    // 5xx, or a dead deployment answering 404 ("Application not found") —
+    // falls back to the static defaults.
+    if (err instanceof ApiError) {
       return SITE_NAV_FALLBACK;
     }
     throw err;

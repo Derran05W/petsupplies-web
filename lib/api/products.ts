@@ -158,6 +158,17 @@ export const getProductBySlug = cache(
   },
 );
 
+function pickRelated(
+  products: Product[],
+  petType: PetType,
+  excludeSlug: string,
+): Product[] {
+  return products
+    .filter((p) => p.petType === petType)
+    .filter((p) => p.slug !== excludeSlug)
+    .slice(0, RELATED_LIMIT);
+}
+
 /**
  * Fetch products related to a given pet type, excluding one slug. Used by
  * the "You might also like" row on the product detail page.
@@ -166,26 +177,34 @@ export async function getRelatedProducts(
   petType: PetType,
   excludeSlug: string,
 ): Promise<Product[]> {
-  const raw = await apiFetch<
-    ApiCatalogProductListResponse | ProductListResponse
-  >(`/products?limit=${RELATED_LIMIT + 5}`, { cache: 'no-store' });
-  const response =
-    raw &&
-    typeof raw === 'object' &&
-    'limit' in raw &&
-    typeof (raw as ApiCatalogProductListResponse).limit === 'number'
-      ? mapCatalogProductListResponse(raw as ApiCatalogProductListResponse)
-      : {
-          products: ((raw as ProductListResponse).products ?? []).map(
-            mapCatalogProduct,
-          ),
-          total: 0,
-          page: 1,
-          pageSize: RELATED_LIMIT + 5,
-          totalPages: 1,
-        };
-  return response.products
-    .filter((p) => p.petType === petType)
-    .filter((p) => p.slug !== excludeSlug)
-    .slice(0, RELATED_LIMIT);
+  if (isE2eCatalogFixtureEnabled()) {
+    return pickRelated(listE2eCatalogProducts(), petType, excludeSlug);
+  }
+
+  try {
+    const raw = await apiFetch<
+      ApiCatalogProductListResponse | ProductListResponse
+    >(`/products?limit=${RELATED_LIMIT + 5}`, { cache: 'no-store' });
+    const response =
+      raw &&
+      typeof raw === 'object' &&
+      'limit' in raw &&
+      typeof (raw as ApiCatalogProductListResponse).limit === 'number'
+        ? mapCatalogProductListResponse(raw as ApiCatalogProductListResponse)
+        : {
+            products: ((raw as ProductListResponse).products ?? []).map(
+              mapCatalogProduct,
+            ),
+            total: 0,
+            page: 1,
+            pageSize: RELATED_LIMIT + 5,
+            totalPages: 1,
+          };
+    return pickRelated(response.products, petType, excludeSlug);
+  } catch (err) {
+    // Auxiliary row: a failing catalogue fetch must hide the recommendations,
+    // never take down the whole product page.
+    if (err instanceof ApiError) return [];
+    throw err;
+  }
 }

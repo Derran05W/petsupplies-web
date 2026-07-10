@@ -34,7 +34,9 @@ export const fetchFeaturedProducts = cache(async (): Promise<Product[]> => {
     });
     return mapFeaturedProductsResponse(raw);
   } catch (err) {
-    if (err instanceof ApiError && (err.isNetworkError || err.status >= 500)) {
+    // Chrome data must never take the page down: any API failure — network,
+    // 5xx, or a dead deployment answering 404 — degrades to an empty grid.
+    if (err instanceof ApiError) {
       return [];
     }
     throw err;

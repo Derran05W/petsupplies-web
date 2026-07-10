@@ -127,7 +127,7 @@ export function ProductCard({
       </div>
       <div className="mt-4 flex items-baseline justify-between gap-4">
         <div>
-          <div className="font-display text-title text-ink">{product.name}</div>
+          <h3 className="font-display text-title text-ink">{product.name}</h3>
           <div className="mt-0.5 font-body text-micro uppercase text-ink-muted">
             {PET_TYPE_LABEL[product.petType]} ·{' '}
             {CATEGORY_LABEL[product.category]}
