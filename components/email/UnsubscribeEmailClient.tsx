@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { PetIcon, TONE_CLASSES } from '@/components/ui';
 import { ApiError } from '@/lib/api/client';
 import { postEmailUnsubscribe } from '@/lib/api/email';
 
@@ -50,7 +51,7 @@ export function UnsubscribeEmailClient({ token }: UnsubscribeEmailClientProps) {
       <div className="flex justify-center py-10">
         <Loader2
           size={28}
-          className="animate-spin text-brand-500"
+          className="animate-spin text-pine motion-reduce:animate-none"
           aria-label="Updating subscription"
         />
       </div>
@@ -59,13 +60,22 @@ export function UnsubscribeEmailClient({ token }: UnsubscribeEmailClientProps) {
 
   if (status === 'success') {
     return (
-      <div className="text-center font-body">
-        <h1 className="font-display text-2xl text-warm-900">
-          You&apos;re unsubscribed
-        </h1>
-        <p className="mt-3 text-sm text-warm-600">
-          We won&apos;t send marketing email to this address anymore.
-        </p>
+      <div className="flex flex-col items-center gap-4 text-center font-body">
+        <span
+          aria-hidden
+          className={`inline-flex size-12 items-center justify-center rounded-tile ${TONE_CLASSES.sage}`}
+        >
+          <PetIcon name="paw" className="size-7" />
+        </span>
+        <div className="flex flex-col gap-2">
+          <p className="font-body text-kicker uppercase text-pine">All set</p>
+          <h1 className="font-display text-2xl text-ink">
+            You&apos;re unsubscribed
+          </h1>
+          <p className="text-sm leading-body text-ink-secondary">
+            We won&apos;t send marketing email to this address anymore.
+          </p>
+        </div>
       </div>
     );
   }
@@ -73,7 +83,7 @@ export function UnsubscribeEmailClient({ token }: UnsubscribeEmailClientProps) {
   return (
     <div
       role="alert"
-      className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+      className="rounded-tile border border-danger-border bg-danger-surface px-4 py-3 font-body text-sm text-danger-solid"
     >
       {errorMessage ??
         'We could not complete that unsubscribe link. Try again shortly.'}

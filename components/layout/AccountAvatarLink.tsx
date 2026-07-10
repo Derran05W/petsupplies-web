@@ -35,16 +35,12 @@ export function AccountAvatarLink({
       aria-label={ariaLabel}
       aria-busy={showSpinner}
       className={cn(
-        'inline-flex size-8 items-center justify-center rounded-full bg-brand-50 font-body text-sm font-medium text-brand-700 transition-colors hover:bg-brand-100',
+        'inline-flex size-8 items-center justify-center rounded-pill border border-ink bg-transparent font-body text-label uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
         className,
       )}
     >
       {showSpinner ? (
-        <Loader2
-          size={16}
-          className="animate-spin text-brand-600"
-          aria-hidden
-        />
+        <Loader2 size={16} className="animate-spin" aria-hidden />
       ) : (
         initial
       )}

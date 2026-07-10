@@ -53,15 +53,13 @@ export function CheckoutSummary({
       aria-label="Order summary"
       className="lg:sticky lg:top-24 lg:self-start"
     >
-      <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-surface-card p-5">
-        <h2 className="font-display text-xl tracking-[-0.02em] text-warm-900">
-          Order summary
-        </h2>
+      <div className="flex flex-col gap-5 rounded-card border border-line bg-panel p-5">
+        <h2 className="font-display text-title text-ink">Order summary</h2>
 
         <ul className="flex flex-col gap-4">
           {lines.map((line) => (
             <li key={line.cartItemId ?? line.productId} className="flex gap-3">
-              <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-warm-100">
+              <div className="bg-ink/5 relative size-14 shrink-0 overflow-hidden rounded-tile">
                 <Image
                   src={
                     line.imageUrl.length > 0 ? line.imageUrl : FALLBACK_IMAGE
@@ -73,37 +71,37 @@ export function CheckoutSummary({
                 />
                 <span
                   aria-hidden
-                  className="absolute -right-1 -top-1 inline-flex size-5 items-center justify-center rounded-full bg-warm-900 font-body text-[10px] font-medium text-white"
+                  className="absolute -right-1 -top-1 inline-flex size-5 items-center justify-center rounded-pill bg-ink font-body text-[10px] font-medium text-paper"
                 >
                   {line.quantity}
                 </span>
               </div>
               <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-                <p className="truncate font-body text-sm font-medium text-warm-900">
+                <p className="truncate font-body text-sm font-medium text-ink">
                   {line.name}
                 </p>
-                <p className="font-body text-xs text-warm-600">
+                <p className="font-body text-xs text-ink-muted">
                   Qty {line.quantity}
                 </p>
               </div>
-              <p className="font-body text-sm font-medium text-warm-900">
+              <p className="font-body text-sm font-medium text-ink">
                 {formatPrice(line.priceCents * line.quantity)}
               </p>
             </li>
           ))}
         </ul>
 
-        <div className="border-t border-warm-200" />
+        <div className="border-t border-line" />
 
         <div className="flex flex-col gap-3 font-body text-sm">
           <div className="flex items-center justify-between">
-            <span className="text-warm-600">Subtotal</span>
-            <span className="font-medium text-warm-900">
+            <span className="text-ink-muted">Subtotal</span>
+            <span className="font-medium text-ink">
               {formatPrice(subtotalCents)}
             </span>
           </div>
           {discountCents > 0 ? (
-            <div className="flex items-center justify-between text-brand-700">
+            <div className="flex items-center justify-between text-pine">
               <span>
                 Discount
                 {totals?.discountCode ? ` (${totals.discountCode})` : ''}
@@ -112,8 +110,8 @@ export function CheckoutSummary({
             </div>
           ) : null}
           <div className="flex items-center justify-between">
-            <span className="text-warm-600">Shipping</span>
-            <span className="font-medium text-warm-900">{shippingLabel}</span>
+            <span className="text-ink-muted">Shipping</span>
+            <span className="font-medium text-ink">{shippingLabel}</span>
           </div>
         </div>
 
@@ -121,15 +119,15 @@ export function CheckoutSummary({
 
         <FreeShippingProgress />
 
-        <p className="font-body text-xs text-warm-600">
+        <p className="font-body text-xs text-ink-muted">
           Taxes calculated by Stripe at the next step.
         </p>
 
-        <div className="border-t border-warm-200" />
+        <div className="border-t border-line" />
 
         <div className="flex items-baseline justify-between">
-          <span className="font-display text-base text-warm-900">Total</span>
-          <span className="font-display text-2xl tracking-[-0.02em] text-warm-900">
+          <span className="font-display text-base text-ink">Total</span>
+          <span className="font-display text-title text-ink">
             {formatPrice(totalCents)}
           </span>
         </div>

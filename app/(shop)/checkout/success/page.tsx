@@ -22,8 +22,8 @@ export default function CheckoutSuccessPage({
   const sessionId = readSessionId(searchParams.session_id);
 
   return (
-    <section className="px-6 pb-20 pt-12 md:px-8 lg:px-12">
-      <div className="mx-auto flex max-w-3xl flex-col items-center">
+    <section className="bg-paper px-gutter pb-24 pt-12 text-ink md:pt-16">
+      <div className="mx-auto flex max-w-wrap flex-col items-center">
         <SuccessContents sessionId={sessionId} />
       </div>
     </section>

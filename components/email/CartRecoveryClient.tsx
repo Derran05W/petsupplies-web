@@ -58,7 +58,7 @@ export function CartRecoveryClient({ token }: CartRecoveryClientProps) {
     return (
       <div
         role="alert"
-        className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+        className="rounded-tile border border-danger-border bg-danger-surface px-4 py-3 font-body text-sm text-danger-solid"
       >
         {error}
       </div>
@@ -66,10 +66,10 @@ export function CartRecoveryClient({ token }: CartRecoveryClientProps) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 py-12 text-center text-sm text-warm-600">
+    <div className="flex flex-col items-center gap-3 py-12 text-center font-body text-sm text-ink-secondary">
       <Loader2
         size={28}
-        className="animate-spin text-brand-500"
+        className="animate-spin text-pine motion-reduce:animate-none"
         aria-label="Recovering cart"
       />
       <p>Restoring your cart…</p>

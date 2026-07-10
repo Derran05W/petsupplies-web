@@ -9,43 +9,43 @@ export function CheckoutHeading() {
     <div>
       <nav
         aria-label="Breadcrumb"
-        className="mb-6 font-body text-sm text-warm-600"
+        className="mb-6 font-body text-micro uppercase text-ink-muted"
       >
         <ol className="flex items-center gap-2">
           <li>
             <Link
               href="/products"
-              className="transition-colors hover:text-warm-900"
+              className="transition-colors duration-fast hover:text-ink"
             >
               Shop
             </Link>
           </li>
-          <li aria-hidden className="text-warm-300">
+          <li aria-hidden className="text-ink-faint">
             /
           </li>
           <li>
             <Link
               href="/cart"
-              className="transition-colors hover:text-warm-900"
+              className="transition-colors duration-fast hover:text-ink"
             >
               Cart
             </Link>
           </li>
-          <li aria-hidden className="text-warm-300">
+          <li aria-hidden className="text-ink-faint">
             /
           </li>
-          <li
-            aria-current="page"
-            className="truncate font-medium text-warm-900"
-          >
+          <li aria-current="page" className="truncate text-ink">
             Checkout
           </li>
         </ol>
       </nav>
 
-      <h1 className="font-display text-4xl leading-tight tracking-[-0.02em] text-warm-900 md:text-5xl">
-        Checkout
-      </h1>
+      <div className="flex flex-col gap-3">
+        <p className="font-body text-kicker uppercase text-pine">
+          Almost there
+        </p>
+        <h1 className="font-display text-display text-ink">Checkout</h1>
+      </div>
     </div>
   );
 }

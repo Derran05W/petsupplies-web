@@ -118,19 +118,19 @@ export function PreferencesEmailClient({ token }: PreferencesEmailClientProps) {
       ROWS.map((row) => (
         <label
           key={row.key}
-          className="bg-warm-50/70 flex cursor-pointer gap-3 rounded-xl border border-warm-100 px-4 py-3"
+          className="flex cursor-pointer gap-3 rounded-tile border border-line bg-paper px-4 py-3"
         >
           <input
             type="checkbox"
-            className="mt-1 size-4 shrink-0 rounded border-warm-300 text-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+            className="mt-1 size-4 shrink-0 rounded-sm border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
             checked={preferences[row.key]}
             onChange={() => toggle(row.key)}
           />
           <span>
-            <span className="block text-sm font-medium text-warm-900">
+            <span className="block font-body text-sm font-medium text-ink">
               {row.label}
             </span>
-            <span className="block text-xs text-warm-600">
+            <span className="block font-body text-xs leading-body text-ink-secondary">
               {row.description}
             </span>
           </span>
@@ -144,7 +144,7 @@ export function PreferencesEmailClient({ token }: PreferencesEmailClientProps) {
       <div className="flex justify-center py-10">
         <Loader2
           size={28}
-          className="animate-spin text-brand-500"
+          className="animate-spin text-pine motion-reduce:animate-none"
           aria-label="Loading preferences"
         />
       </div>
@@ -155,7 +155,7 @@ export function PreferencesEmailClient({ token }: PreferencesEmailClientProps) {
     return (
       <div
         role="alert"
-        className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+        className="rounded-tile border border-danger-border bg-danger-surface px-4 py-3 font-body text-sm text-danger-solid"
       >
         {loadError}
       </div>
@@ -163,12 +163,13 @@ export function PreferencesEmailClient({ token }: PreferencesEmailClientProps) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 font-body">
       <div>
-        <h1 className="font-display text-2xl text-warm-900">
+        <p className="font-body text-kicker uppercase text-pine">Your inbox</p>
+        <h1 className="mt-2 font-display text-2xl text-ink">
           Email preferences
         </h1>
-        <p className="mt-2 text-sm text-warm-600">
+        <p className="mt-2 text-sm leading-body text-ink-secondary">
           Decide which messages you still want to receive from us.
         </p>
       </div>
@@ -176,12 +177,12 @@ export function PreferencesEmailClient({ token }: PreferencesEmailClientProps) {
       <div className="space-y-3">{rowsMarkup}</div>
 
       {saveNotice === 'success' && (
-        <p className="text-sm font-medium text-brand-600" role="status">
+        <p className="text-sm font-medium text-pine" role="status">
           Saved your preferences.
         </p>
       )}
       {saveNotice === 'error' && saveError ? (
-        <p className="text-sm text-red-700" role="alert">
+        <p className="text-sm text-danger-solid" role="alert">
           {saveError}
         </p>
       ) : null}
@@ -190,10 +191,14 @@ export function PreferencesEmailClient({ token }: PreferencesEmailClientProps) {
         type="button"
         onClick={() => void handleSave()}
         disabled={saving}
-        className="inline-flex items-center justify-center rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:bg-brand-200"
+        className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
       >
         {saving ? (
-          <Loader2 size={18} className="animate-spin" aria-label="Saving" />
+          <Loader2
+            size={16}
+            className="animate-spin motion-reduce:animate-none"
+            aria-label="Saving"
+          />
         ) : (
           'Save preferences'
         )}

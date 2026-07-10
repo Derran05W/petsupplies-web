@@ -16,15 +16,15 @@ export function AuthCard({
   return (
     <div
       className={cn(
-        'w-full max-w-md rounded-xl border border-warm-200 bg-surface-card px-8 py-10 shadow-sm',
+        'w-full max-w-md rounded-card border border-line bg-paper px-8 py-10',
         className,
       )}
     >
-      <h1 className="font-display text-3xl font-normal tracking-[-0.02em] text-warm-900">
+      <h1 className="font-display text-[1.9rem] font-normal leading-[1.12] tracking-tight-display text-ink">
         {heading}
       </h1>
       {subtext && (
-        <p className="mt-2 font-body text-sm leading-relaxed text-warm-600">
+        <p className="mt-2 font-body text-sm leading-body text-ink-secondary">
           {subtext}
         </p>
       )}

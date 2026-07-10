@@ -38,19 +38,21 @@ export default async function StaticContentPage({ params }: StaticPageProps) {
   }
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-12 md:py-16">
-      <header className="mb-8 border-b border-warm-200 pb-6">
-        <h1 className="font-display text-4xl tracking-[-0.02em] text-warm-900 md:text-5xl">
-          {page.title}
-        </h1>
-        <p className="text-warm-500 mt-2 font-body text-sm">
+    <article className="mx-auto max-w-3xl px-gutter py-12 text-ink md:py-16">
+      <header className="mb-10 border-b border-line pb-8">
+        <p className="font-body text-kicker uppercase text-pine">
           {staticPageLabel(slug)}
         </p>
+        <h1 className="mt-4 font-display text-display text-ink">
+          {page.title}
+        </h1>
       </header>
       {page.bodyMarkdown.trim().length > 0 ? (
         <MarkdownContent markdown={page.bodyMarkdown} />
       ) : (
-        <p className="font-body text-sm text-warm-600">Content coming soon.</p>
+        <p className="font-body text-sm leading-body text-ink-secondary">
+          Content coming soon.
+        </p>
       )}
     </article>
   );
