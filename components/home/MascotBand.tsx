@@ -35,7 +35,7 @@ export function MascotBand() {
                   name="dog"
                   className="h-[34%] w-[34%] text-[#8A7147]"
                 />
-                <small className="px-10 text-center font-body text-micro uppercase leading-[1.8] text-ink-faint">
+                <small className="px-10 text-center font-body text-micro uppercase leading-[1.8] text-ink-muted">
                   {stageCaption}
                 </small>
               </>

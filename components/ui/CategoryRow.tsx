@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { PetIcon, type PetIconName } from './PetIcon';
+import { PreviewImage } from './PreviewImage';
 import { TONE_CLASSES, type TileTone } from './tones';
 
 interface CategoryRowProps {
@@ -47,7 +47,7 @@ export function CategoryRow({
         {name}
       </span>
       <span className="flex flex-none items-center gap-6">
-        <span className="font-body text-[0.74rem] font-semibold uppercase tracking-count text-ink-faint">
+        <span className="font-body text-[0.74rem] font-semibold uppercase tracking-count text-ink-muted">
           {typeof count === 'number' ? `${count} products` : count}
         </span>
         <span
@@ -65,12 +65,13 @@ export function CategoryRow({
         )}
       >
         {imageUrl ? (
-          <Image
+          <PreviewImage
             src={imageUrl}
             alt=""
             fill
             sizes="150px"
             className="object-cover"
+            fallback={<PetIcon name={icon} className="h-[46%] w-[46%]" />}
           />
         ) : (
           <PetIcon name={icon} className="h-[46%] w-[46%]" />

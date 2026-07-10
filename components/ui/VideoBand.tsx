@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { PetIcon } from './PetIcon';
 import { SectionHeader } from './SectionHeader';
@@ -39,8 +42,49 @@ export function VideoBand({
   poster,
   className,
 }: VideoBandProps) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [inView, setInView] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  // Respect prefers-reduced-motion: never autoplay the footage; show the
+  // poster / static frame instead.
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+
+  // Lazy-load: keep the video out of the DOM until the band scrolls into
+  // view, so its footage never downloads on pages the user never reaches.
+  useEffect(() => {
+    if (!videoSrc) return;
+    const el = sectionRef.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setInView(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setInView(true);
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: '200px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [videoSrc]);
+
   return (
     <section
+      ref={sectionRef}
       className={cn(
         'relative flex min-h-[72vh] items-end overflow-hidden bg-ink px-[5vw] py-20 text-paper',
         !videoSrc && 'bg-film-glow',
@@ -48,15 +92,18 @@ export function VideoBand({
       )}
     >
       {videoSrc ? (
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          src={videoSrc}
-          poster={poster}
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
+        inView ? (
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            src={videoSrc}
+            poster={poster}
+            autoPlay={!reducedMotion}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+          />
+        ) : null
       ) : (
         <>
           <div

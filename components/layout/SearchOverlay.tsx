@@ -52,6 +52,26 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
       if (event.key === 'Escape') {
         event.preventDefault();
         onClose();
+        return;
+      }
+      if (event.key !== 'Tab' || !panelRef.current) return;
+
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
+      const active = document.activeElement;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
       }
     }
 
@@ -109,7 +129,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                 value={value}
                 onChange={(event) => setValue(event.target.value)}
                 placeholder="Search treats, food, toys…"
-                className="w-full border-0 border-b border-line bg-transparent pb-3 font-display text-[clamp(1.4rem,3vw,2.2rem)] leading-tight text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none"
+                className="w-full border-0 border-b border-line bg-transparent pb-3 font-display text-[clamp(1.4rem,3vw,2.2rem)] leading-tight text-ink placeholder:text-ink-muted focus:border-ink focus:outline-none"
               />
             </label>
 

@@ -120,7 +120,7 @@ export function SettingsDrawerOrders({
                   <p className="truncate font-body text-xs font-semibold text-ink">
                     Order {shortId(order.id)}
                   </p>
-                  <p className="font-body text-[11px] text-ink-faint">
+                  <p className="font-body text-[11px] text-ink-muted">
                     {formatDate(order.createdAt)}
                   </p>
                 </div>

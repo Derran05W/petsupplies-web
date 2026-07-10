@@ -1,3 +1,5 @@
+import { existsSync } from 'fs';
+import path from 'path';
 import {
   CategoryRow,
   emphasize,
@@ -14,6 +16,19 @@ import {
   type CategoryStripIconKey,
 } from '@/lib/site/category-strip-icons';
 import { HOME_CONTENT } from '@/lib/site/home-content';
+
+/**
+ * Admin-managed strip rows can reference local assets the frontend never
+ * shipped (the backend seeds /images/categories/*.jpg). Skip those at render
+ * time so the preview tile falls back to line art instead of requesting a
+ * 400 from the image optimizer. Remote URLs pass through — the client-side
+ * PreviewImage fallback covers those if they dangle.
+ */
+function localImageExists(url: string): boolean {
+  if (!url.startsWith('/')) return true;
+  const cleanPath = url.split('?')[0] ?? url;
+  return existsSync(path.join(process.cwd(), 'public', cleanPath));
+}
 
 /** Admin strip icon keys → the boutique line-art set (paw covers the rest). */
 const PET_ICON_BY_STRIP_KEY: Record<CategoryStripIconKey, PetIconName> = {
@@ -60,7 +75,8 @@ export async function CategoryRows() {
             const isPhoto =
               typeof item.imageUrl === 'string' &&
               item.imageUrl.length > 0 &&
-              !item.imageUrl.startsWith(CATEGORY_STRIP_ICON_PREFIX);
+              !item.imageUrl.startsWith(CATEGORY_STRIP_ICON_PREFIX) &&
+              localImageExists(item.imageUrl);
             return (
               <CategoryRow
                 key={item.id}

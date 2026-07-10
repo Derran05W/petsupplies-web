@@ -56,6 +56,7 @@ export function ProductCard({
 }: ProductCardProps) {
   const { add } = useCartActions();
   const [added, setAdded] = useState(false);
+  const [imgFailed, setImgFailed] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -89,13 +90,14 @@ export function ProductCard({
           TONE_CLASSES[tone],
         )}
       >
-        {primary ? (
+        {primary && !imgFailed ? (
           <Image
             src={primary.url}
             alt={primary.alt || product.name}
             fill
             sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
             className="object-cover transition-transform duration-slow ease-soft group-hover:scale-[1.06] motion-reduce:transform-none"
+            onError={() => setImgFailed(true)}
           />
         ) : (
           <PetIcon
@@ -118,7 +120,7 @@ export function ProductCard({
             <span className="sr-only"> — {product.name}</span>
           </button>
         ) : (
-          <span className="absolute bottom-[14px] left-1/2 z-[3] -translate-x-1/2 rounded-pill bg-[color-mix(in_srgb,var(--paper)_90%,transparent)] px-6 py-3 font-body text-[0.72rem] font-bold uppercase tracking-[0.14em] text-ink-faint">
+          <span className="absolute bottom-[14px] left-1/2 z-[3] -translate-x-1/2 rounded-pill bg-[color-mix(in_srgb,var(--paper)_90%,transparent)] px-6 py-3 font-body text-[0.72rem] font-bold uppercase tracking-[0.14em] text-ink-muted">
             Out of stock
           </span>
         )}
@@ -126,7 +128,7 @@ export function ProductCard({
       <div className="mt-4 flex items-baseline justify-between gap-4">
         <div>
           <div className="font-display text-title text-ink">{product.name}</div>
-          <div className="mt-0.5 font-body text-micro uppercase text-ink-faint">
+          <div className="mt-0.5 font-body text-micro uppercase text-ink-muted">
             {PET_TYPE_LABEL[product.petType]} ·{' '}
             {CATEGORY_LABEL[product.category]}
             {product.rating ? (
@@ -143,7 +145,7 @@ export function ProductCard({
         <div className="flex items-baseline gap-2 font-body text-[0.95rem] font-semibold text-ink">
           {formatPrice(product.priceCents)}
           {isOnSale ? (
-            <span className="font-normal text-ink-faint line-through">
+            <span className="font-normal text-ink-muted line-through">
               {formatPrice(product.compareAtPriceCents!)}
             </span>
           ) : null}

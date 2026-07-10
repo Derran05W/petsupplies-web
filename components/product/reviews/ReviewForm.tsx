@@ -177,12 +177,7 @@ export function ReviewForm({
         </p>
       )}
 
-      <form
-        onSubmit={onSubmit}
-        noValidate
-        className="mt-5 space-y-4"
-        aria-disabled={!canSubmit}
-      >
+      <form onSubmit={onSubmit} noValidate className="mt-5 space-y-4">
         {errors.root ? (
           <div className="rounded-tile border border-danger-border bg-danger-surface px-3 py-2 font-body text-sm text-danger-solid">
             {errors.root.message}

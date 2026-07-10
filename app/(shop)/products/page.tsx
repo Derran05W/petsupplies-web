@@ -43,7 +43,7 @@ async function ProductsResults({
     <>
       <ProductGrid products={data.products} />
       <Pagination currentPage={data.page} totalPages={data.totalPages} />
-      <p className="mt-6 text-center font-body text-micro uppercase text-ink-faint">
+      <p className="mt-6 text-center font-body text-micro uppercase text-ink-muted">
         {data.total === 0
           ? 'No products to show.'
           : `Showing ${data.products.length} of ${data.total} ${

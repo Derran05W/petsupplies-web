@@ -1,535 +1,1299 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aileen's — Food they'll actually love</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --ink:#26221C;
-  --base:#F6F3EC;
-  --panel:#EFEAE0;
-  --amber:#E09F3E;
-  --amber-soft:#F3DFC0;
-  --slate:#5B6DA8;
-  --slate-soft:#DDE2F0;
-  --pine:#3E5C48;
-  --line:rgba(38,34,28,.16);
-  --disp:'Fraunces',serif;
-  --body:'Archivo',sans-serif;
-  --ease:cubic-bezier(.25,.8,.25,1);
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:var(--body);background:var(--base);color:var(--ink);line-height:1.65;overflow-x:hidden}
-::selection{background:var(--amber-soft)}
-img,svg{display:block}
-a{color:inherit}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aileen's — Food they'll actually love</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Archivo:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #26221c;
+        --base: #f6f3ec;
+        --panel: #efeae0;
+        --amber: #e09f3e;
+        --amber-soft: #f3dfc0;
+        --slate: #5b6da8;
+        --slate-soft: #dde2f0;
+        --pine: #3e5c48;
+        --line: rgba(38, 34, 28, 0.16);
+        --disp: 'Fraunces', serif;
+        --body: 'Archivo', sans-serif;
+        --ease: cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--body);
+        background: var(--base);
+        color: var(--ink);
+        line-height: 1.65;
+        overflow-x: hidden;
+      }
+      ::selection {
+        background: var(--amber-soft);
+      }
+      img,
+      svg {
+        display: block;
+      }
+      a {
+        color: inherit;
+      }
 
-/* ---- video slot marker (mockup only) ---- */
-.vslot{
-  position:absolute;top:12px;left:12px;z-index:9;
-  font-size:.62rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
-  background:var(--ink);color:var(--base);padding:.35rem .7rem;border-radius:3px;
-  display:flex;align-items:center;gap:.4rem;opacity:.92;pointer-events:none;
-}
-.vslot::before{content:'';width:7px;height:7px;border-radius:50%;background:#E5544B;animation:blink 1.6s infinite}
-@keyframes blink{50%{opacity:.3}}
+      /* ---- video slot marker (mockup only) ---- */
+      .vslot {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 9;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        background: var(--ink);
+        color: var(--base);
+        padding: 0.35rem 0.7rem;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        opacity: 0.92;
+        pointer-events: none;
+      }
+      .vslot::before {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #e5544b;
+        animation: blink 1.6s infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0.3;
+        }
+      }
 
-/* ---- top bar + nav ---- */
-.topbar{
-  text-align:center;font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
-  padding:.55rem 1rem;background:var(--ink);color:var(--base);
-}
-nav{
-  position:sticky;top:0;z-index:100;
-  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
-  padding:1.05rem 4vw;background:rgba(246,243,236,.88);backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--line);
-}
-.nav-left{display:flex;gap:1.8rem;font-size:.8rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
-.nav-left a{text-decoration:none;opacity:.75;transition:opacity .2s}
-.nav-left a:hover{opacity:1}
-.wordmark{
-  font-family:var(--disp);font-weight:600;font-size:1.5rem;letter-spacing:.01em;
-  text-decoration:none;font-style:italic;
-}
-.nav-right{display:flex;justify-content:flex-end;gap:1.8rem;font-size:.8rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
-.nav-right a{text-decoration:none;opacity:.75;transition:opacity .2s}
-.nav-right a:hover{opacity:1}
-@media(max-width:720px){.nav-left{display:none}nav{grid-template-columns:auto 1fr}}
+      /* ---- top bar + nav ---- */
+      .topbar {
+        text-align: center;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        padding: 0.55rem 1rem;
+        background: var(--ink);
+        color: var(--base);
+      }
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        padding: 1.05rem 4vw;
+        background: rgba(246, 243, 236, 0.88);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+      }
+      .nav-left {
+        display: flex;
+        gap: 1.8rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .nav-left a {
+        text-decoration: none;
+        opacity: 0.75;
+        transition: opacity 0.2s;
+      }
+      .nav-left a:hover {
+        opacity: 1;
+      }
+      .wordmark {
+        font-family: var(--disp);
+        font-weight: 600;
+        font-size: 1.5rem;
+        letter-spacing: 0.01em;
+        text-decoration: none;
+        font-style: italic;
+      }
+      .nav-right {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1.8rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .nav-right a {
+        text-decoration: none;
+        opacity: 0.75;
+        transition: opacity 0.2s;
+      }
+      .nav-right a:hover {
+        opacity: 1;
+      }
+      @media (max-width: 720px) {
+        .nav-left {
+          display: none;
+        }
+        nav {
+          grid-template-columns: auto 1fr;
+        }
+      }
 
-/* ---- HERO: interleaved headline (Artbook-style) ---- */
-.hero{padding:9vh 4vw 10vh;text-align:center}
-.hero-kicker{
-  font-size:.74rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;
-  color:var(--pine);margin-bottom:2.6rem;
-  opacity:0;animation:fadeUp .8s .1s var(--ease) forwards;
-}
-.hl{
-  font-family:var(--disp);font-weight:400;
-  font-size:clamp(2.6rem,8.4vw,7rem);
-  line-height:1.04;letter-spacing:-.015em;
-}
-.hl-row{display:flex;align-items:center;justify-content:center;gap:.35em;flex-wrap:wrap}
-.hl .word{opacity:0;transform:translateY(.5em);animation:fadeUp .9s var(--ease) forwards}
-.hl em{font-style:italic;font-weight:500}
-.hl-tile{
-  display:inline-block;height:.92em;aspect-ratio:1.5;border-radius:.16em;overflow:hidden;
-  position:relative;flex:none;
-  opacity:0;transform:scale(.6) rotate(-6deg);
-  animation:tileIn .9s var(--ease) forwards;
-  transition:transform .45s var(--ease);
-}
-.hl-tile:hover{transform:scale(1.14) rotate(2deg)}
-.hl-tile .fill{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-.hl-tile svg{width:58%;height:58%}
-@keyframes tileIn{to{opacity:1;transform:scale(1) rotate(0)}}
-@keyframes fadeUp{to{opacity:1;transform:none}}
-.hero-sub{
-  max-width:52ch;margin:2.6rem auto 0;font-size:1.02rem;color:#4A443A;
-  opacity:0;animation:fadeUp .8s 1.15s var(--ease) forwards;
-}
-.hero-ctas{display:flex;gap:1rem;justify-content:center;margin-top:2.2rem;opacity:0;animation:fadeUp .8s 1.3s var(--ease) forwards}
-.btn{
-  font-family:var(--body);font-weight:600;font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;
-  padding:1rem 2.2rem;cursor:pointer;text-decoration:none;display:inline-block;
-  border-radius:999px;transition:all .3s var(--ease);border:1px solid var(--ink);
-}
-.btn-solid{background:var(--ink);color:var(--base)}
-.btn-solid:hover{background:var(--pine);border-color:var(--pine);transform:translateY(-2px)}
-.btn-ghost{background:transparent;color:var(--ink)}
-.btn-ghost:hover{background:var(--ink);color:var(--base);transform:translateY(-2px)}
+      /* ---- HERO: interleaved headline (Artbook-style) ---- */
+      .hero {
+        padding: 9vh 4vw 10vh;
+        text-align: center;
+      }
+      .hero-kicker {
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.26em;
+        text-transform: uppercase;
+        color: var(--pine);
+        margin-bottom: 2.6rem;
+        opacity: 0;
+        animation: fadeUp 0.8s 0.1s var(--ease) forwards;
+      }
+      .hl {
+        font-family: var(--disp);
+        font-weight: 400;
+        font-size: clamp(2.6rem, 8.4vw, 7rem);
+        line-height: 1.04;
+        letter-spacing: -0.015em;
+      }
+      .hl-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35em;
+        flex-wrap: wrap;
+      }
+      .hl .word {
+        opacity: 0;
+        transform: translateY(0.5em);
+        animation: fadeUp 0.9s var(--ease) forwards;
+      }
+      .hl em {
+        font-style: italic;
+        font-weight: 500;
+      }
+      .hl-tile {
+        display: inline-block;
+        height: 0.92em;
+        aspect-ratio: 1.5;
+        border-radius: 0.16em;
+        overflow: hidden;
+        position: relative;
+        flex: none;
+        opacity: 0;
+        transform: scale(0.6) rotate(-6deg);
+        animation: tileIn 0.9s var(--ease) forwards;
+        transition: transform 0.45s var(--ease);
+      }
+      .hl-tile:hover {
+        transform: scale(1.14) rotate(2deg);
+      }
+      .hl-tile .fill {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .hl-tile svg {
+        width: 58%;
+        height: 58%;
+      }
+      @keyframes tileIn {
+        to {
+          opacity: 1;
+          transform: scale(1) rotate(0);
+        }
+      }
+      @keyframes fadeUp {
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .hero-sub {
+        max-width: 52ch;
+        margin: 2.6rem auto 0;
+        font-size: 1.02rem;
+        color: #4a443a;
+        opacity: 0;
+        animation: fadeUp 0.8s 1.15s var(--ease) forwards;
+      }
+      .hero-ctas {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2.2rem;
+        opacity: 0;
+        animation: fadeUp 0.8s 1.3s var(--ease) forwards;
+      }
+      .btn {
+        font-family: var(--body);
+        font-weight: 600;
+        font-size: 0.82rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 1rem 2.2rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 999px;
+        transition: all 0.3s var(--ease);
+        border: 1px solid var(--ink);
+      }
+      .btn-solid {
+        background: var(--ink);
+        color: var(--base);
+      }
+      .btn-solid:hover {
+        background: var(--pine);
+        border-color: var(--pine);
+        transform: translateY(-2px);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--ink);
+      }
+      .btn-ghost:hover {
+        background: var(--ink);
+        color: var(--base);
+        transform: translateY(-2px);
+      }
 
-/* ---- marquee ---- */
-.marquee{
-  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-  padding:.9rem 0;overflow:hidden;white-space:nowrap;
-}
-.marquee-track{
-  display:inline-flex;gap:3rem;align-items:center;
-  font-size:.74rem;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:#6B6455;
-  animation:scrollx 30s linear infinite;
-}
-.marquee-track svg{width:14px;height:14px;flex:none}
-.marquee:hover .marquee-track{animation-play-state:paused}
-@keyframes scrollx{to{transform:translateX(-50%)}}
+      /* ---- marquee ---- */
+      .marquee {
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        padding: 0.9rem 0;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      .marquee-track {
+        display: inline-flex;
+        gap: 3rem;
+        align-items: center;
+        font-size: 0.74rem;
+        font-weight: 600;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: #6b6455;
+        animation: scrollx 30s linear infinite;
+      }
+      .marquee-track svg {
+        width: 14px;
+        height: 14px;
+        flex: none;
+      }
+      .marquee:hover .marquee-track {
+        animation-play-state: paused;
+      }
+      @keyframes scrollx {
+        to {
+          transform: translateX(-50%);
+        }
+      }
 
-/* ---- shared section bits ---- */
-section{padding:7.5rem 4vw}
-.wrap{max-width:1240px;margin:0 auto}
-.kicker{font-size:.72rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--pine);display:block;margin-bottom:1.1rem}
-.h2{font-family:var(--disp);font-weight:400;font-size:clamp(1.9rem,4vw,3.2rem);line-height:1.12;letter-spacing:-.01em;max-width:22ch}
-.h2 em{font-style:italic;font-weight:500}
-.reveal{opacity:0;transform:translateY(30px);transition:opacity .85s var(--ease),transform .85s var(--ease)}
-.reveal.in{opacity:1;transform:none}
+      /* ---- shared section bits ---- */
+      section {
+        padding: 7.5rem 4vw;
+      }
+      .wrap {
+        max-width: 1240px;
+        margin: 0 auto;
+      }
+      .kicker {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.26em;
+        text-transform: uppercase;
+        color: var(--pine);
+        display: block;
+        margin-bottom: 1.1rem;
+      }
+      .h2 {
+        font-family: var(--disp);
+        font-weight: 400;
+        font-size: clamp(1.9rem, 4vw, 3.2rem);
+        line-height: 1.12;
+        letter-spacing: -0.01em;
+        max-width: 22ch;
+      }
+      .h2 em {
+        font-style: italic;
+        font-weight: 500;
+      }
+      .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition:
+          opacity 0.85s var(--ease),
+          transform 0.85s var(--ease);
+      }
+      .reveal.in {
+        opacity: 1;
+        transform: none;
+      }
 
-/* ---- story band (ABC Dumplings-style) ---- */
-.story{background:var(--panel);text-align:center}
-.story .h2{margin:0 auto;max-width:26ch}
-.story p{max-width:56ch;margin:1.6rem auto 0;color:#4A443A}
+      /* ---- story band (ABC Dumplings-style) ---- */
+      .story {
+        background: var(--panel);
+        text-align: center;
+      }
+      .story .h2 {
+        margin: 0 auto;
+        max-width: 26ch;
+      }
+      .story p {
+        max-width: 56ch;
+        margin: 1.6rem auto 0;
+        color: #4a443a;
+      }
 
-/* ---- products (House of Spoils-style, image-first) ---- */
-.prod-head{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:3rem;flex-wrap:wrap}
-.view-all{font-size:.78rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:.2rem;transition:opacity .2s}
-.view-all:hover{opacity:.6}
-.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2.2rem 1.6rem}
-.prod{position:relative;text-decoration:none}
-.prod-img{
-  aspect-ratio:4/5;border-radius:6px;overflow:hidden;position:relative;
-  display:flex;align-items:center;justify-content:center;
-}
-.prod-img svg{width:44%;height:44%;transition:transform .6s var(--ease)}
-.prod:hover .prod-img svg{transform:scale(1.1) rotate(-3deg)}
-.prod-img::after{
-  content:'';position:absolute;inset:0;background:var(--ink);opacity:0;transition:opacity .35s;
-}
-.prod:hover .prod-img::after{opacity:.05}
-.quick{
-  position:absolute;left:50%;bottom:14px;transform:translate(-50%,10px);
-  font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
-  background:var(--base);border:none;cursor:pointer;padding:.75rem 1.5rem;border-radius:999px;
-  opacity:0;transition:all .35s var(--ease);z-index:3;font-family:var(--body);
-}
-.prod:hover .quick{opacity:1;transform:translate(-50%,0)}
-.quick:hover{background:var(--ink);color:var(--base)}
-.prod-meta{display:flex;justify-content:space-between;align-items:baseline;margin-top:1rem;gap:1rem}
-.prod-name{font-family:var(--disp);font-size:1.15rem;font-weight:500}
-.prod-cat{font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#8A8271;margin-top:.15rem}
-.prod-price{font-weight:600;font-size:.95rem}
-.bg-a{background:linear-gradient(150deg,#F3DFC0,#EBCB94)}
-.bg-b{background:linear-gradient(150deg,#DDE2F0,#C6CEE8)}
-.bg-c{background:linear-gradient(150deg,#E3E8DD,#CBD6C2)}
-.bg-d{background:linear-gradient(150deg,#F0DDD3,#E4C4B2)}
+      /* ---- products (House of Spoils-style, image-first) ---- */
+      .prod-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 2rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+      }
+      .view-all {
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        text-decoration: none;
+        border-bottom: 1px solid var(--ink);
+        padding-bottom: 0.2rem;
+        transition: opacity 0.2s;
+      }
+      .view-all:hover {
+        opacity: 0.6;
+      }
+      .prod-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 2.2rem 1.6rem;
+      }
+      .prod {
+        position: relative;
+        text-decoration: none;
+      }
+      .prod-img {
+        aspect-ratio: 4/5;
+        border-radius: 6px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .prod-img svg {
+        width: 44%;
+        height: 44%;
+        transition: transform 0.6s var(--ease);
+      }
+      .prod:hover .prod-img svg {
+        transform: scale(1.1) rotate(-3deg);
+      }
+      .prod-img::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--ink);
+        opacity: 0;
+        transition: opacity 0.35s;
+      }
+      .prod:hover .prod-img::after {
+        opacity: 0.05;
+      }
+      .quick {
+        position: absolute;
+        left: 50%;
+        bottom: 14px;
+        transform: translate(-50%, 10px);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        background: var(--base);
+        border: none;
+        cursor: pointer;
+        padding: 0.75rem 1.5rem;
+        border-radius: 999px;
+        opacity: 0;
+        transition: all 0.35s var(--ease);
+        z-index: 3;
+        font-family: var(--body);
+      }
+      .prod:hover .quick {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      .quick:hover {
+        background: var(--ink);
+        color: var(--base);
+      }
+      .prod-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-top: 1rem;
+        gap: 1rem;
+      }
+      .prod-name {
+        font-family: var(--disp);
+        font-size: 1.15rem;
+        font-weight: 500;
+      }
+      .prod-cat {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #8a8271;
+        margin-top: 0.15rem;
+      }
+      .prod-price {
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      .bg-a {
+        background: linear-gradient(150deg, #f3dfc0, #ebcb94);
+      }
+      .bg-b {
+        background: linear-gradient(150deg, #dde2f0, #c6cee8);
+      }
+      .bg-c {
+        background: linear-gradient(150deg, #e3e8dd, #cbd6c2);
+      }
+      .bg-d {
+        background: linear-gradient(150deg, #f0ddd3, #e4c4b2);
+      }
 
-/* ---- full-bleed film band ---- */
-.film{
-  position:relative;min-height:72vh;display:flex;align-items:flex-end;
-  background:
-    radial-gradient(80% 100% at 20% 0%,rgba(224,159,62,.35),transparent 60%),
-    radial-gradient(70% 90% at 85% 90%,rgba(91,109,168,.4),transparent 60%),
-    var(--ink);
-  color:var(--base);padding:5rem 5vw;overflow:hidden;
-}
-.film-play{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:92px;height:92px;border-radius:50%;border:1px solid rgba(246,243,236,.5);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-  transition:transform .4s var(--ease),background .3s;background:rgba(246,243,236,.06);
-  backdrop-filter:blur(4px);
-}
-.film-play:hover{transform:translate(-50%,-50%) scale(1.12);background:rgba(246,243,236,.14)}
-.film-play svg{width:26px;height:26px;margin-left:4px}
-.film-copy{position:relative;z-index:2;max-width:520px}
-.film-copy .h2{color:var(--base)}
-.film-copy p{margin-top:1rem;color:rgba(246,243,236,.75)}
-.film-paws{position:absolute;inset:0;opacity:.08;pointer-events:none}
-.film-paws svg{position:absolute;width:70px;height:70px}
+      /* ---- full-bleed film band ---- */
+      .film {
+        position: relative;
+        min-height: 72vh;
+        display: flex;
+        align-items: flex-end;
+        background:
+          radial-gradient(
+            80% 100% at 20% 0%,
+            rgba(224, 159, 62, 0.35),
+            transparent 60%
+          ),
+          radial-gradient(
+            70% 90% at 85% 90%,
+            rgba(91, 109, 168, 0.4),
+            transparent 60%
+          ),
+          var(--ink);
+        color: var(--base);
+        padding: 5rem 5vw;
+        overflow: hidden;
+      }
+      .film-play {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 92px;
+        height: 92px;
+        border-radius: 50%;
+        border: 1px solid rgba(246, 243, 236, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition:
+          transform 0.4s var(--ease),
+          background 0.3s;
+        background: rgba(246, 243, 236, 0.06);
+        backdrop-filter: blur(4px);
+      }
+      .film-play:hover {
+        transform: translate(-50%, -50%) scale(1.12);
+        background: rgba(246, 243, 236, 0.14);
+      }
+      .film-play svg {
+        width: 26px;
+        height: 26px;
+        margin-left: 4px;
+      }
+      .film-copy {
+        position: relative;
+        z-index: 2;
+        max-width: 520px;
+      }
+      .film-copy .h2 {
+        color: var(--base);
+      }
+      .film-copy p {
+        margin-top: 1rem;
+        color: rgba(246, 243, 236, 0.75);
+      }
+      .film-paws {
+        position: absolute;
+        inset: 0;
+        opacity: 0.08;
+        pointer-events: none;
+      }
+      .film-paws svg {
+        position: absolute;
+        width: 70px;
+        height: 70px;
+      }
 
-/* ---- category rows (Artbook-style big text list) ---- */
-.cats .h2{margin-bottom:2.6rem}
-.cat-row{
-  display:flex;align-items:center;justify-content:space-between;gap:2rem;
-  padding:2.1rem .4rem;border-top:1px solid var(--line);
-  text-decoration:none;position:relative;transition:padding-left .35s var(--ease);
-}
-.cat-row:last-of-type{border-bottom:1px solid var(--line)}
-.cat-row:hover{padding-left:1.4rem}
-.cat-name{
-  font-family:var(--disp);font-weight:400;font-size:clamp(1.7rem,4.4vw,3.4rem);
-  letter-spacing:-.01em;line-height:1;transition:font-style .2s;
-}
-.cat-row:hover .cat-name{font-style:italic}
-.cat-count{font-size:.74rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#8A8271}
-.cat-right{display:flex;align-items:center;gap:1.6rem}
-.cat-arrow{
-  width:46px;height:46px;border-radius:50%;border:1px solid var(--ink);flex:none;
-  display:flex;align-items:center;justify-content:center;
-  transition:all .35s var(--ease);
-}
-.cat-row:hover .cat-arrow{background:var(--ink);color:var(--base);transform:rotate(-45deg)}
-.cat-preview{
-  position:absolute;right:16%;top:50%;transform:translateY(-50%) scale(.7) rotate(-5deg);
-  width:150px;aspect-ratio:1.25;border-radius:8px;overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;transition:all .4s var(--ease);pointer-events:none;z-index:5;
-  box-shadow:0 18px 40px rgba(38,34,28,.22);
-}
-.cat-row:hover .cat-preview{opacity:1;transform:translateY(-50%) scale(1) rotate(3deg)}
-.cat-preview svg{width:46%;height:46%}
-@media(max-width:720px){.cat-preview{display:none}}
+      /* ---- category rows (Artbook-style big text list) ---- */
+      .cats .h2 {
+        margin-bottom: 2.6rem;
+      }
+      .cat-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
+        padding: 2.1rem 0.4rem;
+        border-top: 1px solid var(--line);
+        text-decoration: none;
+        position: relative;
+        transition: padding-left 0.35s var(--ease);
+      }
+      .cat-row:last-of-type {
+        border-bottom: 1px solid var(--line);
+      }
+      .cat-row:hover {
+        padding-left: 1.4rem;
+      }
+      .cat-name {
+        font-family: var(--disp);
+        font-weight: 400;
+        font-size: clamp(1.7rem, 4.4vw, 3.4rem);
+        letter-spacing: -0.01em;
+        line-height: 1;
+        transition: font-style 0.2s;
+      }
+      .cat-row:hover .cat-name {
+        font-style: italic;
+      }
+      .cat-count {
+        font-size: 0.74rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #8a8271;
+      }
+      .cat-right {
+        display: flex;
+        align-items: center;
+        gap: 1.6rem;
+      }
+      .cat-arrow {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 1px solid var(--ink);
+        flex: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.35s var(--ease);
+      }
+      .cat-row:hover .cat-arrow {
+        background: var(--ink);
+        color: var(--base);
+        transform: rotate(-45deg);
+      }
+      .cat-preview {
+        position: absolute;
+        right: 16%;
+        top: 50%;
+        transform: translateY(-50%) scale(0.7) rotate(-5deg);
+        width: 150px;
+        aspect-ratio: 1.25;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.4s var(--ease);
+        pointer-events: none;
+        z-index: 5;
+        box-shadow: 0 18px 40px rgba(38, 34, 28, 0.22);
+      }
+      .cat-row:hover .cat-preview {
+        opacity: 1;
+        transform: translateY(-50%) scale(1) rotate(3deg);
+      }
+      .cat-preview svg {
+        width: 46%;
+        height: 46%;
+      }
+      @media (max-width: 720px) {
+        .cat-preview {
+          display: none;
+        }
+      }
 
-/* ---- mascot ---- */
-.mascot{background:var(--panel)}
-.mascot .wrap{display:grid;grid-template-columns:1fr 1.05fr;gap:5rem;align-items:center}
-.mascot-stage{
-  aspect-ratio:4/5;border-radius:8px;position:relative;overflow:hidden;
-  background:linear-gradient(160deg,#E8DFCE,#D9CDB4);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;
-}
-.mascot-stage svg{width:34%;height:34%;will-change:transform}
-.mascot-stage small{
-  font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
-  color:#8A8271;text-align:center;padding:0 2.5rem;line-height:1.8;
-}
-.mascot-copy p{margin:1.4rem 0;color:#4A443A;max-width:48ch}
-.mascot-sign{font-family:var(--disp);font-style:italic;font-size:1.15rem;margin-top:2rem;color:var(--pine)}
-@media(max-width:860px){.mascot .wrap{grid-template-columns:1fr;gap:3rem}}
+      /* ---- mascot ---- */
+      .mascot {
+        background: var(--panel);
+      }
+      .mascot .wrap {
+        display: grid;
+        grid-template-columns: 1fr 1.05fr;
+        gap: 5rem;
+        align-items: center;
+      }
+      .mascot-stage {
+        aspect-ratio: 4/5;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(160deg, #e8dfce, #d9cdb4);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.2rem;
+      }
+      .mascot-stage svg {
+        width: 34%;
+        height: 34%;
+        will-change: transform;
+      }
+      .mascot-stage small {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #8a8271;
+        text-align: center;
+        padding: 0 2.5rem;
+        line-height: 1.8;
+      }
+      .mascot-copy p {
+        margin: 1.4rem 0;
+        color: #4a443a;
+        max-width: 48ch;
+      }
+      .mascot-sign {
+        font-family: var(--disp);
+        font-style: italic;
+        font-size: 1.15rem;
+        margin-top: 2rem;
+        color: var(--pine);
+      }
+      @media (max-width: 860px) {
+        .mascot .wrap {
+          grid-template-columns: 1fr;
+          gap: 3rem;
+        }
+      }
 
-/* ---- footer cta + footer ---- */
-.fcta{text-align:center;padding:9rem 4vw}
-.fcta .h2{margin:0 auto;max-width:20ch}
-.fcta .btn{margin-top:2.4rem}
-.joke{margin-top:3rem;font-size:.8rem;color:#8A8271;font-style:italic;min-height:1.5em;transition:opacity .4s}
-footer{
-  border-top:1px solid var(--line);padding:2.4rem 4vw;
-  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;
-  font-size:.78rem;font-weight:500;letter-spacing:.06em;color:#6B6455;
-}
-footer .wordmark{font-size:1.1rem;color:var(--ink)}
+      /* ---- footer cta + footer ---- */
+      .fcta {
+        text-align: center;
+        padding: 9rem 4vw;
+      }
+      .fcta .h2 {
+        margin: 0 auto;
+        max-width: 20ch;
+      }
+      .fcta .btn {
+        margin-top: 2.4rem;
+      }
+      .joke {
+        margin-top: 3rem;
+        font-size: 0.8rem;
+        color: #8a8271;
+        font-style: italic;
+        min-height: 1.5em;
+        transition: opacity 0.4s;
+      }
+      footer {
+        border-top: 1px solid var(--line);
+        padding: 2.4rem 4vw;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-size: 0.78rem;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        color: #6b6455;
+      }
+      footer .wordmark {
+        font-size: 1.1rem;
+        color: var(--ink);
+      }
 
-a:focus-visible,button:focus-visible{outline:2px solid var(--pine);outline-offset:3px}
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.001s!important;animation-delay:0s!important;transition-duration:.001s!important}
-  .hero-kicker,.hero-sub,.hero-ctas,.hl .word,.hl-tile{opacity:1;transform:none}
-  .reveal{opacity:1;transform:none}
-}
-</style>
-</head>
-<body>
+      a:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--pine);
+        outline-offset: 3px;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001s !important;
+          animation-delay: 0s !important;
+          transition-duration: 0.001s !important;
+        }
+        .hero-kicker,
+        .hero-sub,
+        .hero-ctas,
+        .hl .word,
+        .hl-tile {
+          opacity: 1;
+          transform: none;
+        }
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- reusable line-art icons -->
+    <svg width="0" height="0" style="position: absolute">
+      <defs>
+        <g
+          id="i-paw"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="4.5"
+          stroke-linecap="round"
+        >
+          <ellipse cx="50" cy="62" rx="17" ry="14" />
+          <ellipse
+            cx="27"
+            cy="42"
+            rx="7"
+            ry="9"
+            transform="rotate(-18 27 42)"
+          />
+          <ellipse cx="42" cy="30" rx="7" ry="9" />
+          <ellipse cx="58" cy="30" rx="7" ry="9" />
+          <ellipse cx="73" cy="42" rx="7" ry="9" transform="rotate(18 73 42)" />
+        </g>
+        <g
+          id="i-dog"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="4.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M30 38 Q28 18 16 20 Q12 34 22 44" />
+          <path d="M70 38 Q72 18 84 20 Q88 34 78 44" />
+          <path
+            d="M28 40 Q28 24 50 24 Q72 24 72 40 Q74 62 62 72 Q50 78 38 72 Q26 62 28 40 Z"
+          />
+          <circle cx="40" cy="46" r="2.6" fill="currentColor" />
+          <circle cx="60" cy="46" r="2.6" fill="currentColor" />
+          <path d="M46 58 Q50 62 54 58" />
+          <ellipse cx="50" cy="56" rx="4.5" ry="3.4" fill="currentColor" />
+        </g>
+        <g
+          id="i-cat"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="4.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M28 34 L24 14 L40 26" />
+          <path d="M72 34 L76 14 L60 26" />
+          <path
+            d="M28 36 Q30 22 50 22 Q70 22 72 36 Q76 58 64 68 Q50 76 36 68 Q24 58 28 36 Z"
+          />
+          <circle cx="40" cy="44" r="2.6" fill="currentColor" />
+          <circle cx="60" cy="44" r="2.6" fill="currentColor" />
+          <path d="M50 52 L46 56 M50 52 L54 56" />
+          <path d="M20 50 L34 52 M20 60 L34 58 M80 50 L66 52 M80 60 L66 58" />
+        </g>
+        <g
+          id="i-bone"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="4.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M32 40 Q22 30 28 22 Q36 16 42 24 Q48 16 56 22 L58 24 L76 42 Q84 36 90 44 Q94 52 86 58 Q94 64 88 72 Q80 78 74 70 Q68 78 60 72 L58 70 L40 52 Q32 58 26 50 Q22 42 32 40 Z"
+            transform="scale(.86) translate(5 5)"
+          />
+        </g>
+        <g
+          id="i-fish"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="4.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M18 50 Q38 28 62 40 Q74 30 82 26 Q80 40 74 50 Q80 60 82 74 Q74 70 62 60 Q38 72 18 50 Z"
+          />
+          <circle cx="34" cy="46" r="2.6" fill="currentColor" />
+        </g>
+        <g
+          id="i-yarn"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="4.5"
+          stroke-linecap="round"
+        >
+          <circle cx="48" cy="50" r="26" />
+          <path
+            d="M26 40 Q48 32 70 42 M24 52 Q48 46 72 54 M30 64 Q48 60 66 66 M74 56 Q88 62 92 76"
+          />
+        </g>
+        <g
+          id="i-bowl"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="4.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M22 46 L78 46 Q76 70 50 72 Q24 70 22 46 Z" />
+          <path d="M30 46 Q34 38 42 40 M50 46 Q52 36 62 38" />
+        </g>
+      </defs>
+    </svg>
 
-<!-- reusable line-art icons -->
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <g id="i-paw" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round">
-      <ellipse cx="50" cy="62" rx="17" ry="14"/>
-      <ellipse cx="27" cy="42" rx="7" ry="9" transform="rotate(-18 27 42)"/>
-      <ellipse cx="42" cy="30" rx="7" ry="9"/>
-      <ellipse cx="58" cy="30" rx="7" ry="9"/>
-      <ellipse cx="73" cy="42" rx="7" ry="9" transform="rotate(18 73 42)"/>
-    </g>
-    <g id="i-dog" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M30 38 Q28 18 16 20 Q12 34 22 44"/>
-      <path d="M70 38 Q72 18 84 20 Q88 34 78 44"/>
-      <path d="M28 40 Q28 24 50 24 Q72 24 72 40 Q74 62 62 72 Q50 78 38 72 Q26 62 28 40 Z"/>
-      <circle cx="40" cy="46" r="2.6" fill="currentColor"/>
-      <circle cx="60" cy="46" r="2.6" fill="currentColor"/>
-      <path d="M46 58 Q50 62 54 58"/>
-      <ellipse cx="50" cy="56" rx="4.5" ry="3.4" fill="currentColor"/>
-    </g>
-    <g id="i-cat" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M28 34 L24 14 L40 26"/>
-      <path d="M72 34 L76 14 L60 26"/>
-      <path d="M28 36 Q30 22 50 22 Q70 22 72 36 Q76 58 64 68 Q50 76 36 68 Q24 58 28 36 Z"/>
-      <circle cx="40" cy="44" r="2.6" fill="currentColor"/>
-      <circle cx="60" cy="44" r="2.6" fill="currentColor"/>
-      <path d="M50 52 L46 56 M50 52 L54 56"/>
-      <path d="M20 50 L34 52 M20 60 L34 58 M80 50 L66 52 M80 60 L66 58"/>
-    </g>
-    <g id="i-bone" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M32 40 Q22 30 28 22 Q36 16 42 24 Q48 16 56 22 L58 24 L76 42 Q84 36 90 44 Q94 52 86 58 Q94 64 88 72 Q80 78 74 70 Q68 78 60 72 L58 70 L40 52 Q32 58 26 50 Q22 42 32 40 Z" transform="scale(.86) translate(5 5)"/>
-    </g>
-    <g id="i-fish" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 50 Q38 28 62 40 Q74 30 82 26 Q80 40 74 50 Q80 60 82 74 Q74 70 62 60 Q38 72 18 50 Z"/>
-      <circle cx="34" cy="46" r="2.6" fill="currentColor"/>
-    </g>
-    <g id="i-yarn" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round">
-      <circle cx="48" cy="50" r="26"/>
-      <path d="M26 40 Q48 32 70 42 M24 52 Q48 46 72 54 M30 64 Q48 60 66 66 M74 56 Q88 62 92 76"/>
-    </g>
-    <g id="i-bowl" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M22 46 L78 46 Q76 70 50 72 Q24 70 22 46 Z"/>
-      <path d="M30 46 Q34 38 42 40 M50 46 Q52 36 62 38"/>
-    </g>
-  </defs>
-</svg>
-
-<div class="topbar">Free local delivery on orders over $40 · Oshawa &amp; beyond</div>
-
-<nav>
-  <div class="nav-left">
-    <a href="#shop">Shop</a><a href="#cats-dogs">Dogs</a><a href="#cats-dogs">Cats</a><a href="#mascot">About</a>
-  </div>
-  <a class="wordmark" href="#">Aileen's</a>
-  <div class="nav-right">
-    <a href="#">Search</a><a href="#">Cart (0)</a>
-  </div>
-</nav>
-
-<!-- HERO — interleaved headline, Artbook-style -->
-<header class="hero">
-  <div class="hero-kicker">Aileen's Pet Store · Est. with one very spoiled pet</div>
-  <h1 class="hl">
-    <div class="hl-row">
-      <span class="word" style="animation-delay:.2s">Food</span>
-      <span class="hl-tile bg-a" style="animation-delay:.45s"><span class="fill" style="color:#A66A14"><svg viewBox="0 0 100 100"><use href="#i-dog"/></svg></span></span>
-      <span class="word" style="animation-delay:.3s">they'll</span>
+    <div class="topbar">
+      Free local delivery on orders over $40 · Oshawa &amp; beyond
     </div>
-    <div class="hl-row">
-      <span class="word" style="animation-delay:.55s"><em>actually</em></span>
-      <span class="hl-tile bg-b" style="animation-delay:.85s;position:relative"><span class="vslot" style="top:6px;left:6px;font-size:.42rem;padding:.22rem .45rem">Video slot</span><span class="fill" style="color:#3D4C82"><svg viewBox="0 0 100 100"><use href="#i-cat"/></svg></span></span>
-      <span class="word" style="animation-delay:.65s">love.</span>
-    </div>
-  </h1>
-  <p class="hero-sub">Small-batch treats, honest food, and toys that survive more than a week — for dogs, cats, and the people they've trained. Every product here passed one very picky in-house inspection.</p>
-  <div class="hero-ctas">
-    <a class="btn btn-solid" href="#shop">Shop favourites</a>
-    <a class="btn btn-ghost" href="#mascot">Meet the inspector</a>
-  </div>
-</header>
 
-<div class="marquee" aria-hidden="true">
-  <div class="marquee-track" id="mq">
-    <span style="display:inline-flex;gap:3rem;align-items:center">
-      Honest food <svg viewBox="0 0 100 100"><use href="#i-paw"/></svg>
-      Small-batch treats <svg viewBox="0 0 100 100"><use href="#i-paw"/></svg>
-      Toys that last <svg viewBox="0 0 100 100"><use href="#i-paw"/></svg>
-      For dogs &amp; cats <svg viewBox="0 0 100 100"><use href="#i-paw"/></svg>
-      Picked by hand <svg viewBox="0 0 100 100"><use href="#i-paw"/></svg>
-    </span>
-  </div>
-</div>
-
-<!-- STORY BAND -->
-<section class="story">
-  <div class="wrap reveal">
-    <span class="kicker">Why we started</span>
-    <h2 class="h2">Dinner is a love language — <em>theirs</em> just happens to involve a lot of tail-wagging.</h2>
-    <p>Aileen's began the way most good pet stores do: with one demanding pet, a lot of returned kibble, and a growing list of "okay, THIS one's actually good." This shop is that list.</p>
-  </div>
-</section>
-
-<!-- PRODUCTS -->
-<section id="shop">
-  <div class="wrap">
-    <div class="prod-head reveal">
-      <div>
-        <span class="kicker">Customer favourites</span>
-        <h2 class="h2">The current obsessions.</h2>
+    <nav>
+      <div class="nav-left">
+        <a href="#shop">Shop</a><a href="#cats-dogs">Dogs</a
+        ><a href="#cats-dogs">Cats</a><a href="#mascot">About</a>
       </div>
-      <a class="view-all" href="#">View all products</a>
+      <a class="wordmark" href="#">Aileen's</a>
+      <div class="nav-right">
+        <a href="#">Search</a><a href="#">Cart (0)</a>
+      </div>
+    </nav>
+
+    <!-- HERO — interleaved headline, Artbook-style -->
+    <header class="hero">
+      <div class="hero-kicker">
+        Aileen's Pet Store · Est. with one very spoiled pet
+      </div>
+      <h1 class="hl">
+        <div class="hl-row">
+          <span class="word" style="animation-delay: 0.2s">Food</span>
+          <span class="hl-tile bg-a" style="animation-delay: 0.45s"
+            ><span class="fill" style="color: #a66a14"
+              ><svg viewBox="0 0 100 100"><use href="#i-dog" /></svg></span
+          ></span>
+          <span class="word" style="animation-delay: 0.3s">they'll</span>
+        </div>
+        <div class="hl-row">
+          <span class="word" style="animation-delay: 0.55s"
+            ><em>actually</em></span
+          >
+          <span
+            class="hl-tile bg-b"
+            style="animation-delay: 0.85s; position: relative"
+            ><span
+              class="vslot"
+              style="
+                top: 6px;
+                left: 6px;
+                font-size: 0.42rem;
+                padding: 0.22rem 0.45rem;
+              "
+              >Video slot</span
+            ><span class="fill" style="color: #3d4c82"
+              ><svg viewBox="0 0 100 100"><use href="#i-cat" /></svg></span
+          ></span>
+          <span class="word" style="animation-delay: 0.65s">love.</span>
+        </div>
+      </h1>
+      <p class="hero-sub">
+        Small-batch treats, honest food, and toys that survive more than a week
+        — for dogs, cats, and the people they've trained. Every product here
+        passed one very picky in-house inspection.
+      </p>
+      <div class="hero-ctas">
+        <a class="btn btn-solid" href="#shop">Shop favourites</a>
+        <a class="btn btn-ghost" href="#mascot">Meet the inspector</a>
+      </div>
+    </header>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track" id="mq">
+        <span style="display: inline-flex; gap: 3rem; align-items: center">
+          Honest food
+          <svg viewBox="0 0 100 100"><use href="#i-paw" /></svg> Small-batch
+          treats <svg viewBox="0 0 100 100"><use href="#i-paw" /></svg> Toys
+          that last <svg viewBox="0 0 100 100"><use href="#i-paw" /></svg> For
+          dogs &amp; cats
+          <svg viewBox="0 0 100 100"><use href="#i-paw" /></svg> Picked by hand
+          <svg viewBox="0 0 100 100"><use href="#i-paw" /></svg>
+        </span>
+      </div>
     </div>
-    <div class="prod-grid">
-      <a class="prod reveal" href="#" style="transition-delay:.05s">
-        <div class="prod-img bg-a"><span style="color:#A66A14"><svg viewBox="0 0 100 100" width="120" height="120"><use href="#i-bowl"/></svg></span>
-          <button class="quick" onclick="event.preventDefault();addCart(this)">Quick add</button>
+
+    <!-- STORY BAND -->
+    <section class="story">
+      <div class="wrap reveal">
+        <span class="kicker">Why we started</span>
+        <h2 class="h2">
+          Dinner is a love language — <em>theirs</em> just happens to involve a
+          lot of tail-wagging.
+        </h2>
+        <p>
+          Aileen's began the way most good pet stores do: with one demanding
+          pet, a lot of returned kibble, and a growing list of "okay, THIS one's
+          actually good." This shop is that list.
+        </p>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="shop">
+      <div class="wrap">
+        <div class="prod-head reveal">
+          <div>
+            <span class="kicker">Customer favourites</span>
+            <h2 class="h2">The current obsessions.</h2>
+          </div>
+          <a class="view-all" href="#">View all products</a>
         </div>
-        <div class="prod-meta">
-          <div><div class="prod-name">Dinner Party Kibble</div><div class="prod-cat">Dog · Food</div></div>
-          <div class="prod-price">$22</div>
+        <div class="prod-grid">
+          <a class="prod reveal" href="#" style="transition-delay: 0.05s">
+            <div class="prod-img bg-a">
+              <span style="color: #a66a14"
+                ><svg viewBox="0 0 100 100" width="120" height="120">
+                  <use href="#i-bowl" /></svg
+              ></span>
+              <button
+                class="quick"
+                onclick="
+                  event.preventDefault();
+                  addCart(this);
+                "
+              >
+                Quick add
+              </button>
+            </div>
+            <div class="prod-meta">
+              <div>
+                <div class="prod-name">Dinner Party Kibble</div>
+                <div class="prod-cat">Dog · Food</div>
+              </div>
+              <div class="prod-price">$22</div>
+            </div>
+          </a>
+          <a class="prod reveal" href="#" style="transition-delay: 0.12s">
+            <div class="prod-img bg-b">
+              <span style="color: #3d4c82"
+                ><svg viewBox="0 0 100 100" width="120" height="120">
+                  <use href="#i-fish" /></svg
+              ></span>
+              <button
+                class="quick"
+                onclick="
+                  event.preventDefault();
+                  addCart(this);
+                "
+              >
+                Quick add
+              </button>
+            </div>
+            <div class="prod-meta">
+              <div>
+                <div class="prod-name">Cat Cocktail</div>
+                <div class="prod-cat">Cat · Food</div>
+              </div>
+              <div class="prod-price">$14</div>
+            </div>
+          </a>
+          <a class="prod reveal" href="#" style="transition-delay: 0.19s">
+            <div class="prod-img bg-c">
+              <span style="color: #4a6b3f"
+                ><svg viewBox="0 0 100 100" width="120" height="120">
+                  <use href="#i-bone" /></svg
+              ></span>
+              <button
+                class="quick"
+                onclick="
+                  event.preventDefault();
+                  addCart(this);
+                "
+              >
+                Quick add
+              </button>
+            </div>
+            <div class="prod-meta">
+              <div>
+                <div class="prod-name">Big Chomp Bones</div>
+                <div class="prod-cat">Dog · Treats</div>
+              </div>
+              <div class="prod-price">$9</div>
+            </div>
+          </a>
+          <a class="prod reveal" href="#" style="transition-delay: 0.26s">
+            <div class="prod-img bg-d">
+              <span style="color: #a05a3c"
+                ><svg viewBox="0 0 100 100" width="120" height="120">
+                  <use href="#i-yarn" /></svg
+              ></span>
+              <button
+                class="quick"
+                onclick="
+                  event.preventDefault();
+                  addCart(this);
+                "
+              >
+                Quick add
+              </button>
+            </div>
+            <div class="prod-meta">
+              <div>
+                <div class="prod-name">Chaos Yarn</div>
+                <div class="prod-cat">Cat · Toys</div>
+              </div>
+              <div class="prod-price">$6</div>
+            </div>
+          </a>
         </div>
-      </a>
-      <a class="prod reveal" href="#" style="transition-delay:.12s">
-        <div class="prod-img bg-b"><span style="color:#3D4C82"><svg viewBox="0 0 100 100" width="120" height="120"><use href="#i-fish"/></svg></span>
-          <button class="quick" onclick="event.preventDefault();addCart(this)">Quick add</button>
+      </div>
+    </section>
+
+    <!-- FULL-BLEED FILM BAND -->
+    <section class="film" style="padding: 5rem 5vw">
+      <span class="vslot">Video slot — brand film</span>
+      <div class="film-paws" id="filmPaws"></div>
+      <div class="film-play" role="button" aria-label="Play brand film">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+      </div>
+      <div class="film-copy reveal">
+        <span class="kicker" style="color: var(--amber)">Behind the shop</span>
+        <h2 class="h2">Thirty seconds of extremely serious quality control.</h2>
+        <p>
+          This full-bleed band autoplays muted on loop — the single best home
+          for footage of her pet "testing" products.
+        </p>
+      </div>
+    </section>
+
+    <!-- CATEGORY ROWS -->
+    <section class="cats" id="cats-dogs">
+      <div class="wrap">
+        <div class="reveal">
+          <span class="kicker">Shop by</span>
+          <h2 class="h2">Everything they've been hinting at.</h2>
         </div>
-        <div class="prod-meta">
-          <div><div class="prod-name">Cat Cocktail</div><div class="prod-cat">Cat · Food</div></div>
-          <div class="prod-price">$14</div>
+        <div style="margin-top: 2.4rem">
+          <a class="cat-row reveal" href="#">
+            <div><div class="cat-name">Dog Food &amp; Treats</div></div>
+            <div class="cat-right">
+              <span class="cat-count">18 products</span
+              ><span class="cat-arrow">→</span>
+            </div>
+            <span class="cat-preview bg-a"
+              ><span style="color: #a66a14"
+                ><svg viewBox="0 0 100 100" width="70" height="70">
+                  <use href="#i-dog" /></svg></span
+            ></span>
+          </a>
+          <a class="cat-row reveal" href="#">
+            <div><div class="cat-name">Cat Food &amp; Treats</div></div>
+            <div class="cat-right">
+              <span class="cat-count">14 products</span
+              ><span class="cat-arrow">→</span>
+            </div>
+            <span class="cat-preview bg-b"
+              ><span style="color: #3d4c82"
+                ><svg viewBox="0 0 100 100" width="70" height="70">
+                  <use href="#i-cat" /></svg></span
+            ></span>
+          </a>
+          <a class="cat-row reveal" href="#">
+            <div><div class="cat-name">Toys</div></div>
+            <div class="cat-right">
+              <span class="cat-count">22 products</span
+              ><span class="cat-arrow">→</span>
+            </div>
+            <span class="cat-preview bg-c"
+              ><span style="color: #4a6b3f"
+                ><svg viewBox="0 0 100 100" width="70" height="70">
+                  <use href="#i-yarn" /></svg></span
+            ></span>
+          </a>
+          <a class="cat-row reveal" href="#">
+            <div><div class="cat-name">Accessories</div></div>
+            <div class="cat-right">
+              <span class="cat-count">11 products</span
+              ><span class="cat-arrow">→</span>
+            </div>
+            <span class="cat-preview bg-d"
+              ><span style="color: #a05a3c"
+                ><svg viewBox="0 0 100 100" width="70" height="70">
+                  <use href="#i-bowl" /></svg></span
+            ></span>
+          </a>
         </div>
-      </a>
-      <a class="prod reveal" href="#" style="transition-delay:.19s">
-        <div class="prod-img bg-c"><span style="color:#4A6B3F"><svg viewBox="0 0 100 100" width="120" height="120"><use href="#i-bone"/></svg></span>
-          <button class="quick" onclick="event.preventDefault();addCart(this)">Quick add</button>
+      </div>
+    </section>
+
+    <!-- MASCOT -->
+    <section class="mascot" id="mascot">
+      <div class="wrap">
+        <div class="mascot-stage reveal" style="position: relative">
+          <span class="vslot">Video slot — mascot portrait</span>
+          <span style="color: #8a7147" id="mascotIcon"
+            ><svg viewBox="0 0 100 100" width="140" height="140">
+              <use href="#i-dog" /></svg
+          ></span>
+          <small
+            >Portrait video or photo of her pet lives here — vertical 4:5, loops
+            muted. The stand-in icon below already reacts to scroll.</small
+          >
         </div>
-        <div class="prod-meta">
-          <div><div class="prod-name">Big Chomp Bones</div><div class="prod-cat">Dog · Treats</div></div>
-          <div class="prod-price">$9</div>
+        <div class="mascot-copy reveal" style="transition-delay: 0.15s">
+          <span class="kicker">Meet the boss</span>
+          <h2 class="h2">
+            Every product is approved by our <em>Chief Eating Officer.</em>
+          </h2>
+          <p>
+            Nothing makes it onto these shelves without surviving a rigorous
+            taste, sniff, and zoomies inspection. Rejected items are never
+            spoken of again.
+          </p>
+          <p>Standards are high. Attention spans are not.</p>
+          <div class="mascot-sign">— Management (the four-legged one)</div>
         </div>
-      </a>
-      <a class="prod reveal" href="#" style="transition-delay:.26s">
-        <div class="prod-img bg-d"><span style="color:#A05A3C"><svg viewBox="0 0 100 100" width="120" height="120"><use href="#i-yarn"/></svg></span>
-          <button class="quick" onclick="event.preventDefault();addCart(this)">Quick add</button>
-        </div>
-        <div class="prod-meta">
-          <div><div class="prod-name">Chaos Yarn</div><div class="prod-cat">Cat · Toys</div></div>
-          <div class="prod-price">$6</div>
-        </div>
-      </a>
-    </div>
-  </div>
-</section>
+      </div>
+    </section>
 
-<!-- FULL-BLEED FILM BAND -->
-<section class="film" style="padding:5rem 5vw">
-  <span class="vslot">Video slot — brand film</span>
-  <div class="film-paws" id="filmPaws"></div>
-  <div class="film-play" role="button" aria-label="Play brand film">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-  </div>
-  <div class="film-copy reveal">
-    <span class="kicker" style="color:var(--amber)">Behind the shop</span>
-    <h2 class="h2">Thirty seconds of extremely serious quality control.</h2>
-    <p>This full-bleed band autoplays muted on loop — the single best home for footage of her pet "testing" products.</p>
-  </div>
-</section>
+    <!-- FOOTER CTA -->
+    <section class="fcta reveal">
+      <span class="kicker">One more thing</span>
+      <h2 class="h2">Your pet already knows what it wants.</h2>
+      <a class="btn btn-solid" href="#shop">Start shopping</a>
+      <p class="joke" id="joke">Delivered by very fast squirrels.</p>
+    </section>
 
-<!-- CATEGORY ROWS -->
-<section class="cats" id="cats-dogs">
-  <div class="wrap">
-    <div class="reveal">
-      <span class="kicker">Shop by</span>
-      <h2 class="h2">Everything they've been hinting at.</h2>
-    </div>
-    <div style="margin-top:2.4rem">
-      <a class="cat-row reveal" href="#">
-        <div><div class="cat-name">Dog Food &amp; Treats</div></div>
-        <div class="cat-right"><span class="cat-count">18 products</span><span class="cat-arrow">→</span></div>
-        <span class="cat-preview bg-a"><span style="color:#A66A14"><svg viewBox="0 0 100 100" width="70" height="70"><use href="#i-dog"/></svg></span></span>
-      </a>
-      <a class="cat-row reveal" href="#">
-        <div><div class="cat-name">Cat Food &amp; Treats</div></div>
-        <div class="cat-right"><span class="cat-count">14 products</span><span class="cat-arrow">→</span></div>
-        <span class="cat-preview bg-b"><span style="color:#3D4C82"><svg viewBox="0 0 100 100" width="70" height="70"><use href="#i-cat"/></svg></span></span>
-      </a>
-      <a class="cat-row reveal" href="#">
-        <div><div class="cat-name">Toys</div></div>
-        <div class="cat-right"><span class="cat-count">22 products</span><span class="cat-arrow">→</span></div>
-        <span class="cat-preview bg-c"><span style="color:#4A6B3F"><svg viewBox="0 0 100 100" width="70" height="70"><use href="#i-yarn"/></svg></span></span>
-      </a>
-      <a class="cat-row reveal" href="#">
-        <div><div class="cat-name">Accessories</div></div>
-        <div class="cat-right"><span class="cat-count">11 products</span><span class="cat-arrow">→</span></div>
-        <span class="cat-preview bg-d"><span style="color:#A05A3C"><svg viewBox="0 0 100 100" width="70" height="70"><use href="#i-bowl"/></svg></span></span>
-      </a>
-    </div>
-  </div>
-</section>
+    <footer>
+      <a class="wordmark" href="#">Aileen's</a>
+      <span>Made with love (and treats) · Oshawa, ON</span>
+    </footer>
 
-<!-- MASCOT -->
-<section class="mascot" id="mascot">
-  <div class="wrap">
-    <div class="mascot-stage reveal" style="position:relative">
-      <span class="vslot">Video slot — mascot portrait</span>
-      <span style="color:#8A7147" id="mascotIcon"><svg viewBox="0 0 100 100" width="140" height="140"><use href="#i-dog"/></svg></span>
-      <small>Portrait video or photo of her pet lives here — vertical 4:5, loops muted. The stand-in icon below already reacts to scroll.</small>
-    </div>
-    <div class="mascot-copy reveal" style="transition-delay:.15s">
-      <span class="kicker">Meet the boss</span>
-      <h2 class="h2">Every product is approved by our <em>Chief Eating Officer.</em></h2>
-      <p>Nothing makes it onto these shelves without surviving a rigorous taste, sniff, and zoomies inspection. Rejected items are never spoken of again.</p>
-      <p>Standards are high. Attention spans are not.</p>
-      <div class="mascot-sign">— Management (the four-legged one)</div>
-    </div>
-  </div>
-</section>
+    <script>
+      // marquee seamless loop
+      const mq = document.getElementById('mq');
+      mq.innerHTML += mq.innerHTML;
 
-<!-- FOOTER CTA -->
-<section class="fcta reveal">
-  <span class="kicker">One more thing</span>
-  <h2 class="h2">Your pet already knows what it wants.</h2>
-  <a class="btn btn-solid" href="#shop">Start shopping</a>
-  <p class="joke" id="joke">Delivered by very fast squirrels.</p>
-</section>
+      // scroll reveals
+      const io = new IntersectionObserver(
+        (es) =>
+          es.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add('in');
+              io.unobserve(e.target);
+            }
+          }),
+        { threshold: 0.15 },
+      );
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 
-<footer>
-  <a class="wordmark" href="#">Aileen's</a>
-  <span>Made with love (and treats) · Oshawa, ON</span>
-</footer>
+      // quick add
+      let n = 0;
+      function addCart(btn) {
+        n++;
+        document.querySelector('.nav-right a:last-child').textContent =
+          `Cart (${n})`;
+        btn.textContent = 'Added ✓';
+        setTimeout(() => (btn.textContent = 'Quick add'), 1200);
+      }
 
-<script>
-// marquee seamless loop
-const mq=document.getElementById('mq');mq.innerHTML+=mq.innerHTML;
+      // mascot reacts to scroll
+      const mi = document.getElementById('mascotIcon');
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reduced) {
+        addEventListener(
+          'scroll',
+          () => {
+            const r = mi.getBoundingClientRect();
+            const p = Math.min(1, Math.max(0, 1 - r.top / innerHeight));
+            mi.style.display = 'block';
+            mi.style.transform = `rotate(${(p - 0.5) * 16}deg) scale(${0.92 + p * 0.16})`;
+          },
+          { passive: true },
+        );
+      }
 
-// scroll reveals
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.15});
-document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+      // scattered paw prints in film band
+      const fp = document.getElementById('filmPaws');
+      for (let i = 0; i < 7; i++) {
+        const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        s.setAttribute('viewBox', '0 0 100 100');
+        s.innerHTML = '<use href="#i-paw"/>';
+        s.style.left = 5 + i * 14 + '%';
+        s.style.top = 15 + ((i * 37) % 60) + '%';
+        s.style.color = '#F6F3EC';
+        s.style.transform = `rotate(${i * 23}deg)`;
+        fp.appendChild(s);
+      }
 
-// quick add
-let n=0;
-function addCart(btn){
-  n++;document.querySelector('.nav-right a:last-child').textContent=`Cart (${n})`;
-  btn.textContent='Added ✓';setTimeout(()=>btn.textContent='Quick add',1200);
-}
-
-// mascot reacts to scroll
-const mi=document.getElementById('mascotIcon');
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-if(!reduced){addEventListener('scroll',()=>{
-  const r=mi.getBoundingClientRect();
-  const p=Math.min(1,Math.max(0,1-(r.top/innerHeight)));
-  mi.style.display='block';
-  mi.style.transform=`rotate(${(p-.5)*16}deg) scale(${.92+p*.16})`;
-},{passive:true})}
-
-// scattered paw prints in film band
-const fp=document.getElementById('filmPaws');
-for(let i=0;i<7;i++){
-  const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  s.setAttribute('viewBox','0 0 100 100');
-  s.innerHTML='<use href="#i-paw"/>';
-  s.style.left=(5+i*14)+'%';s.style.top=(15+((i*37)%60))+'%';
-  s.style.color='#F6F3EC';s.style.transform=`rotate(${i*23}deg)`;
-  fp.appendChild(s);
-}
-
-// rotating jokes
-const jokes=['Delivered by very fast squirrels.','Returns policy: the cat decides.','Free belly rubs with every order.* *rubs not included','Now hiring: professional stick throwers.'];
-let j=0;setInterval(()=>{const el=document.getElementById('joke');el.style.opacity=0;
-setTimeout(()=>{j=(j+1)%jokes.length;el.textContent=jokes[j];el.style.opacity=1},400)},5000);
-</script>
-</body>
+      // rotating jokes
+      const jokes = [
+        'Delivered by very fast squirrels.',
+        'Returns policy: the cat decides.',
+        'Free belly rubs with every order.* *rubs not included',
+        'Now hiring: professional stick throwers.',
+      ];
+      let j = 0;
+      setInterval(() => {
+        const el = document.getElementById('joke');
+        el.style.opacity = 0;
+        setTimeout(() => {
+          j = (j + 1) % jokes.length;
+          el.textContent = jokes[j];
+          el.style.opacity = 1;
+        }, 400);
+      }, 5000);
+    </script>
+  </body>
 </html>

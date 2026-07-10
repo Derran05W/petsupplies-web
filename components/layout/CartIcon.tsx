@@ -76,10 +76,10 @@ export const CartIcon = forwardRef<HTMLButtonElement, CartIconProps>(
 
     const sharedClasses = cn(NAV_LINK_CLASSES, 'uppercase', className);
 
+    // count changes are announced by the always-mounted CartLiveRegion; a live
+    // region here would double-announce (this span renders desktop + mobile)
     const text = (
       <span
-        aria-live="polite"
-        aria-atomic="true"
         className={cn(
           'inline-block whitespace-nowrap',
           bouncing ? 'animate-cart-bounce' : undefined,
