@@ -13,9 +13,12 @@ describe('parseProductFilters', () => {
     expect(parseProductFilters({ category: 'dog' })).toEqual({
       petType: 'dog',
     });
-    expect(parseProductFilters({ category: 'FISH' })).toEqual({
-      petType: 'fish',
-    });
+  });
+
+  it('drops unsupported fish/bird pet types', () => {
+    expect(parseProductFilters({ category: 'FISH' })).toEqual({});
+    expect(parseProductFilters({ petType: 'bird' })).toEqual({});
+    expect(parseProductFilters({ petType: 'fish' })).toEqual({});
   });
 
   it('keeps storefront shelf categories', () => {
@@ -28,8 +31,14 @@ describe('parseProductFilters', () => {
   });
 
   it('prefers explicit petType over category', () => {
+    expect(parseProductFilters({ petType: 'dog', category: 'CAT' })).toEqual({
+      petType: 'dog',
+    });
+  });
+
+  it('falls back to category when petType is unsupported', () => {
     expect(parseProductFilters({ petType: 'bird', category: 'CAT' })).toEqual({
-      petType: 'bird',
+      petType: 'cat',
     });
   });
 });

@@ -3,11 +3,10 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { X, Search } from 'lucide-react';
-import { BrandLogo } from '@/components/brand/BrandLogo';
 import { useStorefrontBrand } from '@/components/providers/StorefrontBrandProvider';
 import { useStorefrontHeaderNav } from '@/components/providers/StorefrontNavProvider';
 import { isNavLinkActive } from '@/lib/site/nav-utils';
+import { NAV_LINK_CLASSES, WORDMARK_CLASSES } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthSlot } from './AuthSlot';
@@ -18,6 +17,13 @@ interface MobileMenuProps {
   onOpenSearch?: () => void;
 }
 
+/**
+ * Full-height slide-from-right menu below `md`. Boutique treatment: paper
+ * panel, hairline dividers, and the header links as big Fraunces rows —
+ * the mobile cousin of the homepage category rows. A11y behaviour is
+ * unchanged: scroll-lock, ESC to close, focus trap, focus return handled
+ * by the trigger (see `NavbarShell`).
+ */
 export function MobileMenu({ open, onClose, onOpenSearch }: MobileMenuProps) {
   const brand = useStorefrontBrand();
   const headerLinks = useStorefrontHeaderNav();
@@ -78,7 +84,7 @@ export function MobileMenu({ open, onClose, onOpenSearch }: MobileMenuProps) {
     <div
       aria-hidden={!open}
       className={cn(
-        'fixed inset-0 z-50 lg:hidden',
+        'fixed inset-0 z-50 md:hidden',
         open ? 'pointer-events-auto' : 'pointer-events-none',
       )}
     >
@@ -86,7 +92,7 @@ export function MobileMenu({ open, onClose, onOpenSearch }: MobileMenuProps) {
         role="presentation"
         onClick={onClose}
         className={cn(
-          'absolute inset-0 bg-overlay transition-opacity duration-300',
+          'absolute inset-0 bg-scrim transition-opacity duration-base',
           open ? 'opacity-100' : 'opacity-0',
         )}
       />
@@ -97,20 +103,25 @@ export function MobileMenu({ open, onClose, onOpenSearch }: MobileMenuProps) {
         aria-modal="true"
         aria-label="Site menu"
         className={cn(
-          'absolute right-0 top-0 flex h-full w-full max-w-sm flex-col bg-warm-50 shadow-xl transition-transform duration-300 ease-in-out',
+          'absolute right-0 top-0 flex h-full w-full max-w-sm flex-col border-l border-line bg-paper text-ink shadow-lifted transition-transform duration-base ease-soft',
           open ? 'translate-x-0' : 'translate-x-full',
         )}
       >
-        <div className="flex items-center justify-between border-b border-warm-200 px-6 py-4">
-          <BrandLogo brand={brand} href={null} />
+        <div className="flex items-center justify-between border-b border-line px-6 py-[1.05rem]">
+          <span aria-hidden className={cn(WORDMARK_CLASSES, 'no-underline')}>
+            {brand.name}
+          </span>
           <button
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
             aria-label="Close menu"
-            className="inline-flex size-9 items-center justify-center rounded-lg text-warm-900 hover:bg-warm-100"
+            className={cn(
+              NAV_LINK_CLASSES,
+              'font-body text-label uppercase text-ink',
+            )}
           >
-            <X size={18} aria-hidden />
+            Close
           </button>
         </div>
 
@@ -122,26 +133,29 @@ export function MobileMenu({ open, onClose, onOpenSearch }: MobileMenuProps) {
                 onClose();
                 onOpenSearch();
               }}
-              className="mb-4 flex w-full items-center gap-3 rounded-lg border border-warm-200 bg-surface-card px-3 py-3 font-body text-base text-warm-600 transition-colors hover:border-warm-300 hover:bg-warm-100 hover:text-warm-900"
+              className={cn(
+                NAV_LINK_CLASSES,
+                'mb-2 block w-full py-3 text-left font-body text-label uppercase text-ink-muted',
+              )}
             >
-              <Search size={18} aria-hidden className="text-warm-400" />
-              Search products
+              Search products →
             </button>
           ) : null}
-          <ul className="flex flex-col gap-1">
+          <ul className="flex flex-col">
             {headerLinks.map((link) => {
               const active = isNavLinkActive(pathname, link.href);
               return (
-                <li key={`${link.href}-${link.position}`}>
+                <li
+                  key={`${link.href}-${link.position}`}
+                  className="border-t border-line last:border-b"
+                >
                   <Link
                     href={link.href}
                     onClick={onClose}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'block rounded-lg px-3 py-3 font-body text-base transition-colors',
-                      active
-                        ? 'bg-warm-100 text-warm-900'
-                        : 'text-warm-600 hover:bg-warm-100 hover:text-warm-900',
+                      'block py-5 font-display text-[1.7rem] leading-none tracking-[-0.01em] text-ink no-underline transition-all duration-base ease-soft hover:pl-2 hover:italic focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
+                      active ? 'italic' : undefined,
                     )}
                   >
                     {link.label}
@@ -153,7 +167,7 @@ export function MobileMenu({ open, onClose, onOpenSearch }: MobileMenuProps) {
         </nav>
 
         {!loading && !user ? (
-          <div className="border-t border-warm-200 px-6 py-5">
+          <div className="border-t border-line px-6 py-5">
             <AuthSlot />
           </div>
         ) : null}

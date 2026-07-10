@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { NAV_LINK_CLASSES } from '@/components/ui';
 import { DrawerPortal } from '@/components/layout/DrawerPortal';
 
 interface SearchOverlayProps {
@@ -19,8 +19,10 @@ function buildProductsSearchHref(query: string): string {
 }
 
 /**
- * Site-wide product search panel. Opens from the navbar search trigger,
- * submits to `/products?search=`, and closes on navigation or Escape.
+ * Site-wide product search panel: paper slide-down under the nav with a
+ * big Fraunces input over a hairline rule. Opens from the navbar search
+ * trigger, submits to `/products?search=`, and closes on navigation or
+ * Escape.
  */
 export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   const router = useRouter();
@@ -75,7 +77,7 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           role="presentation"
           onClick={onClose}
           className={cn(
-            'absolute inset-0 bg-overlay transition-opacity duration-200',
+            'absolute inset-0 bg-scrim transition-opacity duration-fast',
             open ? 'opacity-100' : 'opacity-0',
           )}
         />
@@ -86,37 +88,34 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           aria-modal="true"
           aria-label="Search products"
           className={cn(
-            'absolute inset-x-0 top-0 border-b border-warm-200 bg-warm-50 px-6 py-4 shadow-md transition-transform duration-200 md:px-8 lg:px-12',
+            'absolute inset-x-0 top-0 border-b border-line bg-paper px-gutter py-8 transition-transform duration-fast',
             open ? 'translate-y-0' : '-translate-y-full',
           )}
         >
           <form
-            className="mx-auto flex max-w-3xl items-center gap-3"
+            className="mx-auto flex max-w-wrap items-end gap-6"
             onSubmit={(event) => {
               event.preventDefault();
               submitSearch();
             }}
           >
-            <label className="relative flex min-w-0 flex-1 items-center">
-              <span className="sr-only">Search products</span>
-              <Search
-                size={18}
-                aria-hidden
-                className="pointer-events-none absolute left-3.5 text-warm-400"
-              />
+            <label className="flex min-w-0 flex-1 flex-col gap-2">
+              <span className="font-body text-kicker uppercase text-pine">
+                Search
+              </span>
               <input
                 ref={inputRef}
                 type="search"
                 value={value}
                 onChange={(event) => setValue(event.target.value)}
                 placeholder="Search treats, food, toys…"
-                className="h-12 w-full rounded-lg border border-warm-300 bg-surface-card pl-11 pr-4 font-body text-base text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full border-0 border-b border-line bg-transparent pb-3 font-display text-[clamp(1.4rem,3vw,2.2rem)] leading-tight text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none"
               />
             </label>
 
             <button
               type="submit"
-              className="inline-flex h-12 shrink-0 items-center justify-center rounded-lg bg-brand-500 px-5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-600"
+              className="shrink-0 cursor-pointer rounded-pill border border-ink bg-ink px-7 py-3.5 font-body text-button uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
             >
               Search
             </button>
@@ -125,9 +124,12 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
               type="button"
               onClick={onClose}
               aria-label="Close search"
-              className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-warm-900 transition-colors hover:bg-warm-100"
+              className={cn(
+                NAV_LINK_CLASSES,
+                'shrink-0 pb-4 font-body text-label uppercase text-ink',
+              )}
             >
-              <X size={18} aria-hidden />
+              Close
             </button>
           </form>
         </div>

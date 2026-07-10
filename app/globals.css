@@ -16,6 +16,7 @@
   --slate-soft: #dde2f0;
   --pine: #3e5c48; /* accent — kickers, hover fills, focus rings */
   --line: rgb(38 34 28 / 0.16); /* hairline borders */
+  --scrim: rgb(38 34 28 / 0.4); /* dialog / drawer backdrop */
 
   /* text hierarchy on paper */
   --ink-secondary: #4a443a; /* body copy */
@@ -207,8 +208,43 @@ html[data-theme='tropical'] {
     background-color: color-mix(in srgb, var(--color-warm-50) 50%, transparent);
   }
 
+  .bg-warm-50\/70 {
+    background-color: color-mix(in srgb, var(--color-warm-50) 70%, transparent);
+  }
+
   .hover\:bg-warm-50\/80:hover {
     background-color: color-mix(in srgb, var(--color-warm-50) 80%, transparent);
+  }
+
+  /* opacity-modified boutique tokens — the tokens are plain `var()` strings,
+     so Tailwind's `/NN` modifier can't compose them; define the handful of
+     used combinations here instead */
+  .bg-ink\/5 {
+    background-color: color-mix(in srgb, var(--ink) 5%, transparent);
+  }
+
+  .bg-ink\/10 {
+    background-color: color-mix(in srgb, var(--ink) 10%, transparent);
+  }
+
+  .bg-paper\/40 {
+    background-color: color-mix(in srgb, var(--paper) 40%, transparent);
+  }
+
+  .bg-paper\/95 {
+    background-color: color-mix(in srgb, var(--paper) 95%, transparent);
+  }
+
+  .border-amber\/40 {
+    border-color: color-mix(in srgb, var(--amber) 40%, transparent);
+  }
+
+  .border-pine\/40 {
+    border-color: color-mix(in srgb, var(--pine) 40%, transparent);
+  }
+
+  .border-slate\/40 {
+    border-color: color-mix(in srgb, var(--slate) 40%, transparent);
   }
 
   .text-balance {

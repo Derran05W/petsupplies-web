@@ -5,11 +5,10 @@ export const HEADER_NAV_FALLBACK: NavLink[] = [
   { href: '/', label: 'Home', position: 0 },
   { href: '/products?petType=dog', label: 'Dogs', position: 1 },
   { href: '/products?petType=cat', label: 'Cats', position: 2 },
-  { href: '/products?petType=bird', label: 'Birds', position: 3 },
   {
     href: '/products?petType=small-animal',
     label: 'Small animals',
-    position: 4,
+    position: 3,
   },
 ];
 
@@ -21,7 +20,6 @@ export const FOOTER_NAV_FALLBACK: FooterColumn[] = [
       { label: 'All products', href: '/products', position: 0 },
       { label: 'Dogs', href: '/products?petType=dog', position: 1 },
       { label: 'Cats', href: '/products?petType=cat', position: 2 },
-      { label: 'Birds', href: '/products?petType=bird', position: 3 },
     ],
   },
   {

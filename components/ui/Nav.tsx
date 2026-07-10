@@ -29,8 +29,17 @@ export function TopBar({
   );
 }
 
-const NAV_LINK_CLASSES =
+/** Uppercase nav text link/button: 75% opacity, sharpens on hover. Shared with `NavbarShell`. */
+export const NAV_LINK_CLASSES =
   'no-underline opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine';
+
+/** Grid + surface of the sticky boutique nav bar (`.nav` in the mockup). Shared with `NavbarShell`. */
+export const NAV_BAR_CLASSES =
+  'grid grid-cols-[auto_1fr] items-center gap-4 border-b border-line bg-[color-mix(in_srgb,var(--paper)_88%,transparent)] px-gutter py-[1.05rem] backdrop-blur-[10px] md:grid-cols-[1fr_auto_1fr]';
+
+/** Italic Fraunces wordmark link. Shared with `NavbarShell` and `MobileMenu`. */
+export const WORDMARK_CLASSES =
+  'font-display text-2xl font-semibold italic text-ink no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine';
 
 interface NavProps {
   /** Italic Fraunces wordmark, centered (left-aligned below md). */
@@ -63,12 +72,7 @@ export function Nav({
   const cartLabel = hasHydrated ? `Cart (${count})` : 'Cart';
 
   return (
-    <nav
-      className={cn(
-        'sticky top-0 z-[100] grid grid-cols-[auto_1fr] items-center gap-4 border-b border-line bg-[color-mix(in_srgb,var(--paper)_88%,transparent)] px-gutter py-[1.05rem] backdrop-blur-[10px] md:grid-cols-[1fr_auto_1fr]',
-        className,
-      )}
-    >
+    <nav className={cn('sticky top-0 z-[100]', NAV_BAR_CLASSES, className)}>
       <div className="hidden items-center gap-7 font-body text-label uppercase text-ink md:flex">
         {links.map((link) => (
           <Link
@@ -82,7 +86,10 @@ export function Nav({
       </div>
       <Link
         href="/"
-        className="justify-self-start font-display text-2xl font-semibold italic text-ink no-underline md:justify-self-center"
+        className={cn(
+          WORDMARK_CLASSES,
+          'justify-self-start md:justify-self-center',
+        )}
       >
         {wordmark}
       </Link>

@@ -7,7 +7,7 @@ test.describe('stock alerts', () => {
   test('signed-out PDP notify sends shoppers to login with redirect', async ({
     page,
   }) => {
-    await page.goto('/products/songbird-seed-blend');
+    await page.goto('/products/chicken-crunch-cat-treats');
 
     const notify = page.getByRole('button', {
       name: /notify me when back/i,

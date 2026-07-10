@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2, Tag, X } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import { discountRejectMessage } from '@/lib/cart/discount-messages';
 import {
@@ -29,7 +29,7 @@ export function DiscountCodeForm({
 
   if (!isServerMode) {
     return (
-      <p className={cn('font-body text-xs text-warm-600', className)}>
+      <p className={cn('font-body text-xs text-ink-muted', className)}>
         Sign in to apply a discount code at checkout.
       </p>
     );
@@ -80,14 +80,11 @@ export function DiscountCodeForm({
   return (
     <div className={cn('flex flex-col gap-2', className)}>
       {!compact ? (
-        <p className="inline-flex items-center gap-2 font-body text-sm font-medium text-warm-900">
-          <Tag size={14} aria-hidden className="text-brand-600" />
-          Discount code
-        </p>
+        <p className="font-body text-micro uppercase text-ink">Discount code</p>
       ) : null}
 
       {invalidReason ? (
-        <p role="status" className="font-body text-xs text-amber-700">
+        <p role="status" className="font-body text-xs text-amber">
           {totals?.discountInvalidCode
             ? `"${totals.discountInvalidCode}" — ${discountRejectMessage(invalidReason)}`
             : discountRejectMessage(invalidReason)}
@@ -95,21 +92,19 @@ export function DiscountCodeForm({
       ) : null}
 
       {appliedCode ? (
-        <div className="flex items-center justify-between gap-3 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2">
-          <span className="font-body text-sm text-warm-900">
-            <span className="font-medium">{appliedCode}</span> applied
+        <div className="flex items-center justify-between gap-3 rounded-tile border border-pine bg-paper px-3 py-2">
+          <span className="font-body text-sm text-ink">
+            <span className="font-semibold">{appliedCode}</span> applied
           </span>
           <button
             type="button"
             onClick={() => void handleRemove()}
             disabled={busy}
-            className="hover:text-brand-800 inline-flex items-center gap-1 font-body text-xs font-medium text-brand-700"
+            className="inline-flex items-center gap-1.5 font-body text-micro uppercase text-pine transition-opacity duration-fast hover:opacity-70"
           >
             {busy ? (
-              <Loader2 size={12} className="animate-spin" />
-            ) : (
-              <X size={12} />
-            )}
+              <Loader2 size={12} className="animate-spin" aria-hidden />
+            ) : null}
             Remove
           </button>
         </div>
@@ -122,21 +117,25 @@ export function DiscountCodeForm({
             placeholder="Enter code"
             aria-label="Discount code"
             disabled={busy}
-            className="min-w-0 flex-1 rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="min-w-0 flex-1 rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none"
           />
           <button
             type="button"
             onClick={() => void handleApply()}
             disabled={busy || code.trim().length === 0}
-            className="inline-flex shrink-0 items-center justify-center rounded-lg border border-warm-300 bg-warm-100 px-4 py-2 font-body text-sm font-medium text-warm-900 transition-colors hover:bg-warm-200 disabled:opacity-60"
+            className="inline-flex shrink-0 cursor-pointer items-center justify-center rounded-pill border border-ink bg-transparent px-5 py-2 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-ink"
           >
-            {busy ? <Loader2 size={16} className="animate-spin" /> : 'Apply'}
+            {busy ? (
+              <Loader2 size={16} className="animate-spin" aria-hidden />
+            ) : (
+              'Apply'
+            )}
           </button>
         </div>
       )}
 
       {error ? (
-        <p role="alert" className="font-body text-xs text-red-600">
+        <p role="alert" className="font-body text-xs text-danger-solid">
           {error}
         </p>
       ) : null}

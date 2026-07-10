@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Minus, Plus, Trash2 } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { useCartActions } from '@/hooks/useCart';
 import { type CartViewLine } from '@/types/cart';
 import { CATEGORY_LABEL } from '@/types/product';
@@ -17,6 +17,11 @@ interface CartItemProps {
 
 const FALLBACK_IMAGE = '/images/hero-placeholder.jpg';
 
+/**
+ * Cart line row in the boutique treatment: panel-toned thumbnail tile,
+ * Fraunces name over an uppercase category label, hairline-pill quantity
+ * stepper, and an uppercase "Remove" text button.
+ */
 export function CartItem({ line, onNavigate }: CartItemProps) {
   const { increment, decrement, remove } = useCartActions();
 
@@ -25,12 +30,12 @@ export function CartItem({ line, onNavigate }: CartItemProps) {
   const lineTotal = line.priceCents * line.quantity;
 
   return (
-    <li className="flex gap-4 py-4">
+    <li className="flex gap-4 py-5">
       <Link
         href={`/products/${line.slug}`}
         onClick={onNavigate}
         aria-label={`View ${line.name}`}
-        className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-warm-100"
+        className="relative size-20 shrink-0 overflow-hidden rounded-tile bg-panel"
       >
         <Image
           src={line.imageUrl.length > 0 ? line.imageUrl : FALLBACK_IMAGE}
@@ -41,23 +46,23 @@ export function CartItem({ line, onNavigate }: CartItemProps) {
         />
       </Link>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-col gap-1.5">
+          <div className="flex min-w-0 flex-col gap-1">
             <Link
               href={`/products/${line.slug}`}
               onClick={onNavigate}
-              className="font-display text-base leading-snug tracking-[-0.02em] text-warm-900 transition-colors hover:text-brand-600"
+              className="font-display text-title leading-snug text-ink no-underline transition-colors duration-fast hover:text-pine"
             >
               <h3 className="truncate">{line.name}</h3>
             </Link>
-            <div className="flex items-center gap-2">
+            <div className="flex items-baseline gap-2.5">
               {line.category ? (
-                <span className="rounded-md bg-brand-50 px-2 py-0.5 font-body text-[11px] font-medium text-brand-600">
+                <span className="font-body text-micro uppercase text-ink-faint">
                   {CATEGORY_LABEL[line.category]}
                 </span>
               ) : null}
-              <span className="font-body text-xs text-warm-600">
+              <span className="font-body text-xs text-ink-muted">
                 {formatPrice(line.priceCents)}
               </span>
             </div>
@@ -67,31 +72,31 @@ export function CartItem({ line, onNavigate }: CartItemProps) {
             type="button"
             onClick={() => remove(line.productId)}
             aria-label={`Remove ${line.name} from cart`}
-            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-warm-600 transition-colors hover:bg-warm-100 hover:text-warm-900"
+            className="shrink-0 font-body text-micro uppercase text-ink-faint transition-colors duration-fast hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
           >
-            <Trash2 size={16} aria-hidden />
+            Remove
           </button>
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <div className="inline-flex items-center rounded-lg border border-warm-300 bg-warm-100">
+          <div className="inline-flex items-center rounded-pill border border-line">
             <button
               type="button"
               onClick={() => decrement(line.productId)}
               disabled={decDisabled}
               aria-label={`Decrease quantity for ${line.name}`}
               className={cn(
-                'inline-flex size-8 items-center justify-center rounded-l-lg transition-colors',
+                'inline-flex size-8 items-center justify-center rounded-l-pill transition-colors duration-fast',
                 decDisabled
-                  ? 'cursor-not-allowed text-warm-400'
-                  : 'text-warm-900 hover:bg-warm-100',
+                  ? 'cursor-not-allowed text-ink-faint opacity-50'
+                  : 'text-ink hover:bg-panel',
               )}
             >
               <Minus size={12} aria-hidden />
             </button>
             <span
               aria-live="off"
-              className="inline-flex h-8 w-9 items-center justify-center border-x border-warm-300 font-body text-sm text-warm-900"
+              className="inline-flex h-8 w-9 items-center justify-center font-body text-sm text-ink"
             >
               {line.quantity}
             </span>
@@ -101,17 +106,17 @@ export function CartItem({ line, onNavigate }: CartItemProps) {
               disabled={incDisabled}
               aria-label={`Increase quantity for ${line.name}`}
               className={cn(
-                'inline-flex size-8 items-center justify-center rounded-r-lg transition-colors',
+                'inline-flex size-8 items-center justify-center rounded-r-pill transition-colors duration-fast',
                 incDisabled
-                  ? 'cursor-not-allowed text-warm-400'
-                  : 'text-warm-900 hover:bg-warm-100',
+                  ? 'cursor-not-allowed text-ink-faint opacity-50'
+                  : 'text-ink hover:bg-panel',
               )}
             >
               <Plus size={12} aria-hidden />
             </button>
           </div>
 
-          <p className="font-body text-sm font-medium text-warm-900">
+          <p className="font-body text-sm font-semibold text-ink">
             {formatPrice(lineTotal)}
           </p>
         </div>

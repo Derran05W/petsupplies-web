@@ -32,6 +32,7 @@ const config: Config = {
         },
         pine: 'var(--pine)',
         line: 'var(--line)',
+        scrim: 'var(--scrim)',
         tile: {
           'amber-ink': 'var(--tile-amber-ink)',
           'slate-ink': 'var(--tile-slate-ink)',

@@ -1,5 +1,4 @@
-import Link from 'next/link';
-import { ShoppingBag } from 'lucide-react';
+import { Button, PetIcon } from '@/components/ui';
 
 interface EmptyCartProps {
   /**
@@ -22,29 +21,25 @@ export function EmptyCart({ variant = 'page', onBrowse }: EmptyCartProps) {
       className={
         isDrawer
           ? 'flex flex-1 flex-col items-center justify-center gap-4 px-6 py-12 text-center'
-          : 'flex flex-col items-center justify-center gap-5 rounded-2xl bg-warm-100 px-6 py-16 text-center md:py-24'
+          : 'flex flex-col items-center justify-center gap-5 rounded-card bg-panel px-6 py-16 text-center md:py-24'
       }
     >
       <span
         aria-hidden
-        className="inline-flex size-14 items-center justify-center rounded-full bg-warm-200 text-warm-600"
+        className="inline-flex size-16 items-center justify-center rounded-full bg-tile-amber text-tile-amber-ink"
       >
-        <ShoppingBag size={22} />
+        <PetIcon name="bowl" className="size-8" />
       </span>
-      <h2 className="font-display text-2xl tracking-[-0.02em] text-warm-900 md:text-3xl">
+      <h2 className="font-display text-2xl tracking-[-0.01em] text-ink md:text-3xl">
         Your cart is feeling empty.
       </h2>
-      <p className="max-w-sm font-body text-sm text-warm-600">
+      <p className="max-w-sm font-body text-sm leading-body text-ink-secondary">
         Once you find something tasty, it&apos;ll show up here. Browse the shop
         to get started.
       </p>
-      <Link
-        href="/products"
-        onClick={onBrowse}
-        className="inline-flex items-center justify-center rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500"
-      >
+      <Button href="/products" onClick={onBrowse}>
         Browse products
-      </Link>
+      </Button>
     </div>
   );
 }

@@ -28,6 +28,12 @@ interface ProductCardProps {
   product: Product;
   /** Gradient tile behind the image — shows through for icon fallbacks and while photos load. */
   tone?: TileTone;
+  /**
+   * Rendered inside the image tile, above the scrim (e.g. a wishlist
+   * heart). Kept as a slot so this ui component stays free of feature
+   * dependencies.
+   */
+  overlaySlot?: React.ReactNode;
   className?: string;
 }
 
@@ -45,6 +51,7 @@ interface ProductCardProps {
 export function ProductCard({
   product,
   tone = 'amber',
+  overlaySlot,
   className,
 }: ProductCardProps) {
   const { add } = useCartActions();
@@ -100,6 +107,7 @@ export function ProductCard({
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-ink opacity-0 transition-opacity duration-base group-hover:opacity-5"
         />
+        {overlaySlot}
         {product.inStock ? (
           <button
             type="button"
@@ -121,6 +129,15 @@ export function ProductCard({
           <div className="mt-0.5 font-body text-micro uppercase text-ink-faint">
             {PET_TYPE_LABEL[product.petType]} ·{' '}
             {CATEGORY_LABEL[product.category]}
+            {product.rating ? (
+              <span
+                aria-label={`Rated ${product.rating.avg.toFixed(1)} out of 5 stars, ${product.rating.count} reviews`}
+              >
+                {' '}
+                · <span aria-hidden>★</span> {product.rating.avg.toFixed(1)} (
+                {product.rating.count})
+              </span>
+            ) : null}
           </div>
         </div>
         <div className="flex items-baseline gap-2 font-body text-[0.95rem] font-semibold text-ink">

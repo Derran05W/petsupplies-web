@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronRight } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { getOrders } from '@/lib/api/orders';
 import { formatDate, formatPrice } from '@/lib/utils/format';
@@ -62,18 +61,17 @@ export function SettingsDrawerOrders({
   }, []);
 
   return (
-    <section className="border-b border-warm-200 bg-surface-drawer px-6 py-4">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h3 className="font-display text-base tracking-[-0.02em] text-warm-900">
+    <section className="border-b border-line px-6 py-5">
+      <div className="mb-3 flex items-baseline justify-between gap-2">
+        <h3 className="font-body text-kicker uppercase text-pine">
           Recent orders
         </h3>
         <Link
           href={accountListHref}
           onClick={onNavigate}
-          className="inline-flex items-center gap-0.5 font-body text-xs font-medium text-brand-600 hover:text-brand-700"
+          className="font-body text-micro uppercase text-ink no-underline opacity-75 transition-opacity duration-fast hover:opacity-100"
         >
-          View all
-          <ChevronRight size={14} aria-hidden />
+          View all →
         </Link>
       </div>
 
@@ -82,51 +80,51 @@ export function SettingsDrawerOrders({
           {[0, 1, 2].map((i) => (
             <li
               key={i}
-              className="h-14 animate-pulse rounded-xl bg-warm-100"
+              className="h-14 animate-pulse rounded-card bg-panel"
               aria-hidden
             />
           ))}
         </ul>
       ) : error ? (
-        <p className="font-body text-xs text-warm-600">
+        <p className="font-body text-xs text-ink-muted">
           Couldn&apos;t load orders.{' '}
           <Link
             href={accountListHref}
             onClick={onNavigate}
-            className="font-medium text-brand-600 underline-offset-2 hover:underline"
+            className="font-medium text-pine underline-offset-2 hover:underline"
           >
             Open orders
           </Link>
         </p>
       ) : orders.length === 0 ? (
-        <p className="font-body text-xs text-warm-600">
+        <p className="font-body text-xs text-ink-muted">
           No orders yet.{' '}
           <Link
             href="/products"
             onClick={onNavigate}
-            className="font-medium text-brand-600 underline-offset-2 hover:underline"
+            className="font-medium text-pine underline-offset-2 hover:underline"
           >
             Browse products
           </Link>
         </p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col divide-y divide-line">
           {orders.map((order) => (
             <li key={order.id}>
               <Link
                 href={appendReturnTo(`/account/orders/${order.id}`, pathname)}
                 onClick={onNavigate}
-                className="flex items-center justify-between gap-3 rounded-xl border border-warm-200 bg-warm-100 px-3 py-2.5 transition-colors hover:border-warm-300 hover:bg-warm-200"
+                className="flex items-center justify-between gap-3 py-3 no-underline transition-colors duration-fast hover:bg-panel focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-pine"
               >
                 <div className="min-w-0">
-                  <p className="truncate font-body text-xs font-medium text-warm-900">
+                  <p className="truncate font-body text-xs font-semibold text-ink">
                     Order {shortId(order.id)}
                   </p>
-                  <p className="text-warm-500 font-body text-[11px]">
+                  <p className="font-body text-[11px] text-ink-faint">
                     {formatDate(order.createdAt)}
                   </p>
                 </div>
-                <span className="shrink-0 font-display text-sm text-warm-900">
+                <span className="shrink-0 font-display text-base text-ink">
                   {formatPrice(order.totalCents, order.currency)}
                 </span>
               </Link>

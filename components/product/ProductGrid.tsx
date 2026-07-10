@@ -1,16 +1,21 @@
-import Link from 'next/link';
 import { type Product } from '@/types/product';
-import { ProductCard } from './ProductCard';
+import { Button, PetIcon, ProductCard, Reveal } from '@/components/ui';
+import { TILE_TONES } from '@/components/ui/tones';
+import { WishlistButton } from '@/components/wishlist/WishlistButton';
 
 interface ProductGridProps {
   products: Product[];
   emptyHref?: string;
 }
 
+/** Cap the stagger so deep grids don't make later rows feel sluggish. */
+const MAX_REVEAL_DELAY_MS = 280;
+
 /**
- * Responsive product grid. Mobile = 1 col, tablet = 2 cols, desktop = 3 cols.
- * Renders an empty-state panel (warm-100 background, Fraunces heading,
- * "Clear filters" CTA) when `products` is empty.
+ * Listing grid of boutique product cards — same auto-fill columns, tonal
+ * tile cycle, and staggered reveal as the homepage featured grid, plus a
+ * wishlist heart in each card's tile. Renders a panel-toned empty state
+ * with a "Clear filters" CTA when `products` is empty.
  */
 export function ProductGrid({
   products,
@@ -18,31 +23,38 @@ export function ProductGrid({
 }: ProductGridProps) {
   if (products.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-4 rounded-xl border border-warm-200 bg-warm-100 px-6 py-16 text-center">
-        <div className="flex size-14 items-center justify-center rounded-full bg-surface-card text-2xl">
-          <span aria-hidden>🐾</span>
-        </div>
-        <h2 className="font-display text-2xl tracking-[-0.02em] text-warm-900">
+      <div className="flex flex-col items-center gap-4 rounded-card bg-panel px-6 py-16 text-center">
+        <span
+          aria-hidden
+          className="inline-flex size-16 items-center justify-center rounded-full bg-tile-sage text-tile-sage-ink"
+        >
+          <PetIcon name="paw" className="size-8" />
+        </span>
+        <h2 className="font-display text-2xl tracking-[-0.01em] text-ink">
           Nothing found yet.
         </h2>
-        <p className="max-w-md font-body text-sm text-warm-600">
+        <p className="max-w-md font-body text-sm leading-body text-ink-secondary">
           We couldn&apos;t find any products that match these filters. Try
           loosening up the search, or clear all filters to start over.
         </p>
-        <Link
-          href={emptyHref}
-          className="rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm text-white transition-colors hover:bg-brand-500"
-        >
-          Clear filters
-        </Link>
+        <Button href={emptyHref}>Clear filters</Button>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-x-6 gap-y-9">
+      {products.map((product, index) => (
+        <Reveal
+          key={product.id}
+          delay={Math.min(index * 70, MAX_REVEAL_DELAY_MS)}
+        >
+          <ProductCard
+            product={product}
+            tone={TILE_TONES[index % TILE_TONES.length]!}
+            overlaySlot={<WishlistButton product={product} variant="overlay" />}
+          />
+        </Reveal>
       ))}
     </div>
   );

@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui';
 import packageJson from '../../../package.json';
 
 interface SettingsDrawerFooterProps {
@@ -8,17 +9,17 @@ interface SettingsDrawerFooterProps {
 
 export function SettingsDrawerFooter({ onSignOut }: SettingsDrawerFooterProps) {
   return (
-    <div className="mt-auto border-t border-warm-200 bg-surface-drawer px-6 py-4">
-      <button
-        type="button"
+    <div className="mt-auto border-t border-line px-6 py-5">
+      <Button
+        variant="ghost"
         onClick={() => {
           void onSignOut();
         }}
-        className="mb-3 w-full rounded-lg border border-warm-200 bg-warm-100 py-2.5 font-body text-sm font-medium text-warm-900 transition-colors hover:bg-warm-200"
+        className="mb-3 w-full px-5 py-3"
       >
         Sign out
-      </button>
-      <p className="text-center font-body text-[11px] text-warm-400">
+      </Button>
+      <p className="text-center font-body text-[11px] text-ink-faint">
         Settings · v{packageJson.version}
       </p>
     </div>

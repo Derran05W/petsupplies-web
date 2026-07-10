@@ -40,8 +40,8 @@ export function CartContents({ variant, onClose }: CartContentsProps) {
 
   if (variant === 'drawer') {
     return (
-      <div className="flex min-h-0 flex-1 flex-col bg-surface-drawer">
-        <ul className="flex flex-1 flex-col divide-y divide-warm-200 overflow-y-auto px-6">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <ul className="flex flex-1 flex-col divide-y divide-line overflow-y-auto px-6">
           {lines.map((line) => (
             <CartItem
               key={line.cartItemId ?? line.productId}
@@ -50,7 +50,7 @@ export function CartContents({ variant, onClose }: CartContentsProps) {
             />
           ))}
         </ul>
-        <div className="shrink-0 border-t border-warm-200 bg-surface-drawer p-5">
+        <div className="shrink-0 border-t border-line p-5">
           <CartSummary variant="drawer" {...(onClose ? { onClose } : {})} />
         </div>
       </div>
@@ -59,8 +59,8 @@ export function CartContents({ variant, onClose }: CartContentsProps) {
 
   return (
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[2fr_1fr]">
-      <div className="rounded-2xl border border-warm-200 bg-surface-card">
-        <ul className="flex flex-col divide-y divide-warm-200 px-5">
+      <div className="rounded-card border border-line bg-paper">
+        <ul className="flex flex-col divide-y divide-line px-5">
           {lines.map((line) => (
             <CartItem key={line.cartItemId ?? line.productId} line={line} />
           ))}
@@ -83,13 +83,13 @@ function CartContentsSkeleton({ variant }: { variant: 'drawer' | 'page' }) {
         {[0, 1].map((i) => (
           <div
             key={i}
-            className="flex gap-4 rounded-lg border border-warm-200 p-3"
+            className="flex gap-4 rounded-card border border-line p-3"
           >
-            <div className="size-20 shrink-0 animate-pulse rounded-lg bg-warm-100" />
+            <div className="size-20 shrink-0 animate-pulse rounded-tile bg-panel" />
             <div className="flex flex-1 flex-col gap-2">
-              <div className="h-4 w-3/4 animate-pulse rounded bg-warm-100" />
-              <div className="h-3 w-1/3 animate-pulse rounded bg-warm-100" />
-              <div className="mt-auto h-6 w-24 animate-pulse rounded bg-warm-100" />
+              <div className="h-4 w-3/4 animate-pulse rounded bg-panel" />
+              <div className="h-3 w-1/3 animate-pulse rounded bg-panel" />
+              <div className="mt-auto h-6 w-24 animate-pulse rounded bg-panel" />
             </div>
           </div>
         ))}
@@ -98,18 +98,18 @@ function CartContentsSkeleton({ variant }: { variant: 'drawer' | 'page' }) {
   }
   return (
     <div aria-hidden className="grid grid-cols-1 gap-10 lg:grid-cols-[2fr_1fr]">
-      <div className="flex flex-col gap-4 rounded-2xl border border-warm-200 bg-surface-card p-5">
+      <div className="flex flex-col gap-4 rounded-card border border-line bg-paper p-5">
         {[0, 1, 2].map((i) => (
           <div key={i} className="flex gap-4">
-            <div className="size-20 shrink-0 animate-pulse rounded-lg bg-warm-100" />
+            <div className="size-20 shrink-0 animate-pulse rounded-tile bg-panel" />
             <div className="flex flex-1 flex-col gap-2">
-              <div className="h-4 w-3/4 animate-pulse rounded bg-warm-100" />
-              <div className="h-3 w-1/2 animate-pulse rounded bg-warm-100" />
+              <div className="h-4 w-3/4 animate-pulse rounded bg-panel" />
+              <div className="h-3 w-1/2 animate-pulse rounded bg-panel" />
             </div>
           </div>
         ))}
       </div>
-      <div className="h-64 animate-pulse rounded-2xl border border-warm-200 bg-surface-card" />
+      <div className="h-64 animate-pulse rounded-card border border-line bg-panel" />
     </div>
   );
 }

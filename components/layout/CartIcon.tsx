@@ -8,12 +8,12 @@ import {
   type ButtonHTMLAttributes,
 } from 'react';
 import Link from 'next/link';
-import { ShoppingBag } from 'lucide-react';
 import {
   useCartBumpCounter,
   useCartCount,
   useCartHasHydrated,
 } from '@/hooks/useCart';
+import { NAV_LINK_CLASSES } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 interface CartIconProps {
@@ -29,15 +29,16 @@ interface CartIconProps {
 const BOUNCE_MS = 600;
 
 /**
- * Always-on-screen cart trigger. Two presentations rendered side by side:
+ * Always-on-screen "Cart (n)" nav trigger, styled like the mockup's
+ * uppercase nav text. Two presentations rendered side by side:
  *   - desktop (`hidden lg:inline-flex`): a `<button>` that opens the cart
  *     drawer via `onOpenDrawer`.
  *   - mobile (`lg:hidden`): a `<Link href="/cart">` that navigates to
  *     the full cart page.
  *
- * The badge count and bounce animation derive from the Zustand cart
- * store. To avoid SSR / hydration mismatches the badge is only rendered
- * once `hasHydrated` flips true on the client.
+ * The count and bounce animation derive from the cart store. To avoid
+ * SSR / hydration mismatches the count is only rendered once
+ * `hasHydrated` flips true on the client.
  */
 export const CartIcon = forwardRef<HTMLButtonElement, CartIconProps>(
   function CartIcon({ onOpenDrawer, className }, ref) {
@@ -68,13 +69,25 @@ export const CartIcon = forwardRef<HTMLButtonElement, CartIconProps>(
       };
     }, []);
 
-    const showBadge = hasHydrated && count > 0;
-    const label = showBadge
-      ? `Cart, ${count} ${count === 1 ? 'item' : 'items'}`
-      : 'Cart';
+    const label =
+      hasHydrated && count > 0
+        ? `Cart, ${count} ${count === 1 ? 'item' : 'items'}`
+        : 'Cart';
 
-    const sharedClasses =
-      'relative inline-flex size-9 items-center justify-center rounded-lg text-warm-900 transition-colors hover:bg-warm-100';
+    const sharedClasses = cn(NAV_LINK_CLASSES, 'uppercase', className);
+
+    const text = (
+      <span
+        aria-live="polite"
+        aria-atomic="true"
+        className={cn(
+          'inline-block whitespace-nowrap',
+          bouncing ? 'animate-cart-bounce' : undefined,
+        )}
+      >
+        {hasHydrated ? `Cart (${count})` : 'Cart'}
+      </span>
+    );
 
     return (
       <>
@@ -82,19 +95,17 @@ export const CartIcon = forwardRef<HTMLButtonElement, CartIconProps>(
           ref={ref}
           onClick={onOpenDrawer}
           aria-label={label}
-          className={cn(sharedClasses, 'hidden lg:inline-flex', className)}
+          className={cn(sharedClasses, 'hidden lg:inline-block')}
         >
-          <CartGlyph bouncing={bouncing} />
-          <CartBadge show={showBadge} count={count} />
+          {text}
         </DesktopCartButton>
 
         <Link
           href="/cart"
           aria-label={label}
-          className={cn(sharedClasses, 'lg:hidden', className)}
+          className={cn(sharedClasses, 'lg:hidden')}
         >
-          <CartGlyph bouncing={bouncing} />
-          <CartBadge show={showBadge} count={count} />
+          {text}
         </Link>
       </>
     );
@@ -107,33 +118,3 @@ const DesktopCartButton = forwardRef<
 >(function DesktopCartButton(props, ref) {
   return <button ref={ref} type="button" {...props} />;
 });
-
-function CartGlyph({ bouncing }: { bouncing: boolean }) {
-  return (
-    <span
-      aria-hidden
-      className={cn(
-        'inline-flex',
-        bouncing ? 'animate-cart-bounce' : undefined,
-      )}
-    >
-      <ShoppingBag size={18} />
-    </span>
-  );
-}
-
-function CartBadge({ show, count }: { show: boolean; count: number }) {
-  return (
-    <span
-      aria-live="polite"
-      aria-atomic="true"
-      className="pointer-events-none absolute -right-1 -top-1"
-    >
-      {show ? (
-        <span className="inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-brand-400 px-1 font-body text-[10px] font-medium leading-none text-white">
-          {count}
-        </span>
-      ) : null}
-    </span>
-  );
-}
