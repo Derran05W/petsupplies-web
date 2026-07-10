@@ -2,6 +2,7 @@ import { type Metadata } from 'next';
 import { Suspense } from 'react';
 import { brand } from '@/lib/config/brand';
 import { getProductBySlug } from '@/lib/api/products';
+import type { Product } from '@/types/product';
 import { ProductDetailSkeleton } from '@/components/product/ProductDetailSkeleton';
 import { ProductDetailSection } from '@/components/product/sections/ProductDetailSection';
 import { RelatedProductsSkeleton } from '@/components/product/RelatedProductsSkeleton';
@@ -22,26 +23,78 @@ export async function generateMetadata({
   if (!product) {
     return { title: 'Product not found' };
   }
+  const canonical = `/products/${product.slug}`;
+  const images = product.images
+    .filter((image) => image.url.length > 0)
+    .map((image) => ({
+      url: image.url,
+      alt: image.alt || product.name,
+    }));
   return {
     title: product.name,
     description: product.description,
+    alternates: {
+      canonical,
+    },
     openGraph: {
       title: `${product.name} · ${brand.name}`,
       description: product.description,
-      images: product.images
-        .filter((image) => image.url.length > 0)
-        .map((image) => ({
-          url: image.url,
-          alt: image.alt || product.name,
-        })),
+      url: canonical,
+      images,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.name} · ${brand.name}`,
+      description: product.description,
+      images: images.map((image) => image.url),
     },
   };
 }
 
-export default function ProductDetailPage({
+/**
+ * Serialize a JSON-LD object for inline embedding. `<` is escaped so a
+ * value containing `</script>` (or any other markup) can't break out of
+ * the surrounding <script> tag.
+ */
+function serializeJsonLd(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
+function buildProductJsonLd(product: Product): Record<string, unknown> {
+  const jsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description,
+    image: product.images
+      .filter((image) => image.url.length > 0)
+      .map((image) => image.url),
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'USD',
+      price: (product.priceCents / 100).toFixed(2),
+      availability: product.inStock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+    },
+  };
+
+  if (product.rating && product.rating.count > 0) {
+    jsonLd.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: product.rating.avg,
+      reviewCount: product.rating.count,
+    };
+  }
+
+  return jsonLd;
+}
+
+export default async function ProductDetailPage({
   params,
   searchParams,
 }: ProductDetailPageProps) {
+  const product = await getProductBySlug(params.slug);
   const { page: reviewsPage, sort: reviewsSort } =
     parseReviewListingParams(searchParams);
 
@@ -50,6 +103,15 @@ export default function ProductDetailPage({
 
   return (
     <>
+      {product ? (
+        <script
+          type="application/ld+json"
+          // JSON-LD is serialized with `<` escaped; safe to inline.
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(buildProductJsonLd(product)),
+          }}
+        />
+      ) : null}
       <Suspense fallback={<ProductDetailSkeleton />}>
         <ProductDetailSection slug={params.slug} />
       </Suspense>
