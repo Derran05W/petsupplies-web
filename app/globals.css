@@ -4,9 +4,21 @@
 
 /* ── Redesign tokens (Aileen's boutique mockup) ────────────────────────
    Source: design-references/aileens-boutique-mockup.html
-   Theme-independent for now; dark remap can override these per-theme later. */
+   Theme-independent bits only; the color tokens are theme-aware and live in
+   the html[data-theme] blocks below (light default in html / [light]). */
 :root {
-  /* core palette */
+  /* motion */
+  --ease-soft: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --duration-fast: 200ms; /* opacity/color hovers */
+  --duration-base: 350ms; /* lifts, quick-add, arrows */
+  --duration-slow: 600ms; /* image zooms */
+  --duration-reveal: 850ms; /* scroll reveals, fade-ups */
+}
+
+/* ── Light (default — warm coral / saharaDawn) ─────────────────────────── */
+html,
+html[data-theme='light'] {
+  /* boutique core palette */
   --ink: #26221c; /* near-black warm brown — text, solid buttons */
   --paper: #f6f3ec; /* warm off-white page base */
   --panel: #efeae0; /* slightly deeper band background */
@@ -18,12 +30,12 @@
   --line: rgb(38 34 28 / 0.16); /* hairline borders */
   --scrim: rgb(38 34 28 / 0.4); /* dialog / drawer backdrop */
 
-  /* text hierarchy on paper */
+  /* boutique text hierarchy on paper */
   --ink-secondary: #4a443a; /* body copy */
   --ink-muted: #6b6455; /* marquee, footer */
   --ink-faint: #8a8271; /* captions, counts, jokes */
 
-  /* product-tile gradient stops + matching icon inks */
+  /* boutique product-tile gradient stops + matching icon inks */
   --tile-amber-from: #f3dfc0;
   --tile-amber-to: #ebcb94;
   --tile-amber-ink: #a66a14;
@@ -37,34 +49,6 @@
   --tile-clay-to: #e4c4b2;
   --tile-clay-ink: #a05a3c;
 
-  /* motion */
-  --ease-soft: cubic-bezier(0.25, 0.8, 0.25, 1);
-  --duration-fast: 200ms; /* opacity/color hovers */
-  --duration-base: 350ms; /* lifts, quick-add, arrows */
-  --duration-slow: 600ms; /* image zooms */
-  --duration-reveal: 850ms; /* scroll reveals, fade-ups */
-}
-
-/* ── Light (default — warm coral / saharaDawn) ─────────────────────────── */
-html,
-html[data-theme='light'] {
-  --color-brand-50: #fef3ef;
-  --color-brand-100: #fcddd3;
-  --color-brand-200: #f9bba8;
-  --color-brand-300: #ffa47c;
-  --color-brand-400: #f16c43;
-  --color-brand-500: #d4522a;
-  --color-brand-600: #a4645a;
-  --color-brand-700: #7a3d35;
-
-  --color-warm-50: #fbf8f8;
-  --color-warm-100: #f4eced;
-  --color-warm-200: #e5d5d7;
-  --color-warm-300: #cababb;
-  --color-warm-400: #a37777;
-  --color-warm-600: #7a5458;
-  --color-warm-900: #612f3a;
-
   --color-surface-card: #ffffff;
   --color-surface-drawer: #ffffff;
   --color-surface-overlay: rgb(97 47 58 / 0.4);
@@ -76,28 +60,41 @@ html[data-theme='light'] {
   --color-danger-on-solid: #ffffff;
 
   color-scheme: light;
-  background-color: var(--color-warm-50);
-  color: var(--color-warm-900);
+  background-color: var(--paper);
+  color: var(--ink);
 }
 
 /* ── Dark (warm coral family — inverted from light) ───────────────────── */
 html[data-theme='dark'] {
-  --color-brand-50: #1f1410;
-  --color-brand-100: #2e1e18;
-  --color-brand-200: #4a3026;
-  --color-brand-300: #8a4e38;
-  --color-brand-400: #f16c43;
-  --color-brand-500: #ff8a5c;
-  --color-brand-600: #fcddd3;
-  --color-brand-700: #fef3ef;
+  /* boutique core palette — warm-brown character preserved, inks lifted to
+     hit WCAG AA (>=4.5:1) on the dark paper */
+  --ink: #ece7dc;
+  --paper: #1b1813;
+  --panel: #242017;
+  --amber: #e0a04a;
+  --amber-soft: #4a3a20;
+  --slate: #8b9cd4;
+  --slate-soft: #2a3046;
+  --pine: #7fa88d;
+  --line: rgb(236 231 220 / 0.16);
+  --scrim: rgb(0 0 0 / 0.6);
 
-  --color-warm-50: #0f0c0c;
-  --color-warm-100: #1a1516;
-  --color-warm-200: #2e2426;
-  --color-warm-300: #45383b;
-  --color-warm-400: #9a7a7e;
-  --color-warm-600: #aa9498;
-  --color-warm-900: #f4eced;
+  --ink-secondary: #cfc8b9;
+  --ink-muted: #a89f8c;
+  --ink-faint: #857c69;
+
+  --tile-amber-from: #4d3b1d;
+  --tile-amber-to: #3a2d17;
+  --tile-amber-ink: #e5b563;
+  --tile-slate-from: #2d3550;
+  --tile-slate-to: #232940;
+  --tile-slate-ink: #a8b6e8;
+  --tile-sage-from: #2e3a28;
+  --tile-sage-to: #232b1f;
+  --tile-sage-ink: #a9c99a;
+  --tile-clay-from: #4c2f1e;
+  --tile-clay-to: #3a2418;
+  --tile-clay-ink: #e09a72;
 
   --color-surface-card: #1a1516;
   --color-surface-drawer: #1a1516;
@@ -110,28 +107,40 @@ html[data-theme='dark'] {
   --color-danger-on-solid: #ffffff;
 
   color-scheme: dark;
-  background-color: var(--color-warm-50);
-  color: var(--color-warm-900);
+  background-color: var(--paper);
+  color: var(--ink);
 }
 
 /* ── Tropical (#FCA47C · #F9D779 · #23CED9 · #A1CCA6 · #097C87) ───────── */
 html[data-theme='tropical'] {
-  --color-brand-50: #fff4eb;
-  --color-brand-100: #ffe9c7;
-  --color-brand-200: #fcd9a8;
-  --color-brand-300: #f9d779;
-  --color-brand-400: #fca47c;
-  --color-brand-500: #23ced9;
-  --color-brand-600: #097c87;
-  --color-brand-700: #065a63;
+  /* boutique core palette — light base, teal/aqua accent swap */
+  --ink: #14332e;
+  --paper: #f2faf4;
+  --panel: #e3f1e8;
+  --amber: #e8b64c;
+  --amber-soft: #fdf3d0;
+  --slate: #1ba7b3;
+  --slate-soft: #d2f1f4;
+  --pine: #097c87;
+  --line: rgb(20 51 46 / 0.18);
+  --scrim: rgb(9 76 71 / 0.45);
 
-  --color-warm-50: #e8f5ef;
-  --color-warm-100: #d4ebdc;
-  --color-warm-200: #a1cca6;
-  --color-warm-300: #6eb5a8;
-  --color-warm-400: #3d8f8f;
-  --color-warm-600: #1a6b72;
-  --color-warm-900: #097c87;
+  --ink-secondary: #2e534c;
+  --ink-muted: #4e6f68;
+  --ink-faint: #6f8b84;
+
+  --tile-amber-from: #fdeec9;
+  --tile-amber-to: #f5d98e;
+  --tile-amber-ink: #8a6a10;
+  --tile-slate-from: #d4f4f6;
+  --tile-slate-to: #a5e5eb;
+  --tile-slate-ink: #0b6e78;
+  --tile-sage-from: #ddeee0;
+  --tile-sage-to: #bcd9c1;
+  --tile-sage-ink: #35694a;
+  --tile-clay-from: #fde4d6;
+  --tile-clay-to: #f7c2a9;
+  --tile-clay-ink: #a8552e;
 
   --color-surface-card: #fffdf8;
   --color-surface-drawer: #fffdf8;
@@ -144,8 +153,8 @@ html[data-theme='tropical'] {
   --color-danger-on-solid: #ffffff;
 
   color-scheme: light;
-  background-color: var(--color-warm-50);
-  color: var(--color-warm-900);
+  background-color: var(--paper);
+  color: var(--ink);
 }
 
 @layer base {
@@ -169,13 +178,14 @@ html[data-theme='tropical'] {
   h2,
   h3 {
     font-family: var(--font-display), Georgia, serif;
-    color: var(--color-warm-900);
+    color: var(--ink);
     letter-spacing: -0.02em;
   }
 
+  /* theme-aware via boutique tokens: the amber-soft/ink pair reads on every theme */
   ::selection {
-    background-color: var(--color-brand-100);
-    color: var(--color-brand-700);
+    background-color: var(--amber-soft);
+    color: var(--ink);
   }
 }
 
@@ -190,30 +200,6 @@ html[data-theme='tropical'] {
 
   .bg-overlay {
     background-color: var(--color-surface-overlay);
-  }
-
-  .bg-warm-50\/90 {
-    background-color: color-mix(in srgb, var(--color-warm-50) 90%, transparent);
-  }
-
-  .bg-warm-50\/95 {
-    background-color: color-mix(in srgb, var(--color-warm-50) 95%, transparent);
-  }
-
-  .bg-warm-50\/40 {
-    background-color: color-mix(in srgb, var(--color-warm-50) 40%, transparent);
-  }
-
-  .bg-warm-50\/50 {
-    background-color: color-mix(in srgb, var(--color-warm-50) 50%, transparent);
-  }
-
-  .bg-warm-50\/70 {
-    background-color: color-mix(in srgb, var(--color-warm-50) 70%, transparent);
-  }
-
-  .hover\:bg-warm-50\/80:hover {
-    background-color: color-mix(in srgb, var(--color-warm-50) 80%, transparent);
   }
 
   /* opacity-modified boutique tokens — the tokens are plain `var()` strings,

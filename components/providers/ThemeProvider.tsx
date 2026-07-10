@@ -92,6 +92,9 @@ export function ThemeProvider({
         /* offline / session — localStorage still holds the choice */
       }
     })();
+    // keyed on user?.id deliberately: the user object's identity churns on
+    // every token refresh, and reconciliation must run once per sign-in.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, apply]);
 
   useEffect(() => {
