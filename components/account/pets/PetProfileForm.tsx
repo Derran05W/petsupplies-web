@@ -19,8 +19,13 @@ const labelBase = 'mb-1.5 block font-body text-micro uppercase text-ink';
 const SPECIES_LABEL: Record<(typeof PET_SPECIES)[number], string> = {
   dog: 'Dog',
   cat: 'Cat',
+  fish: 'Fish',
   bird: 'Bird',
-  small_animal: 'Small animal',
+  rabbit: 'Rabbit',
+  hamster: 'Hamster',
+  guinea_pig: 'Guinea pig',
+  reptile: 'Reptile',
+  other: 'Other',
 };
 
 function fieldErrorProps(name: string, error: FieldError | undefined) {

@@ -6,6 +6,7 @@ import type {
 } from '@/types/admin';
 import type { OrderStatus } from '@/types/order';
 import { ApiError, apiFetch } from '../client';
+import { mapApiOrderListItem, type ApiOrderListItem } from '../order-mapper';
 import { PLACEHOLDER_ORDERS } from '@/lib/placeholder/orders';
 import {
   applyOrderOverride,
@@ -25,6 +26,47 @@ export interface AdminOrderListOptions {
 
 export interface AdminApiOptions {
   accessToken?: string;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Wire types + mappers (petsupplies-api → app shape)                         */
+/* -------------------------------------------------------------------------- */
+
+/** Admin order-list row: the user-facing list row plus the `user` relation. */
+interface ApiAdminOrderRow extends ApiOrderListItem {
+  user: { id: string; email: string; name: string | null } | null;
+}
+
+/** Raw paginated envelope from `GET /admin/orders`. */
+interface ApiAdminOrderListResponse {
+  data: ApiAdminOrderRow[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+function mapAdminOrderRow(row: ApiAdminOrderRow): AdminOrderSummary {
+  const base = mapApiOrderListItem(row);
+  return {
+    ...base,
+    email: row.user?.email ?? base.email,
+    customerEmail: row.user?.email ?? '',
+    customerId: row.user?.id ?? '',
+    ...(row.user?.name ? { customerName: row.user.name } : {}),
+  };
+}
+
+function mapAdminOrderListResponse(
+  raw: ApiAdminOrderListResponse,
+): AdminOrderListResponse {
+  return {
+    orders: raw.data.map(mapAdminOrderRow),
+    total: raw.total,
+    page: raw.page,
+    pageSize: raw.limit,
+    totalPages: raw.totalPages,
+  };
 }
 
 let warnedAboutAdminOrdersFallback = false;
@@ -58,14 +100,17 @@ export async function adminListOrders(
 
   const params = new URLSearchParams();
   params.set('page', String(page));
-  params.set('pageSize', String(pageSize));
-  if (status) params.set('status', status);
+  // Backend `adminListQuerySchema` uses `limit` (not `pageSize`) and an
+  // UPPERCASE status enum.
+  params.set('limit', String(pageSize));
+  if (status) params.set('status', status.toUpperCase());
 
   try {
-    return await apiFetch<AdminOrderListResponse>(
+    const raw = await apiFetch<ApiAdminOrderListResponse>(
       `/admin/orders?${params.toString()}`,
       accessToken ? { cache: 'no-store', accessToken } : { cache: 'no-store' },
     );
+    return mapAdminOrderListResponse(raw);
   } catch (err) {
     if (isNetwork(err)) {
       warnFallback();
@@ -196,7 +241,7 @@ function getAllAdminOrders(): AdminOrderSummary[] {
     applyOrderOverride(
       {
         ...order,
-        customerEmail: order.email,
+        customerEmail: order.email ?? '',
         customerId: 'usr_dev_seed',
         customerName: order.shippingAddress.fullName,
       },

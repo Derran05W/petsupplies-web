@@ -65,10 +65,10 @@ const SEED_ADDRESS: Address = {
 const NEW_INPUT: AddressInput = {
   fullName: 'New Customer',
   line1: '99 Maple Avenue',
-  city: 'Brooklyn',
-  state: 'NY',
-  postalCode: '11201',
-  country: 'US',
+  city: 'Toronto',
+  state: 'ON',
+  postalCode: 'M5V 2T6',
+  country: 'CA',
   isDefault: false,
 };
 

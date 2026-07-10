@@ -5,8 +5,10 @@ import { useForm, type FieldError } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { addressInputSchema, type AddressInput } from '@/lib/account/schemas';
-import { SUPPORTED_COUNTRIES } from '@/lib/checkout/schemas';
 import { cn } from '@/lib/utils';
+
+/** Backend `/users/me/addresses` persists Canadian addresses only. */
+const SUPPORTED_COUNTRIES = [{ code: 'CA', label: 'Canada' }] as const;
 
 const inputBase =
   'w-full rounded-tile border border-line bg-paper px-3 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none';
@@ -71,7 +73,7 @@ export function AddressForm({
       city: initial?.city ?? '',
       state: initial?.state ?? '',
       postalCode: initial?.postalCode ?? '',
-      country: initial?.country ?? 'US',
+      country: initial?.country ?? 'CA',
       isDefault: initial?.isDefault ?? false,
     },
   });

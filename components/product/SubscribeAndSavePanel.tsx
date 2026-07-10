@@ -68,19 +68,14 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
     if (!user?.id) return;
     if (!product.inStock) return;
 
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const successUrl = `${origin}/account/subscriptions?checkout=success`;
-    const cancelUrl = `${origin}${product.slug ? `/products/${product.slug}?subscribe=cancelled` : '/products'}`;
-
     try {
+      // Success / cancel URLs are set server-side on the Stripe Checkout
+      // session; the strict validator rejects any extra fields.
       const payload = await checkoutMutation.mutateAsync({
         productId: product.id,
         quantity: qty,
         interval,
-        successUrl,
-        cancelUrl,
         ...(petId.trim().length > 0 ? { petId: petId.trim() } : {}),
-        clientReferenceId: user.id,
       });
       window.location.href = payload.url;
     } catch (err) {

@@ -5,7 +5,11 @@ import {
   listWishlist,
   removeWishlistItem,
 } from '@/lib/api/wishlist';
-import { sampleWishlistItem } from '@/tests/fixtures/wishlist';
+import {
+  sampleWishlistApiEnvelope,
+  sampleWishlistApiItem,
+} from '@/tests/fixtures/wishlist';
+import { oneFeaturedProduct } from '@/tests/fixtures/products';
 
 describe('lib/api/wishlist', () => {
   beforeEach(() => {
@@ -17,15 +21,21 @@ describe('lib/api/wishlist', () => {
     vi.restoreAllMocks();
   });
 
-  it('GET normalises a bare array payload', async () => {
-    const item = sampleWishlistItem();
+  it('GET unwraps the { data: [...] } envelope and maps the product snapshot', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => Response.json([item], { status: 200 })),
+      vi.fn(async () =>
+        Response.json(sampleWishlistApiEnvelope(), { status: 200 }),
+      ),
     );
 
     const rows = await listWishlist({ accessToken: 'tok' });
-    expect(rows).toEqual([item]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.product.id).toBe('prod-1');
+    expect(rows[0]!.product.priceCents).toBe(1299);
+    expect(rows[0]!.product.inStock).toBe(true);
+    expect(rows[0]!.product.images[0]!.url).toBe('https://cdn.test/salmon.jpg');
+    expect(rows[0]!.addedAt).toBe('2026-02-01T12:00:00.000Z');
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       'http://localhost:3001/users/me/wishlist',
       expect.objectContaining({
@@ -36,17 +46,17 @@ describe('lib/api/wishlist', () => {
     );
   });
 
-  it('GET normalises an object with items[]', async () => {
-    const item = sampleWishlistItem();
+  it('GET maps a bare array payload', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () =>
-        Response.json({ items: [item], meta: {} }, { status: 200 }),
+        Response.json([sampleWishlistApiItem()], { status: 200 }),
       ),
     );
 
     const rows = await listWishlist({ accessToken: 'tok' });
-    expect(rows).toEqual([item]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.product.slug).toBe('salmon-feast');
   });
 
   it('GET returns [] on network failure', async () => {
@@ -71,19 +81,21 @@ describe('lib/api/wishlist', () => {
     );
   });
 
-  it('POST returns payload on 201', async () => {
-    const item = sampleWishlistItem();
-    const product = item.product;
+  it('POST returns the row on 201, preferring the caller product snapshot', async () => {
+    const product = oneFeaturedProduct();
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => Response.json(item, { status: 201 })),
+      vi.fn(async () =>
+        Response.json(sampleWishlistApiItem(), { status: 201 }),
+      ),
     );
 
     const result = await addWishlistItem(product.id, {
       accessToken: 'tok',
       product,
     });
-    expect(result).toEqual(item);
+    expect(result.product).toEqual(product);
+    expect(result.addedAt).toBe('2026-02-01T12:00:00.000Z');
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       'http://localhost:3001/users/me/wishlist',
       expect.objectContaining({
@@ -94,8 +106,7 @@ describe('lib/api/wishlist', () => {
   });
 
   it('POST treats 409 as success when product snapshot is provided', async () => {
-    const item = sampleWishlistItem();
-    const product = item.product;
+    const product = oneFeaturedProduct();
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => Response.json({ message: 'exists' }, { status: 409 })),
@@ -110,8 +121,7 @@ describe('lib/api/wishlist', () => {
   });
 
   it('POST synthesises on network error when product snapshot exists', async () => {
-    const item = sampleWishlistItem();
-    const product = item.product;
+    const product = oneFeaturedProduct();
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => {

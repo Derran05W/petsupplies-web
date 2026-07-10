@@ -12,12 +12,29 @@ import {
   normalizeAdminAnalyticsDiscounts,
   normalizeAdminAnalyticsLowStock,
   normalizeAdminAnalyticsOverview,
+  normalizeAdminAnalyticsRevenueTimeseries,
   normalizeAdminAnalyticsSubscriptions,
   normalizeAdminAnalyticsTopProducts,
 } from './analytics-normalize';
 
 export interface AdminApiOptions {
   accessToken?: string;
+}
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+/**
+ * The backend `revenue-timeseries` endpoint takes `from`/`to` dates (not the
+ * UI's `range`). Translate the range window relative to now.
+ */
+function rangeToDateBounds(range: AnalyticsRevenueRange): {
+  from: string;
+  to: string;
+} {
+  const days = range === '7d' ? 7 : range === '90d' ? 90 : 30;
+  const to = new Date();
+  const from = new Date(to.getTime() - days * MS_PER_DAY);
+  return { from: from.toISOString(), to: to.toISOString() };
 }
 
 export async function adminAnalyticsOverview(
@@ -36,11 +53,13 @@ export async function adminAnalyticsRevenueTimeseries(
   options: AdminApiOptions = {},
 ): Promise<AdminAnalyticsRevenueTimeseries> {
   const { accessToken } = options;
-  const q = new URLSearchParams({ range });
-  return apiFetch<AdminAnalyticsRevenueTimeseries>(
+  const { from, to } = rangeToDateBounds(range);
+  const q = new URLSearchParams({ from, to });
+  const raw = await apiFetch<unknown>(
     `/admin/analytics/revenue-timeseries?${q}`,
     { cache: 'no-store', ...(accessToken ? { accessToken } : {}) },
   );
+  return normalizeAdminAnalyticsRevenueTimeseries(raw);
 }
 
 export async function adminAnalyticsTopProducts(

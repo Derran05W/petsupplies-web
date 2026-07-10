@@ -1,4 +1,4 @@
-import type { Pet, PetId } from '@/types/pet';
+import type { Pet, PetId, PetSpecies } from '@/types/pet';
 import type { PetInput } from '@/lib/account/schemas';
 import { apiFetch } from './client';
 
@@ -8,17 +8,88 @@ export interface PetsApiOptions {
   accessToken?: string;
 }
 
-function normalizeListPayload(body: unknown): Pet[] {
-  if (Array.isArray(body)) return body as Pet[];
-  if (
-    body &&
-    typeof body === 'object' &&
-    'pets' in body &&
-    Array.isArray((body as { pets: unknown }).pets)
-  ) {
-    return (body as { pets: Pet[] }).pets;
+/* -------------------------------------------------------------------------- */
+/* Wire types + mappers. Backend `PetPublic` is Prisma-shaped: uppercase       */
+/* `species` enum, `null` (not `undefined`) for absent optionals, birthDate as */
+/* a full ISO timestamp, and a `{ data: [...] }` list envelope.                */
+/* -------------------------------------------------------------------------- */
+
+interface ApiPet {
+  id: string;
+  userId?: string;
+  name: string;
+  species: string;
+  breed: string | null;
+  birthDate: string | null;
+  weightGrams: number | null;
+  dietaryNotes: string | null;
+  profilePhotoUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Backend species enum (uppercase) ↔ app species (lowercase) is pure case. */
+function speciesToApp(species: string): PetSpecies {
+  return species.toLowerCase() as PetSpecies;
+}
+
+function speciesToWire(species: PetSpecies): string {
+  return species.toUpperCase();
+}
+
+function mapPet(raw: unknown): Pet {
+  const p = raw as ApiPet;
+  return {
+    id: p.id,
+    name: p.name,
+    species: speciesToApp(p.species),
+    ...(p.breed != null ? { breed: p.breed } : {}),
+    // Backend normalises birthDate to a UTC-midnight timestamp; the app + form
+    // work with date-only `YYYY-MM-DD`.
+    ...(p.birthDate != null
+      ? { birthDate: String(p.birthDate).slice(0, 10) }
+      : {}),
+    ...(p.weightGrams != null ? { weightGrams: p.weightGrams } : {}),
+    ...(p.dietaryNotes != null ? { dietaryNotes: p.dietaryNotes } : {}),
+    ...(p.profilePhotoUrl != null
+      ? { profilePhotoUrl: p.profilePhotoUrl }
+      : {}),
+    createdAt: p.createdAt,
+    updatedAt: p.updatedAt,
+  };
+}
+
+/** PetInput (lowercase species) → strict backend create/patch body. */
+function toPetBody(input: PetInput): Record<string, unknown> {
+  const body: Record<string, unknown> = {
+    name: input.name,
+    species: speciesToWire(input.species),
+  };
+  if (input.breed !== undefined) body.breed = input.breed;
+  if (input.birthDate !== undefined) body.birthDate = input.birthDate;
+  if (input.weightGrams !== undefined) body.weightGrams = input.weightGrams;
+  if (input.dietaryNotes !== undefined) body.dietaryNotes = input.dietaryNotes;
+  if (input.profilePhotoUrl !== undefined) {
+    body.profilePhotoUrl = input.profilePhotoUrl;
   }
-  return [];
+  return body;
+}
+
+function normalizeListPayload(body: unknown): Pet[] {
+  let rows: unknown[] = [];
+  if (Array.isArray(body)) {
+    rows = body;
+  } else if (body && typeof body === 'object') {
+    // Backend paginated envelope is `{ data: [...] }`; `pets` kept for fallbacks.
+    for (const key of ['data', 'pets'] as const) {
+      const value = (body as Record<string, unknown>)[key];
+      if (Array.isArray(value)) {
+        rows = value;
+        break;
+      }
+    }
+  }
+  return rows.map(mapPet);
 }
 
 export async function listPets(options: PetsApiOptions = {}): Promise<Pet[]> {
@@ -35,10 +106,11 @@ export async function getPet(
   options: PetsApiOptions = {},
 ): Promise<Pet> {
   const { accessToken } = options;
-  return apiFetch<Pet>(
+  const raw = await apiFetch<unknown>(
     `/users/me/pets/${encodeURIComponent(id)}`,
     accessToken ? { cache: 'no-store', accessToken } : { cache: 'no-store' },
   );
+  return mapPet(raw);
 }
 
 export async function createPet(
@@ -46,19 +118,14 @@ export async function createPet(
   options: PetsApiOptions = {},
 ): Promise<Pet> {
   const { accessToken } = options;
-  return apiFetch<Pet>(
+  const body = JSON.stringify(toPetBody(input));
+  const raw = await apiFetch<unknown>(
     '/users/me/pets',
     accessToken
-      ? {
-          method: 'POST',
-          body: JSON.stringify(input),
-          accessToken,
-        }
-      : {
-          method: 'POST',
-          body: JSON.stringify(input),
-        },
+      ? { method: 'POST', body, accessToken }
+      : { method: 'POST', body },
   );
+  return mapPet(raw);
 }
 
 export async function updatePet(
@@ -67,19 +134,14 @@ export async function updatePet(
   options: PetsApiOptions = {},
 ): Promise<Pet> {
   const { accessToken } = options;
-  return apiFetch<Pet>(
+  const body = JSON.stringify(toPetBody(input));
+  const raw = await apiFetch<unknown>(
     `/users/me/pets/${encodeURIComponent(id)}`,
     accessToken
-      ? {
-          method: 'PATCH',
-          body: JSON.stringify(input),
-          accessToken,
-        }
-      : {
-          method: 'PATCH',
-          body: JSON.stringify(input),
-        },
+      ? { method: 'PATCH', body, accessToken }
+      : { method: 'PATCH', body },
   );
+  return mapPet(raw);
 }
 
 export async function deletePet(

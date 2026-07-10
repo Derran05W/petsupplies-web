@@ -11,6 +11,8 @@ import { shippingAddressSchema } from '@/lib/checkout/schemas';
  * validators.
  */
 export const addressInputSchema = shippingAddressSchema.extend({
+  // Backend `/users/me/addresses` validator only accepts Canada.
+  country: z.enum(['CA'], { message: 'Select a country' }),
   isDefault: z.boolean().optional(),
 });
 
@@ -34,8 +36,21 @@ export type SettingsInput = z.infer<typeof settingsSchema>;
 const emptyToUndefined = (v: unknown): unknown =>
   v === '' || v === null ? undefined : v;
 
-/** Backend pet species (lowercase enum). */
-export const PET_SPECIES = ['dog', 'cat', 'bird', 'small_animal'] as const;
+/**
+ * Pet species — the backend `PetSpecies` enum lowercased. The API layer maps
+ * these to/from the uppercase wire form (see lib/api/pets.ts).
+ */
+export const PET_SPECIES = [
+  'dog',
+  'cat',
+  'fish',
+  'bird',
+  'rabbit',
+  'hamster',
+  'guinea_pig',
+  'reptile',
+  'other',
+] as const;
 
 type PetSpeciesValue = (typeof PET_SPECIES)[number];
 
@@ -172,15 +187,10 @@ export type PetProfileFormValues = z.infer<typeof petProfileFormSchema>;
 export function petProfileFormValuesToPetInput(
   raw: PetProfileFormValues,
 ): PetInput {
-  const species = raw.species;
-  if (
-    species !== 'dog' &&
-    species !== 'cat' &&
-    species !== 'bird' &&
-    species !== 'small_animal'
-  ) {
+  if (!(PET_SPECIES as readonly string[]).includes(raw.species)) {
     throw new Error('Invalid species');
   }
+  const species = raw.species as PetSpeciesValue;
 
   let weightGrams: number | undefined;
   const w = raw.weightInput.trim();

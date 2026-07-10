@@ -1,24 +1,50 @@
 import type { DashboardStats } from '@/types/admin';
-import { ApiError, apiFetch } from '../client';
+import { ApiError } from '../client';
 import { loadAdminProducts } from '@/lib/admin/storage';
 import { LOW_STOCK_THRESHOLD } from '@/lib/admin/config';
 import { PLACEHOLDER_ORDERS } from '@/lib/placeholder/orders';
+import { adminAnalyticsLowStock, adminAnalyticsOverview } from './analytics';
 
 export interface AdminApiOptions {
   accessToken?: string;
 }
 
+const FALLBACK_IMAGE = '/images/hero-placeholder.jpg';
+
 let warnedAboutDashboardFallback = false;
 
+/**
+ * There is no `GET /admin/dashboard` endpoint. We compose dashboard stats from
+ * `GET /admin/analytics/overview` (KPIs) and `GET /admin/analytics/products/low-stock`.
+ * The overview has no this-week / last-week split, so the "last week" tiles are
+ * surfaced as 0 (no comparison data on the wire).
+ * followup: backend could add period-over-period deltas to `/admin/analytics/overview`.
+ */
 export async function getDashboardStats(
   options: AdminApiOptions = {},
 ): Promise<DashboardStats> {
   const { accessToken } = options;
+  const opts = accessToken ? { accessToken } : {};
   try {
-    return await apiFetch<DashboardStats>(
-      '/admin/dashboard',
-      accessToken ? { cache: 'no-store', accessToken } : { cache: 'no-store' },
-    );
+    const [overview, lowStock] = await Promise.all([
+      adminAnalyticsOverview(opts),
+      adminAnalyticsLowStock({ ...opts, limit: 5 }),
+    ]);
+    return {
+      ordersThisWeek: overview.ordersCount,
+      ordersLastWeek: 0,
+      revenueCentsThisWeek: overview.revenueCents,
+      revenueCentsLastWeek: 0,
+      lowStockCount: lowStock.items.length,
+      currency: overview.currency,
+      lowStockProducts: lowStock.items.map((p) => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        stockCount: p.stockCount,
+        primaryImageUrl: p.primaryImageUrl || FALLBACK_IMAGE,
+      })),
+    };
   } catch (err) {
     if (err instanceof ApiError && err.isNetworkError) {
       if (!warnedAboutDashboardFallback) {
@@ -49,7 +75,7 @@ function synthesise(): DashboardStats {
   let revenueCentsThisWeek = 0;
   let ordersLastWeek = 0;
   let revenueCentsLastWeek = 0;
-  let currency = 'usd';
+  let currency = 'cad';
 
   for (const order of PLACEHOLDER_ORDERS) {
     const placedAt = new Date(order.createdAt).getTime();
@@ -76,7 +102,7 @@ function synthesise(): DashboardStats {
       (sum, order) => sum + order.totalCents,
       0,
     );
-    currency = PLACEHOLDER_ORDERS[0]?.currency ?? 'usd';
+    currency = PLACEHOLDER_ORDERS[0]?.currency ?? 'cad';
   }
 
   const lowStock = products
@@ -91,7 +117,7 @@ function synthesise(): DashboardStats {
       primaryImageUrl:
         product.images.find((image) => image.isPrimary)?.url ??
         product.images[0]?.url ??
-        '/images/hero-placeholder.jpg',
+        FALLBACK_IMAGE,
     }));
 
   return {

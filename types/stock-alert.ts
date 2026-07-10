@@ -7,7 +7,12 @@ export interface StockAlert {
   createdAt: string;
 }
 
-/** Tolerates `{ items: StockAlert[] }` OR a bare array from GET `/users/me/stock-alerts`. */
+/**
+ * Legacy `{ items }` envelope kept for the dev fallbacks. The real backend
+ * returns a `{ data: [...] }` paginated envelope of `StockAlertItemResponse`
+ * rows (minimal product snapshot), translated in
+ * [lib/api/stockAlerts.ts](../lib/api/stockAlerts.ts).
+ */
 export interface StockAlertListPayload {
   items?: StockAlert[];
 }

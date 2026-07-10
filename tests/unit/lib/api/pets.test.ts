@@ -8,11 +8,28 @@ import {
   listPets,
   updatePet,
 } from '@/lib/api/pets';
+import type { Pet } from '@/types/pet';
 
-const SAMPLE_PET = {
+/** Real backend `PetPublic` wire shape: uppercase species, ISO birthDate, nulls. */
+const API_PET = {
+  id: 'pet-1',
+  userId: 'u1',
+  name: 'Luna',
+  species: 'CAT',
+  breed: 'Domestic',
+  birthDate: '2020-01-15T00:00:00.000Z',
+  weightGrams: 4500,
+  dietaryNotes: 'Grain-free preferred',
+  profilePhotoUrl: null,
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-02T00:00:00.000Z',
+};
+
+/** The app `Pet` the mapper should produce from `API_PET`. */
+const MAPPED_PET: Pet = {
   id: 'pet-1',
   name: 'Luna',
-  species: 'cat' as const,
+  species: 'cat',
   breed: 'Domestic',
   birthDate: '2020-01-15',
   weightGrams: 4500,
@@ -31,19 +48,19 @@ describe('lib/api/pets', () => {
     vi.restoreAllMocks();
   });
 
-  it('GET /users/me/pets parses a bare Pet[] payload', async () => {
+  it('GET /users/me/pets unwraps the { data: [...] } envelope and maps species/birthDate', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () =>
-        Response.json([SAMPLE_PET], {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        }),
+        Response.json(
+          { data: [API_PET], page: 1, limit: 20, total: 1, totalPages: 1 },
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        ),
       ),
     );
 
     const rows = await listPets({ accessToken: 'tok' });
-    expect(rows).toEqual([SAMPLE_PET]);
+    expect(rows).toEqual([MAPPED_PET]);
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       'http://localhost:3001/users/me/pets',
       expect.objectContaining({
@@ -54,14 +71,14 @@ describe('lib/api/pets', () => {
     );
   });
 
-  it('GET /users/me/pets normalises pets[] wrapper objects', async () => {
+  it('GET /users/me/pets maps a bare array payload', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => Response.json({ pets: [SAMPLE_PET] }, { status: 200 })),
+      vi.fn(async () => Response.json([API_PET], { status: 200 })),
     );
 
     const rows = await listPets({});
-    expect(rows).toEqual([SAMPLE_PET]);
+    expect(rows).toEqual([MAPPED_PET]);
   });
 
   it('GET fails with ApiError on 401', async () => {
@@ -78,14 +95,14 @@ describe('lib/api/pets', () => {
     });
   });
 
-  it('GET one returns Pet on success', async () => {
+  it('GET one returns the mapped Pet on success', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => Response.json(SAMPLE_PET, { status: 200 })),
+      vi.fn(async () => Response.json(API_PET, { status: 200 })),
     );
 
     const pet = await getPet('pet-1', { accessToken: 'tok' });
-    expect(pet).toEqual(SAMPLE_PET);
+    expect(pet).toEqual(MAPPED_PET);
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       'http://localhost:3001/users/me/pets/pet-1',
       expect.anything(),
@@ -103,7 +120,7 @@ describe('lib/api/pets', () => {
     await expect(getPet('other', {})).rejects.toBeInstanceOf(ApiError);
   });
 
-  it('POST serialises PetInput JSON without userId field', async () => {
+  it('POST uppercases species and omits userId', async () => {
     const input = {
       name: 'Rex',
       species: 'dog' as const,
@@ -112,7 +129,7 @@ describe('lib/api/pets', () => {
       'fetch',
       vi.fn(async () =>
         Response.json(
-          { ...SAMPLE_PET, ...input },
+          { ...API_PET, name: 'Rex', species: 'DOG' },
           {
             status: 201,
             headers: { 'Content-Type': 'application/json' },
@@ -127,37 +144,45 @@ describe('lib/api/pets', () => {
       'http://localhost:3001/users/me/pets',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify(input),
+        body: JSON.stringify({ name: 'Rex', species: 'DOG' }),
       }),
     );
     const body = JSON.parse(vi.mocked(fetch).mock.calls[0]![1]!.body as string);
     expect(body).not.toHaveProperty('userId');
+    expect(body.species).toBe('DOG');
   });
 
-  it('PATCH serialises payload', async () => {
+  it('PATCH serialises the uppercase-species payload', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () =>
-        Response.json({ ...SAMPLE_PET, name: 'Updated' }, { status: 200 }),
+        Response.json({ ...API_PET, name: 'Updated' }, { status: 200 }),
       ),
     );
 
     const patchBody = {
       name: 'Updated',
       species: 'cat' as const,
-      breed: SAMPLE_PET.breed,
-      birthDate: SAMPLE_PET.birthDate,
-      weightGrams: SAMPLE_PET.weightGrams,
-      dietaryNotes: SAMPLE_PET.dietaryNotes,
+      breed: 'Domestic',
+      birthDate: '2020-01-15',
+      weightGrams: 4500,
+      dietaryNotes: 'Grain-free preferred',
     };
 
-    await updatePet(SAMPLE_PET.id, patchBody, { accessToken: 't' });
+    await updatePet('pet-1', patchBody, { accessToken: 't' });
 
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-      `http://localhost:3001/users/me/pets/${SAMPLE_PET.id}`,
+      'http://localhost:3001/users/me/pets/pet-1',
       expect.objectContaining({
         method: 'PATCH',
-        body: JSON.stringify(patchBody),
+        body: JSON.stringify({
+          name: 'Updated',
+          species: 'CAT',
+          breed: 'Domestic',
+          birthDate: '2020-01-15',
+          weightGrams: 4500,
+          dietaryNotes: 'Grain-free preferred',
+        }),
       }),
     );
   });
@@ -175,10 +200,10 @@ describe('lib/api/pets', () => {
     );
 
     await expect(
-      deletePet(SAMPLE_PET.id, { accessToken: 't' }),
+      deletePet('pet-1', { accessToken: 't' }),
     ).resolves.toBeUndefined();
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-      `http://localhost:3001/users/me/pets/${SAMPLE_PET.id}`,
+      'http://localhost:3001/users/me/pets/pet-1',
       expect.objectContaining({ method: 'DELETE' }),
     );
   });

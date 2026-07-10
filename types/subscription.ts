@@ -40,18 +40,22 @@ export interface Subscription {
   createdAt: string;
 }
 
+/**
+ * Body accepted by the backend `POST /subscriptions` validator. It is
+ * `.strict()` — only these four fields are permitted. Success / cancel URLs
+ * are configured server-side on the Stripe Checkout session, so the frontend
+ * does not send them; it redirects to the `url` in the response.
+ */
 export interface CreateSubscriptionCheckoutRequest {
   productId: string;
   quantity: number;
   interval: SubscriptionInterval;
-  successUrl: string;
-  cancelUrl: string;
   petId?: string | null;
-  clientReferenceId?: string;
 }
 
 export interface CreateSubscriptionCheckoutResponse {
   url: string;
+  /** Backend returns `checkoutSessionId`; mapped to `sessionId` at the API layer. */
   sessionId: string;
 }
 

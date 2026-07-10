@@ -1,54 +1,38 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
 import type { AnalyticsRevenueRange } from '@/types/admin-analytics';
 import { cn } from '@/lib/utils';
-import { formatPrice } from '@/lib/utils/format';
 import { useAdminAnalyticsRevenueTimeseriesQuery } from '@/hooks/useAdminAnalytics';
 import { ApiError } from '@/lib/api/client';
+import type { RevenueChartPoint } from './RevenueChartCanvas';
+
+const ChartLoader = () => (
+  <div
+    className="flex h-[280px] items-center justify-center"
+    role="status"
+    aria-label="Loading revenue chart"
+  >
+    <Loader2 size={28} className="animate-spin text-pine" />
+  </div>
+);
+
+/**
+ * recharts is heavy; load the chart body lazily (client-only) so it is
+ * code-split out of the main admin bundle.
+ */
+const RevenueChartCanvas = dynamic(() => import('./RevenueChartCanvas'), {
+  ssr: false,
+  loading: ChartLoader,
+});
 
 const RANGES: { value: AnalyticsRevenueRange; label: string }[] = [
   { value: '7d', label: '7 days' },
   { value: '30d', label: '30 days' },
   { value: '90d', label: '90 days' },
 ];
-
-function ChartTooltip({
-  active,
-  payload,
-  currency,
-}: {
-  active?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  payload?: any[];
-  currency: string;
-}) {
-  if (!active || !payload?.length) return null;
-  const row = payload[0]?.payload as {
-    date: string;
-    revenueCents: number;
-    orderCount: number;
-  };
-  if (!row) return null;
-  return (
-    <div className="rounded-tile border border-line bg-paper px-3 py-2 font-body text-xs shadow-lifted">
-      <p className="font-medium text-ink">{row.date}</p>
-      <p className="text-ink-muted">
-        {formatPrice(row.revenueCents, currency)} · {row.orderCount} orders
-      </p>
-    </div>
-  );
-}
 
 /**
  * Interactive revenue chart — range changes refetch Phase 21 timeseries.
@@ -58,9 +42,9 @@ export function RevenueChartClient() {
   const { data, isPending, isError, error } =
     useAdminAnalyticsRevenueTimeseriesQuery(range);
 
-  const currency = data?.currency ?? 'usd';
+  const currency = data?.currency ?? 'cad';
 
-  const chartData = useMemo(() => {
+  const chartData = useMemo<RevenueChartPoint[]>(() => {
     if (!data?.points?.length) return [];
     return data.points.map((p) => ({
       ...p,
@@ -101,15 +85,7 @@ export function RevenueChartClient() {
         </div>
       </header>
 
-      {isPending && (
-        <div
-          className="flex h-[280px] items-center justify-center"
-          role="status"
-          aria-label="Loading revenue chart"
-        >
-          <Loader2 size={28} className="animate-spin text-pine" />
-        </div>
-      )}
+      {isPending && <ChartLoader />}
       {isError && (
         <p role="alert" className="font-body text-sm text-danger-solid">
           {error instanceof ApiError
@@ -123,48 +99,7 @@ export function RevenueChartClient() {
         </p>
       )}
       {!isPending && !isError && chartData.length > 0 && (
-        <div className="h-[280px] w-full min-w-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={chartData}
-              margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
-              <XAxis
-                dataKey="shortDate"
-                tick={{ fontSize: 11, fill: 'var(--ink-muted)' }}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 11, fill: 'var(--ink-muted)' }}
-                tickLine={false}
-                tickFormatter={(v) =>
-                  new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: currency.toUpperCase(),
-                    maximumFractionDigits: 0,
-                  }).format(Number(v))
-                }
-              />
-              <Tooltip
-                content={<ChartTooltip currency={currency} />}
-                cursor={{
-                  stroke: 'var(--pine)',
-                  strokeWidth: 1,
-                  strokeDasharray: '4 4',
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="revenueDollars"
-                stroke="var(--pine)"
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4, fill: 'var(--pine)' }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        <RevenueChartCanvas data={chartData} currency={currency} />
       )}
     </section>
   );

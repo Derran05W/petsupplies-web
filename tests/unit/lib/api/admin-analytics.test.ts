@@ -16,14 +16,18 @@ describe('lib/api/admin/analytics', () => {
     vi.restoreAllMocks();
   });
 
-  it('GET overview sends Authorization and parses JSON', async () => {
+  it('GET overview maps the wire OverviewResult (orderCount, no currency)', async () => {
+    // Real wire shape from adminDashboardService.getOverview.
     const body = {
+      range: {
+        from: '2026-01-01T00:00:00.000Z',
+        to: '2026-01-31T00:00:00.000Z',
+      },
+      orderCount: 2,
+      paidOrderCount: 2,
       revenueCents: 1000,
-      ordersCount: 2,
-      customersCount: 3,
       aovCents: 500,
-      currency: 'usd',
-      periodDays: 30,
+      byStatus: { PENDING: 0, PAID: 2, SHIPPED: 0, FULFILLED: 0, CANCELLED: 0 },
     };
     vi.stubGlobal(
       'fetch',
@@ -34,9 +38,12 @@ describe('lib/api/admin/analytics', () => {
     );
 
     const result = await adminAnalyticsOverview({ accessToken: 'tok' });
-    expect(result).toEqual(body);
+    expect(result.ordersCount).toBe(2);
+    expect(result.revenueCents).toBe(1000);
+    expect(result.currency).toBe('cad');
+    expect(result.customersCount).toBe(0);
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-      'http://localhost:3001/admin/analytics/overview',
+      expect.stringContaining('/admin/analytics/overview'),
       expect.objectContaining({
         headers: expect.objectContaining({
           Authorization: 'Bearer tok',
@@ -45,25 +52,34 @@ describe('lib/api/admin/analytics', () => {
     );
   });
 
-  it('GET revenue-timeseries includes range query param', async () => {
+  it('GET revenue-timeseries sends from/to and maps bucket → date', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () =>
+        // Real wire shape: { granularity, points: [{ bucket, ... }] }, no currency.
         Response.json(
           {
-            currency: 'usd',
-            points: [{ date: '2026-01-01', revenueCents: 0, orderCount: 0 }],
+            granularity: 'day',
+            points: [
+              {
+                bucket: '2026-01-01T00:00:00.000Z',
+                revenueCents: 500,
+                orderCount: 1,
+              },
+            ],
           },
           { status: 200 },
         ),
       ),
     );
 
-    await adminAnalyticsRevenueTimeseries('7d');
-    expect(vi.mocked(fetch)).toHaveBeenCalledWith(
-      expect.stringContaining('range=7d'),
-      expect.anything(),
-    );
+    const res = await adminAnalyticsRevenueTimeseries('7d');
+    const call = vi.mocked(fetch).mock.calls[0]?.[0];
+    expect(String(call)).toContain('from=');
+    expect(String(call)).toContain('to=');
+    expect(res.currency).toBe('cad');
+    expect(res.points[0]?.date).toBe('2026-01-01T00:00:00.000Z');
+    expect(res.points[0]?.revenueCents).toBe(500);
   });
 
   it('GET top products propagates ApiError', async () => {

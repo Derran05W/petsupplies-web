@@ -42,10 +42,19 @@ export interface OrderLine {
 
 export interface OrderSummary {
   id: string;
-  /** Stripe Checkout Session ID — used by the success page poll. */
-  checkoutSessionId: string;
+  /**
+   * Stripe Checkout Session ID. Optional: the backend user-order selects
+   * don't return `stripeSessionId`, so the mapper omits it; the success-page
+   * poll stitches it back in from the redirect URL.
+   */
+  checkoutSessionId?: string;
   status: OrderStatus;
-  email: string;
+  /**
+   * Customer email. Optional: the backend user-order wire omits it (email
+   * lives on the related `User` model, not `Order`), so the mapper omits it.
+   * Callers must render it conditionally.
+   */
+  email?: string;
   shippingAddress: ShippingAddress;
   lines: OrderLine[];
   subtotalCents: number;

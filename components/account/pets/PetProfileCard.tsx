@@ -19,23 +19,38 @@ import { PetProfileForm } from './PetProfileForm';
 const SPECIES_LABEL: Record<Pet['species'], string> = {
   dog: 'Dog',
   cat: 'Cat',
+  fish: 'Fish',
   bird: 'Bird',
-  small_animal: 'Small animal',
+  rabbit: 'Rabbit',
+  hamster: 'Hamster',
+  guinea_pig: 'Guinea pig',
+  reptile: 'Reptile',
+  other: 'Other',
 };
 
 /** Line-art glyph + gradient tile tone per species ('paw' where no dedicated icon exists). */
 const SPECIES_ICON: Record<Pet['species'], PetIconName> = {
   dog: 'dog',
   cat: 'cat',
+  fish: 'fish',
   bird: 'paw',
-  small_animal: 'paw',
+  rabbit: 'paw',
+  hamster: 'paw',
+  guinea_pig: 'paw',
+  reptile: 'paw',
+  other: 'paw',
 };
 
 const SPECIES_TONE: Record<Pet['species'], TileTone> = {
   dog: 'amber',
   cat: 'slate',
+  fish: 'sage',
   bird: 'sage',
-  small_animal: 'clay',
+  rabbit: 'clay',
+  hamster: 'clay',
+  guinea_pig: 'clay',
+  reptile: 'sage',
+  other: 'slate',
 };
 
 export function petToFormValues(pet: Pet): PetProfileFormValues {
