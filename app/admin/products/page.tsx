@@ -42,7 +42,7 @@ export default function AdminProductsPage({
         action={
           <Link
             href="/admin/products/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500"
+            className="inline-flex items-center gap-2 rounded-pill border border-ink bg-ink px-5 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
           >
             <Plus size={14} aria-hidden />
             New product

@@ -9,40 +9,43 @@ interface CustomerTableProps {
 
 export function CustomerTable({ customers }: CustomerTableProps) {
   return (
-    <div className="max-w-full overflow-hidden rounded-2xl border border-warm-200 bg-surface-card">
+    <div className="max-w-full overflow-hidden rounded-card border border-line bg-paper">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] font-body text-sm">
           <thead>
-            <tr className="border-b border-warm-200 bg-warm-50 text-left text-xs uppercase tracking-[0.06em] text-warm-600">
+            <tr className="border-b border-line text-left font-body text-micro uppercase text-ink-muted">
               <th className="px-5 py-3 font-medium">Customer</th>
               <th className="px-5 py-3 font-medium">Joined</th>
               <th className="px-5 py-3 text-right font-medium">Orders</th>
               <th className="px-5 py-3 text-right font-medium">LTV</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-warm-200">
+          <tbody className="divide-y divide-line">
             {customers.map((c) => (
-              <tr key={c.id} className="hover:bg-warm-50/80">
+              <tr
+                key={c.id}
+                className="transition-colors duration-fast hover:bg-panel"
+              >
                 <td className="px-5 py-3">
                   <Link
                     href={`/admin/customers/${encodeURIComponent(c.id)}`}
-                    className="block hover:text-brand-600"
+                    className="block transition-colors duration-fast hover:text-pine"
                   >
-                    <span className="font-medium text-warm-900">
+                    <span className="font-medium text-ink">
                       {c.name?.trim() || '—'}
                     </span>
-                    <span className="mt-0.5 block truncate text-xs text-warm-600">
+                    <span className="mt-0.5 block truncate text-xs text-ink-muted">
                       {c.email}
                     </span>
                   </Link>
                 </td>
-                <td className="text-warm-700 px-5 py-3">
+                <td className="px-5 py-3 text-ink-secondary">
                   {formatDate(c.createdAt)}
                 </td>
-                <td className="text-warm-700 px-5 py-3 text-right tabular-nums">
+                <td className="px-5 py-3 text-right tabular-nums text-ink-secondary">
                   {c.ordersCount}
                 </td>
-                <td className="px-5 py-3 text-right font-medium tabular-nums text-warm-900">
+                <td className="px-5 py-3 text-right font-display tabular-nums text-ink">
                   {formatPrice(c.lifetimeValueCents, c.currency)}
                 </td>
               </tr>

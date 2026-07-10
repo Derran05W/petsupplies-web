@@ -53,13 +53,36 @@ const API_CATEGORY_TO_STOREFRONT: Record<string, Category> = {
   REPTILE: 'food',
 };
 
-function mapApiImage(image: ApiCatalogProductImage): ProductImage {
+function mapApiImage(
+  image: ApiCatalogProductImage,
+  productName: string,
+): ProductImage {
   return {
     id: image.id,
     url: image.url,
-    alt: image.altText?.trim() || 'Product image',
+    alt: image.altText?.trim() || productName,
     isPrimary: image.isPrimary,
   };
+}
+
+/**
+ * next/image's optimizer rejects SVG sources with a 400, and placehold.co
+ * serves SVG unless the path carries a raster extension — the seeded
+ * catalogue uses exactly such URLs. Dropping unservable entries lets every
+ * surface render its designed no-photo fallback (tonal tile + line-art
+ * icon) instead of a broken-image glyph.
+ */
+function isServableImageUrl(url: string): boolean {
+  const path = (url.split('?')[0] ?? url).toLowerCase();
+  if (path.length === 0) return false;
+  if (path.endsWith('.svg')) return false;
+  if (
+    /(^https?:)?\/\/([^/]*\.)?placehold\.co\//.test(url.toLowerCase()) &&
+    !/\.(png|jpe?g|webp|gif|avif)$/.test(path)
+  ) {
+    return false;
+  }
+  return true;
 }
 
 function inferPetType(tags: string[], apiCategory: string): PetType {
@@ -138,8 +161,11 @@ export function mapCatalogProduct(raw: unknown): Product {
   const tags = Array.isArray(p.tags) ? p.tags : [];
   const images =
     p.images && p.images.length > 0
-      ? [...p.images].sort((a, b) => a.sortOrder - b.sortOrder).map(mapApiImage)
-      : p.imageUrl
+      ? [...p.images]
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+          .filter((image) => isServableImageUrl(image.url))
+          .map((image) => mapApiImage(image, p.name))
+      : p.imageUrl && isServableImageUrl(p.imageUrl)
         ? [
             {
               id: `legacy-${p.id}`,

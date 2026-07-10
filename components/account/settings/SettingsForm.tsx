@@ -15,10 +15,9 @@ interface SettingsFormProps {
 }
 
 const inputBase =
-  'w-full rounded-lg border border-warm-300 bg-surface-card py-2.5 pl-9 pr-3 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
-const inputError = 'border-red-400 focus:ring-red-400';
-const labelBase =
-  'mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600';
+  'w-full rounded-tile border border-line bg-paper py-2.5 pl-9 pr-3 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none';
+const inputError = 'border-danger-solid focus:border-danger-solid';
+const labelBase = 'mb-1.5 block font-body text-micro uppercase text-ink';
 
 function fieldErrorProps(name: string, error: FieldError | undefined) {
   if (!error) return { 'aria-invalid': false as const };
@@ -106,30 +105,28 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
 
   if (emailChangeRequested) {
     return (
-      <section className="flex flex-col gap-4 rounded-2xl border border-warm-200 bg-surface-card p-6 md:p-8">
+      <section className="flex flex-col gap-4 rounded-card border border-line bg-paper p-6 md:p-8">
         <div className="flex items-center gap-3">
           <span
             aria-hidden
-            className="inline-flex size-10 items-center justify-center rounded-full bg-brand-50 text-brand-600"
+            className="inline-flex size-10 items-center justify-center rounded-tile bg-tile-sage text-tile-sage-ink"
           >
             <Mail size={18} />
           </span>
-          <h2 className="font-display text-2xl tracking-[-0.02em] text-warm-900">
+          <h2 className="font-display text-2xl tracking-[-0.01em] text-ink">
             Check your inbox
           </h2>
         </div>
-        <p className="font-body text-sm leading-relaxed text-warm-600">
+        <p className="font-body text-sm leading-body text-ink-secondary">
           We sent a confirmation link to{' '}
-          <span className="font-medium text-warm-900">
-            {emailChangeRequested}
-          </span>
-          . Click it to finish updating your email address. Depending on your
+          <span className="font-medium text-ink">{emailChangeRequested}</span>.
+          Click it to finish updating your email address. Depending on your
           settings, you may also need to confirm from your previous inbox.
         </p>
         <button
           type="button"
           onClick={() => setEmailChangeRequested(null)}
-          className="self-start font-body text-sm font-medium text-brand-600 underline-offset-2 hover:text-brand-700 hover:underline"
+          className="self-start border-b border-ink pb-0.5 font-body text-micro uppercase text-ink transition-opacity duration-fast hover:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
         >
           Back to settings
         </button>
@@ -141,13 +138,13 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
     <form
       onSubmit={onSubmit}
       noValidate
-      className="flex flex-col gap-8 rounded-2xl border border-warm-200 bg-surface-card p-6 md:p-8"
+      className="flex flex-col gap-8 rounded-card border border-line bg-paper p-6 md:p-8"
     >
       {errors.root && (
         <div
           role="alert"
           aria-live="assertive"
-          className="rounded-md border border-red-200 bg-red-50 px-4 py-3 font-body text-sm text-red-700"
+          className="rounded-tile border border-danger-border bg-danger-surface px-4 py-3 font-body text-sm text-danger-solid"
         >
           {errors.root.message}
         </div>
@@ -157,7 +154,7 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
         <div
           role="status"
           aria-live="polite"
-          className="inline-flex items-center gap-2 rounded-md border border-brand-100 bg-brand-50 px-4 py-3 font-body text-sm text-brand-700"
+          className="border-pine/40 inline-flex items-center gap-2 rounded-tile border bg-tile-sage px-4 py-3 font-body text-sm text-tile-sage-ink"
         >
           <CheckCircle2 size={14} aria-hidden />
           Profile updated.
@@ -165,7 +162,7 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
       )}
 
       <fieldset className="flex flex-col gap-4">
-        <legend className="mb-1 font-display text-lg tracking-[-0.02em] text-warm-900">
+        <legend className="mb-1 font-display text-lg tracking-[-0.01em] text-ink">
           Profile
         </legend>
         <div>
@@ -175,7 +172,7 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
           <div className="relative">
             <User
               size={15}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-warm-400"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
             />
             <input
               id="name"
@@ -191,7 +188,7 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
             <p
               id="name-error"
               role="alert"
-              className="mt-1 font-body text-xs text-red-600"
+              className="mt-1 font-body text-xs text-danger-solid"
             >
               {errors.name.message}
             </p>
@@ -200,7 +197,7 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
       </fieldset>
 
       <fieldset className="flex flex-col gap-4">
-        <legend className="mb-1 font-display text-lg tracking-[-0.02em] text-warm-900">
+        <legend className="mb-1 font-display text-lg tracking-[-0.01em] text-ink">
           Email
         </legend>
         <div>
@@ -210,7 +207,7 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
           <div className="relative">
             <Mail
               size={15}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-warm-400"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
             />
             <input
               id="email"
@@ -226,12 +223,12 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
             <p
               id="email-error"
               role="alert"
-              className="mt-1 font-body text-xs text-red-600"
+              className="mt-1 font-body text-xs text-danger-solid"
             >
               {errors.email.message}
             </p>
           )}
-          <p className="mt-2 font-body text-xs text-warm-600">
+          <p className="mt-2 font-body text-xs text-ink-muted">
             We&apos;ll email a confirmation link to your new address before the
             change takes effect.
           </p>
@@ -242,7 +239,7 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting && (
             <Loader2 size={14} aria-hidden className="animate-spin" />
@@ -251,11 +248,11 @@ export function SettingsForm({ initialName, initialEmail }: SettingsFormProps) {
         </button>
       </div>
 
-      <p className="border-t border-warm-200 pt-4 font-body text-xs text-warm-600">
+      <p className="border-t border-line pt-4 font-body text-xs text-ink-muted">
         Need to change your password? Use the{' '}
         <a
           href="/login"
-          className="font-medium text-brand-600 underline-offset-2 hover:text-brand-700 hover:underline"
+          className="font-medium text-pine underline-offset-2 hover:underline"
         >
           sign-in page
         </a>{' '}

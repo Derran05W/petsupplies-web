@@ -2,7 +2,6 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PaginationProps {
@@ -11,6 +10,12 @@ interface PaginationProps {
 }
 
 const MAX_NUMBERED_LINKS = 7;
+
+const ARROW_LINK_CLASSES =
+  'inline-flex items-center gap-1.5 font-body text-micro uppercase text-ink no-underline opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine';
+
+const ARROW_DISABLED_CLASSES =
+  'inline-flex items-center gap-1.5 font-body text-micro uppercase text-ink-faint opacity-60';
 
 function buildPageList(
   current: number,
@@ -30,9 +35,11 @@ function buildPageList(
 }
 
 /**
- * URL-driven prev/next + numbered pagination. Reads `?page=` from the
- * current URL; emits `<Link>` elements that preserve every other search
- * param so jumping pages keeps the user's filters/search/sort intact.
+ * URL-driven prev/next + numbered pagination in the boutique treatment:
+ * uppercase prev/next text and hairline-circled page numbers (the active
+ * page fills ink). Reads `?page=` from the current URL; emits `<Link>`
+ * elements that preserve every other search param so jumping pages keeps
+ * the user's filters/search/sort intact.
  *
  * Hidden entirely when `totalPages <= 1`.
  */
@@ -59,32 +66,29 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
   return (
     <nav
       aria-label="Pagination"
-      className="mt-10 flex items-center justify-center gap-1.5"
+      className="mt-14 flex items-center justify-center gap-5 border-t border-line pt-8"
     >
       {prevDisabled ? (
-        <span
-          aria-disabled="true"
-          className="inline-flex items-center gap-1 rounded-lg border border-warm-200 px-3 py-2 font-body text-sm text-warm-400"
-        >
-          <ChevronLeft size={14} aria-hidden /> Prev
+        <span aria-disabled="true" className={ARROW_DISABLED_CLASSES}>
+          <span aria-hidden>←</span> Prev
         </span>
       ) : (
         <Link
           href={buildHref(currentPage - 1)}
           rel="prev"
-          className="inline-flex items-center gap-1 rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
+          className={ARROW_LINK_CLASSES}
         >
-          <ChevronLeft size={14} aria-hidden /> Prev
+          <span aria-hidden>←</span> Prev
         </Link>
       )}
 
-      <ul className="flex items-center gap-1">
+      <ul className="flex items-center gap-2">
         {pages.map((page, idx) =>
           page === 'ellipsis' ? (
             <li
               key={`ellipsis-${idx}`}
               aria-hidden
-              className="px-2 font-body text-sm text-warm-400"
+              className="px-1 font-body text-sm text-ink-faint"
             >
               …
             </li>
@@ -94,10 +98,10 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
                 href={buildHref(page)}
                 aria-current={page === currentPage ? 'page' : undefined}
                 className={cn(
-                  'inline-flex size-9 items-center justify-center rounded-lg font-body text-sm transition-colors',
+                  'inline-flex size-10 items-center justify-center rounded-full border font-body text-sm no-underline transition-all duration-base ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine',
                   page === currentPage
-                    ? 'bg-warm-900 text-warm-50'
-                    : 'border border-warm-200 bg-surface-card text-warm-900 hover:bg-warm-100',
+                    ? 'border-ink bg-ink text-paper'
+                    : 'border-line text-ink hover:border-ink',
                 )}
               >
                 {page}
@@ -108,19 +112,16 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
       </ul>
 
       {nextDisabled ? (
-        <span
-          aria-disabled="true"
-          className="inline-flex items-center gap-1 rounded-lg border border-warm-200 px-3 py-2 font-body text-sm text-warm-400"
-        >
-          Next <ChevronRight size={14} aria-hidden />
+        <span aria-disabled="true" className={ARROW_DISABLED_CLASSES}>
+          Next <span aria-hidden>→</span>
         </span>
       ) : (
         <Link
           href={buildHref(currentPage + 1)}
           rel="next"
-          className="inline-flex items-center gap-1 rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
+          className={ARROW_LINK_CLASSES}
         >
-          Next <ChevronRight size={14} aria-hidden />
+          Next <span aria-hidden>→</span>
         </Link>
       )}
     </nav>

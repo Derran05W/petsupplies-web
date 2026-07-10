@@ -15,7 +15,7 @@ export function NavigationSettingsTabs() {
       <div
         role="tablist"
         aria-label="Navigation sections"
-        className="mb-6 flex gap-2 border-b border-warm-200 pb-4"
+        className="mb-6 flex gap-2 border-b border-line pb-4"
       >
         {(
           [
@@ -30,10 +30,10 @@ export function NavigationSettingsTabs() {
             aria-selected={tab === item.id}
             onClick={() => setTab(item.id)}
             className={cn(
-              'rounded-lg px-4 py-2 font-body text-sm transition-colors',
+              'rounded-pill px-4 py-2 font-body text-micro uppercase transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
               tab === item.id
-                ? 'bg-brand-50 font-medium text-brand-700'
-                : 'text-warm-600 hover:bg-warm-100 hover:text-warm-900',
+                ? 'bg-ink text-paper'
+                : 'text-ink-muted hover:text-ink',
             )}
           >
             {item.label}

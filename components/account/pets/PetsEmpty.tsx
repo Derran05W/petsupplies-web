@@ -1,4 +1,4 @@
-import { PawPrint } from 'lucide-react';
+import { PetIcon, TONE_CLASSES } from '@/components/ui';
 
 interface PetsEmptyProps {
   onAdd: () => void;
@@ -10,19 +10,19 @@ export function PetsEmpty({ onAdd, disableAdd = false }: PetsEmptyProps) {
     <section
       role="status"
       aria-live="polite"
-      className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-warm-300 bg-surface-card px-6 py-14 text-center"
+      className="flex flex-col items-center gap-4 rounded-card border border-dashed border-line bg-paper px-6 py-14 text-center"
     >
       <span
         aria-hidden
-        className="inline-flex size-12 items-center justify-center rounded-full bg-warm-100 text-warm-600"
+        className={`inline-flex size-12 items-center justify-center rounded-tile ${TONE_CLASSES.amber}`}
       >
-        <PawPrint size={22} />
+        <PetIcon name="paw" className="size-8" />
       </span>
       <div className="flex flex-col gap-1">
-        <h2 className="font-display text-xl tracking-[-0.02em] text-warm-900">
+        <h2 className="font-display text-2xl tracking-[-0.01em] text-ink">
           No pet profiles yet
         </h2>
-        <p className="max-w-sm font-body text-sm text-warm-600">
+        <p className="max-w-sm font-body text-sm leading-body text-ink-secondary">
           Add your companions so we can tailor recommendations and preferences
           when you&apos;re ready.
         </p>
@@ -31,7 +31,7 @@ export function PetsEmpty({ onAdd, disableAdd = false }: PetsEmptyProps) {
         type="button"
         onClick={onAdd}
         disabled={disableAdd}
-        className="mt-2 inline-flex items-center justify-center rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-2 inline-flex cursor-pointer items-center justify-center rounded-pill border border-ink bg-transparent px-6 py-2.5 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-ink"
       >
         Add your first pet
       </button>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { PetIcon, TONE_CLASSES } from '@/components/ui';
 import { EmailPageShell } from '@/components/email/EmailPageShell';
 import { PreferencesEmailClient } from '@/components/email/PreferencesEmailClient';
 
@@ -26,10 +27,26 @@ export default function EmailPreferencesPage({
     return (
       <div className="flex justify-center">
         <EmailPageShell>
-          <p className="text-warm-700 text-center text-sm">
-            This preferences link looks invalid or has expired — use the secure
-            link from your latest email.
-          </p>
+          <div className="flex flex-col items-center gap-4 text-center">
+            <span
+              aria-hidden
+              className={`inline-flex size-12 items-center justify-center rounded-tile ${TONE_CLASSES.sage}`}
+            >
+              <PetIcon name="paw" className="size-7" />
+            </span>
+            <div className="flex flex-col gap-2">
+              <p className="font-body text-kicker uppercase text-pine">
+                Link expired
+              </p>
+              <h1 className="font-display text-2xl text-ink">
+                This preferences link is invalid
+              </h1>
+              <p className="font-body text-sm leading-body text-ink-secondary">
+                Use the secure link from your latest email to manage your
+                preferences.
+              </p>
+            </div>
+          </div>
         </EmailPageShell>
       </div>
     );

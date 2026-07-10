@@ -71,7 +71,7 @@ export function SiteSettingsBrandForm() {
 
   if (isPending) {
     return (
-      <p className="font-body text-sm text-warm-600" aria-busy="true">
+      <p className="font-body text-sm text-ink-muted" aria-busy="true">
         Loading brand settings…
       </p>
     );
@@ -79,7 +79,7 @@ export function SiteSettingsBrandForm() {
 
   if (loadError) {
     return (
-      <p className="font-body text-sm text-red-700" role="alert">
+      <p className="font-body text-sm text-danger-solid" role="alert">
         {adminApiErrorMessage(loadError)}
       </p>
     );
@@ -149,7 +149,7 @@ export function SiteSettingsBrandForm() {
             className={settingsInputBase}
             {...register('logoAccentWords', { required: true })}
           />
-          <p className="text-warm-500 mt-1.5 font-body text-xs">
+          <p className="mt-1.5 font-body text-xs text-ink-faint">
             How many leading words in the store name use the accent colour in
             the navbar.
           </p>
@@ -220,13 +220,13 @@ export function SiteSettingsBrandForm() {
       </div>
 
       {submitError ? (
-        <p className="font-body text-sm text-red-700" role="alert">
+        <p className="font-body text-sm text-danger-solid" role="alert">
           {submitError}
         </p>
       ) : null}
 
       {success ? (
-        <p className="font-body text-sm text-brand-700" role="status">
+        <p className="font-body text-sm text-pine" role="status">
           {success}
         </p>
       ) : null}
@@ -235,7 +235,7 @@ export function SiteSettingsBrandForm() {
         <button
           type="submit"
           disabled={!isDirty || mutation.isPending}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
         >
           {mutation.isPending ? (
             <Loader2 size={14} className="animate-spin" aria-hidden />

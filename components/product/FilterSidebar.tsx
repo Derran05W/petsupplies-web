@@ -9,8 +9,8 @@ import { FilterControls } from './FilterControls';
 export function FilterSidebar() {
   return (
     <aside className="hidden w-60 shrink-0 lg:block">
-      <div className="sticky top-24">
-        <h2 className="mb-5 font-display text-xl tracking-[-0.02em] text-warm-900">
+      <div className="sticky top-28">
+        <h2 className="mb-6 font-display text-2xl tracking-[-0.01em] text-ink">
           Filters
         </h2>
         <FilterControls />

@@ -15,11 +15,10 @@ import {
 } from '@/lib/utils/searchParams';
 import { cn } from '@/lib/utils';
 
+/** Pet types shoppers can filter by — fish and bird are no longer carried. */
 const PET_TYPES: ReadonlyArray<PetType> = [
   'dog',
   'cat',
-  'bird',
-  'fish',
   'reptile',
   'small-animal',
 ];
@@ -34,6 +33,12 @@ interface FilterControlsProps {
   onAfterChange?: () => void;
   className?: string;
 }
+
+const CHECKBOX_CLASSES =
+  'size-4 rounded-sm border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine';
+
+const PRICE_INPUT_CLASSES =
+  'w-full rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none';
 
 /**
  * URL-driven filter group used by both the desktop sidebar and the mobile
@@ -146,24 +151,27 @@ export function FilterControls({
   };
 
   return (
-    <div className={cn('flex flex-col gap-7', className)}>
-      <fieldset className="flex flex-col gap-3">
-        <legend className="font-display text-base tracking-[-0.02em] text-warm-900">
+    <div className={cn('flex flex-col gap-8', className)}>
+      <fieldset className="flex flex-col gap-3 border-t border-line pt-5">
+        <legend className="float-left font-body text-kicker uppercase text-pine">
           Pet type
         </legend>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2.5 pt-2">
           {PET_TYPES.map((value) => {
             const checked = currentPetType === value;
             return (
               <label
                 key={value}
-                className="flex cursor-pointer items-center gap-2.5 font-body text-sm text-warm-900"
+                className={cn(
+                  'flex cursor-pointer items-center gap-2.5 font-body text-sm transition-colors duration-fast',
+                  checked ? 'text-ink' : 'text-ink-secondary hover:text-ink',
+                )}
               >
                 <input
                   type="checkbox"
                   checked={checked}
                   onChange={() => togglePetType(value)}
-                  className="size-4 rounded border-warm-300 text-brand-400 accent-brand-400 focus:ring-2 focus:ring-brand-400"
+                  className={CHECKBOX_CLASSES}
                 />
                 {PET_TYPE_LABEL[value]}
               </label>
@@ -172,23 +180,26 @@ export function FilterControls({
         </div>
       </fieldset>
 
-      <fieldset className="flex flex-col gap-3">
-        <legend className="font-display text-base tracking-[-0.02em] text-warm-900">
+      <fieldset className="flex flex-col gap-3 border-t border-line pt-5">
+        <legend className="float-left font-body text-kicker uppercase text-pine">
           Category
         </legend>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2.5 pt-2">
           {CATEGORIES.map((value) => {
             const checked = currentCategory === value;
             return (
               <label
                 key={value}
-                className="flex cursor-pointer items-center gap-2.5 font-body text-sm text-warm-900"
+                className={cn(
+                  'flex cursor-pointer items-center gap-2.5 font-body text-sm transition-colors duration-fast',
+                  checked ? 'text-ink' : 'text-ink-secondary hover:text-ink',
+                )}
               >
                 <input
                   type="checkbox"
                   checked={checked}
                   onChange={() => toggleCategory(value)}
-                  className="size-4 rounded border-warm-300 text-brand-400 accent-brand-400 focus:ring-2 focus:ring-brand-400"
+                  className={CHECKBOX_CLASSES}
                 />
                 {CATEGORY_LABEL[value]}
               </label>
@@ -197,13 +208,13 @@ export function FilterControls({
         </div>
       </fieldset>
 
-      <fieldset className="flex flex-col gap-3">
-        <legend className="font-display text-base tracking-[-0.02em] text-warm-900">
+      <fieldset className="flex flex-col gap-3 border-t border-line pt-5">
+        <legend className="float-left font-body text-kicker uppercase text-pine">
           Price (USD)
         </legend>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2.5 pt-2">
           <label className="flex flex-col gap-1">
-            <span className="font-body text-xs text-warm-600">Min</span>
+            <span className="font-body text-xs text-ink-muted">Min</span>
             <input
               type="number"
               inputMode="numeric"
@@ -214,11 +225,11 @@ export function FilterControls({
               onChange={(event) =>
                 handlePriceChange('minPrice', event.target.value)
               }
-              className="w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className={PRICE_INPUT_CLASSES}
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="font-body text-xs text-warm-600">Max</span>
+            <span className="font-body text-xs text-ink-muted">Max</span>
             <input
               type="number"
               inputMode="numeric"
@@ -229,7 +240,7 @@ export function FilterControls({
               onChange={(event) =>
                 handlePriceChange('maxPrice', event.target.value)
               }
-              className="w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+              className={PRICE_INPUT_CLASSES}
             />
           </label>
         </div>
@@ -239,7 +250,7 @@ export function FilterControls({
         <button
           type="button"
           onClick={clearAll}
-          className="self-start font-body text-sm text-brand-600 underline-offset-4 transition-colors hover:text-brand-700 hover:underline"
+          className="self-start border-b border-ink pb-0.5 font-body text-micro uppercase text-ink transition-opacity duration-fast hover:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
         >
           Clear all filters
         </button>

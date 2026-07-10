@@ -1,8 +1,8 @@
 'use client';
 
-import { Truck } from 'lucide-react';
 import { useFreeShippingProgress } from '@/hooks/useCart';
 import { formatPrice } from '@/lib/utils/format';
+import { PetIcon } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 interface FreeShippingProgressProps {
@@ -28,9 +28,9 @@ export function FreeShippingProgress({
   if (compact) {
     return (
       <div className={cn('flex flex-col gap-1.5', className)}>
-        <p className="font-body text-xs text-warm-600">{microcopy}</p>
+        <p className="font-body text-xs text-ink-muted">{microcopy}</p>
         <div
-          className="h-1 w-full overflow-hidden rounded-full bg-warm-200"
+          className="h-1 w-full overflow-hidden rounded-pill bg-line"
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={100}
@@ -38,7 +38,10 @@ export function FreeShippingProgress({
           aria-label="Free shipping progress"
         >
           <div
-            className="h-full rounded-full bg-brand-400 transition-all duration-500 ease-out"
+            className={cn(
+              'h-full rounded-pill transition-all duration-slow ease-soft',
+              qualifies ? 'bg-pine' : 'bg-ink',
+            )}
             style={{ width: `${progress * 100}%` }}
           />
         </div>
@@ -48,12 +51,12 @@ export function FreeShippingProgress({
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      <p className="inline-flex items-center gap-2 font-body text-sm text-warm-900">
-        <Truck size={14} aria-hidden className="text-brand-600" />
+      <p className="inline-flex items-center gap-2 font-body text-sm text-ink">
+        <PetIcon name="paw" aria-hidden className="size-3.5 text-pine" />
         <span>{microcopy}</span>
       </p>
       <div
-        className="h-1.5 w-full overflow-hidden rounded-full bg-warm-200"
+        className="h-1.5 w-full overflow-hidden rounded-pill bg-line"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -61,7 +64,10 @@ export function FreeShippingProgress({
         aria-label="Free shipping progress"
       >
         <div
-          className="h-full rounded-full bg-brand-400 transition-all duration-500 ease-out"
+          className={cn(
+            'h-full rounded-pill transition-all duration-slow ease-soft',
+            qualifies ? 'bg-pine' : 'bg-ink',
+          )}
           style={{ width: `${progress * 100}%` }}
         />
       </div>

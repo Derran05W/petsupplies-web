@@ -46,7 +46,7 @@ export function EmailTemplateEditor({ templateKey }: EmailTemplateEditorProps) {
 
   if (isPending) {
     return (
-      <p className="font-body text-sm text-warm-600" aria-busy="true">
+      <p className="font-body text-sm text-ink-muted" aria-busy="true">
         Loading template…
       </p>
     );
@@ -54,7 +54,7 @@ export function EmailTemplateEditor({ templateKey }: EmailTemplateEditorProps) {
 
   if (loadError) {
     return (
-      <p className="font-body text-sm text-red-700" role="alert">
+      <p className="font-body text-sm text-danger-solid" role="alert">
         {adminApiErrorMessage(loadError)}
       </p>
     );
@@ -96,10 +96,10 @@ export function EmailTemplateEditor({ templateKey }: EmailTemplateEditorProps) {
       <div className="flex flex-col gap-5">
         <div>
           <span className={settingsLabelBase}>Template</span>
-          <p className="font-body text-sm font-medium text-warm-900">
+          <p className="font-body text-sm font-medium text-ink">
             {emailTemplateLabel(templateKey)}
           </p>
-          <p className="text-warm-500 mt-1 font-mono text-xs">{templateKey}</p>
+          <p className="mt-1 font-mono text-xs text-ink-faint">{templateKey}</p>
         </div>
 
         <div>
@@ -125,7 +125,7 @@ export function EmailTemplateEditor({ templateKey }: EmailTemplateEditorProps) {
             value={preheader}
             onChange={(e) => setPreheader(e.target.value)}
           />
-          <p className="text-warm-500 mt-1.5 font-body text-xs">
+          <p className="mt-1.5 font-body text-xs text-ink-faint">
             Short preview text shown in some inbox clients.
           </p>
         </div>
@@ -144,12 +144,12 @@ export function EmailTemplateEditor({ templateKey }: EmailTemplateEditorProps) {
         </div>
 
         {submitError ? (
-          <p className="font-body text-sm text-red-700" role="alert">
+          <p className="font-body text-sm text-danger-solid" role="alert">
             {submitError}
           </p>
         ) : null}
         {success ? (
-          <p className="font-body text-sm text-brand-700" role="status">
+          <p className="font-body text-sm text-pine" role="status">
             {success}
           </p>
         ) : null}
@@ -158,7 +158,7 @@ export function EmailTemplateEditor({ templateKey }: EmailTemplateEditorProps) {
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
           >
             {mutation.isPending ? (
               <Loader2 size={14} className="animate-spin" aria-hidden />
@@ -168,22 +168,22 @@ export function EmailTemplateEditor({ templateKey }: EmailTemplateEditorProps) {
         </div>
       </div>
 
-      <aside className="rounded-xl border border-warm-200 bg-warm-50 p-4 lg:sticky lg:top-6 lg:self-start">
+      <aside className="rounded-card border border-line bg-panel p-4 lg:sticky lg:top-6 lg:self-start">
         <h3 className={settingsLabelBase}>Allowed variables</h3>
-        <p className="mb-3 font-body text-xs text-warm-600">
+        <p className="mb-3 font-body text-xs text-ink-muted">
           Use Mustache-style placeholders in subject and body. Only these tokens
           are accepted by the API.
         </p>
-        <ul className="text-warm-800 space-y-1.5 font-mono text-xs">
+        <ul className="space-y-1.5 font-mono text-xs text-ink-secondary">
           {allowedVars.map((token) => (
             <li key={token}>{token}</li>
           ))}
         </ul>
-        <p className="text-warm-500 mt-4 font-body text-xs">
+        <p className="mt-4 font-body text-xs text-ink-faint">
           Need another template?{' '}
           <Link
             href="/admin/settings/emails"
-            className="text-brand-600 underline"
+            className="text-ink underline transition-opacity duration-fast hover:opacity-70"
           >
             Back to list
           </Link>
@@ -192,11 +192,11 @@ export function EmailTemplateEditor({ templateKey }: EmailTemplateEditorProps) {
 
       <div className="lg:col-span-2">
         <h3 className={settingsLabelBase}>Body preview</h3>
-        <div className="rounded-xl border border-warm-200 bg-surface-card p-6">
+        <div className="rounded-card border border-line bg-panel p-6">
           {bodyMarkdown.trim().length > 0 ? (
             <MarkdownContent markdown={bodyMarkdown} />
           ) : (
-            <p className="text-warm-500 font-body text-sm italic">
+            <p className="font-body text-sm italic text-ink-muted">
               Nothing to preview yet.
             </p>
           )}

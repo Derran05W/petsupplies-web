@@ -21,7 +21,7 @@ export function SubscriptionList() {
     return (
       <div
         role="alert"
-        className="rounded-2xl border border-red-200 bg-red-50 px-6 py-6 font-body text-sm text-red-800"
+        className="rounded-card border border-danger-border bg-danger-surface px-6 py-6 font-body text-sm text-danger-solid"
       >
         {error.message || 'Something went wrong loading subscriptions.'}
       </div>
@@ -37,7 +37,7 @@ export function SubscriptionList() {
       {checkoutSuccess ? (
         <div
           role="status"
-          className="text-brand-900 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 font-body text-sm"
+          className="border-pine/40 rounded-tile border bg-tile-sage px-4 py-3 font-body text-sm text-tile-sage-ink"
         >
           Checkout finished — Stripe will finalize your Subscribe & Save plan
           momentarily.

@@ -34,4 +34,36 @@ describe('resolveActiveCategoryStripItems', () => {
     const result = resolveActiveCategoryStripItems(items);
     expect(result.map((item) => item.id)).toEqual(['a', 'b']);
   });
+
+  it('drops items linking to unsupported fish/bird pet types', () => {
+    const items: CategoryStripItem[] = [
+      {
+        id: 'dogs',
+        label: 'Dogs',
+        imageUrl: null,
+        href: '/products?petType=dog',
+        position: 0,
+        isActive: true,
+      },
+      {
+        id: 'birds',
+        label: 'Birds',
+        imageUrl: null,
+        href: '/products?petType=bird',
+        position: 1,
+        isActive: true,
+      },
+      {
+        id: 'fish',
+        label: 'Fish',
+        imageUrl: null,
+        href: '/products?category=FISH',
+        position: 2,
+        isActive: true,
+      },
+    ];
+
+    const result = resolveActiveCategoryStripItems(items);
+    expect(result.map((item) => item.id)).toEqual(['dogs']);
+  });
 });

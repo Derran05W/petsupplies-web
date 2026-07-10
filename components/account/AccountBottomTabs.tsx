@@ -11,12 +11,12 @@ function AccountBottomTabsFallback() {
   return (
     <nav
       aria-hidden
-      className="bg-warm-50/95 sticky bottom-0 z-30 border-t border-warm-200 backdrop-blur-sm lg:hidden"
+      className="bg-paper/95 sticky bottom-0 z-30 border-t border-line backdrop-blur-sm lg:hidden"
     >
       <ul className="grid grid-cols-4 sm:grid-cols-7">
         {ACCOUNT_NAV_LINKS.map((link) => (
           <li key={link.href} className="p-2">
-            <div className="mx-auto h-10 w-12 animate-pulse rounded bg-warm-100" />
+            <div className="mx-auto h-10 w-12 animate-pulse rounded-tile bg-panel" />
           </li>
         ))}
       </ul>
@@ -32,7 +32,7 @@ function AccountBottomTabsInner() {
   return (
     <nav
       aria-label="Account navigation"
-      className="bg-warm-50/95 sticky bottom-0 z-30 border-t border-warm-200 backdrop-blur-sm lg:hidden"
+      className="bg-paper/95 sticky bottom-0 z-30 border-t border-line backdrop-blur-sm lg:hidden"
     >
       <ul className="grid grid-cols-4 sm:grid-cols-7">
         {ACCOUNT_NAV_LINKS.map((link) => {
@@ -45,10 +45,8 @@ function AccountBottomTabsInner() {
                 href={href}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex flex-col items-center justify-center gap-1 px-2 py-2.5 font-body text-[11px] transition-colors',
-                  active
-                    ? 'text-brand-600'
-                    : 'text-warm-600 hover:text-warm-900',
+                  'flex flex-col items-center justify-center gap-1 px-2 py-2.5 font-body text-micro uppercase transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
+                  active ? 'text-pine' : 'text-ink-muted hover:text-ink',
                 )}
               >
                 <Icon size={18} aria-hidden />

@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Check, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { useCartActions, useCartHasHydrated } from '@/hooks/useCart';
 import { type Product } from '@/types/product';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui';
 
 interface QuantitySelectorProps {
   product: Product;
@@ -69,18 +70,20 @@ export function QuantitySelector({ product }: QuantitySelectorProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <span className="font-body text-sm text-warm-600">Quantity</span>
-        <div className="inline-flex items-center rounded-lg border border-warm-300 bg-surface-card">
+        <span className="font-body text-micro uppercase text-ink">
+          Quantity
+        </span>
+        <div className="inline-flex items-center rounded-pill border border-line">
           <button
             type="button"
             onClick={decrement}
             disabled={decDisabled}
             aria-label="Decrease quantity"
             className={cn(
-              'inline-flex size-10 items-center justify-center rounded-l-lg text-warm-900 transition-colors',
+              'inline-flex size-10 items-center justify-center rounded-l-pill transition-colors duration-fast',
               decDisabled
-                ? 'cursor-not-allowed text-warm-400'
-                : 'hover:bg-warm-100',
+                ? 'cursor-not-allowed text-ink-faint opacity-50'
+                : 'text-ink hover:bg-panel',
             )}
           >
             <Minus size={14} aria-hidden />
@@ -94,7 +97,7 @@ export function QuantitySelector({ product }: QuantitySelectorProps) {
             disabled={!inStock}
             onChange={(event) => handleChange(event.target.value)}
             aria-label="Quantity"
-            className="h-10 w-12 border-x border-warm-300 bg-surface-card text-center font-body text-sm text-warm-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-400 disabled:bg-warm-100 disabled:text-warm-400"
+            className="h-10 w-12 border-x border-line bg-transparent text-center font-body text-sm text-ink focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-pine disabled:bg-panel disabled:text-ink-faint"
           />
           <button
             type="button"
@@ -102,44 +105,36 @@ export function QuantitySelector({ product }: QuantitySelectorProps) {
             disabled={incDisabled}
             aria-label="Increase quantity"
             className={cn(
-              'inline-flex size-10 items-center justify-center rounded-r-lg text-warm-900 transition-colors',
+              'inline-flex size-10 items-center justify-center rounded-r-pill transition-colors duration-fast',
               incDisabled
-                ? 'cursor-not-allowed text-warm-400'
-                : 'hover:bg-warm-100',
+                ? 'cursor-not-allowed text-ink-faint opacity-50'
+                : 'text-ink hover:bg-panel',
             )}
           >
             <Plus size={14} aria-hidden />
           </button>
         </div>
         {inStock && stockCount <= 10 ? (
-          <span className="font-body text-xs text-warm-600">
+          <span className="font-body text-xs text-ink-muted">
             Only {stockCount} left
           </span>
         ) : null}
       </div>
 
-      <button
-        type="button"
+      <Button
         onClick={handleAdd}
         disabled={buttonDisabled}
         aria-live="polite"
         className={cn(
-          'inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 font-body text-sm font-medium transition-colors sm:w-auto sm:min-w-[14rem]',
-          inStock
-            ? justAdded
-              ? 'bg-brand-500 text-white'
-              : 'bg-brand-400 text-white hover:bg-brand-500'
-            : 'cursor-not-allowed bg-warm-200 text-warm-600',
+          'w-full sm:w-auto sm:min-w-[14rem]',
+          !inStock
+            ? 'cursor-not-allowed border-line bg-panel text-ink-faint hover:translate-y-0 hover:border-line hover:bg-panel'
+            : '',
           !hasHydrated && inStock ? 'opacity-70' : '',
         )}
       >
-        {justAdded ? (
-          <Check size={16} aria-hidden />
-        ) : (
-          <ShoppingBag size={16} aria-hidden />
-        )}
         {buttonLabel}
-      </button>
+      </Button>
     </div>
   );
 }

@@ -29,11 +29,7 @@ export function RatingStars(props: RatingStarsProps) {
     const announce = props.announce ?? true;
     return (
       <>
-        <Star
-          size={props.size}
-          aria-hidden
-          className="fill-brand-400 text-brand-400"
-        />
+        <Star size={props.size} aria-hidden className="fill-amber text-amber" />
         {announce ? (
           <span className="sr-only">
             Rated {props.value.toFixed(1)} out of 5 stars
@@ -58,8 +54,8 @@ export function RatingStars(props: RatingStarsProps) {
           aria-hidden
           className={
             i < filled
-              ? 'fill-brand-400 text-brand-400'
-              : 'fill-transparent text-warm-200'
+              ? 'fill-amber text-amber'
+              : 'fill-transparent text-ink-faint'
           }
         />
       ))}

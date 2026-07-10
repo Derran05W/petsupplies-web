@@ -22,6 +22,7 @@ import { getBrowserAccessToken } from '@/lib/supabase/browser-access-token';
 import type { ShippingSelectionInput } from '@/types/shipping';
 import { DiscountCodeForm } from '@/components/cart/DiscountCodeForm';
 import { ShippingRateSelector } from '@/components/checkout/ShippingRateSelector';
+import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 const NETWORK_ERROR_MESSAGE =
@@ -42,10 +43,9 @@ function fieldErrorProps(name: string, error: FieldError | undefined) {
 }
 
 const inputBase =
-  'w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2.5 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
-const inputError = 'border-red-400 focus:ring-red-400';
-const labelBase =
-  'mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600';
+  'w-full rounded-tile border border-line bg-paper px-3 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none';
+const inputError = 'border-danger-solid focus:border-danger-solid';
+const labelBase = 'mb-1.5 block font-body text-micro uppercase text-ink';
 
 interface CheckoutFormProps {
   onShippingAmountChange?: (amountCents: number | null) => void;
@@ -152,13 +152,13 @@ export function CheckoutForm({ onShippingAmountChange }: CheckoutFormProps) {
     <form
       onSubmit={onSubmit}
       noValidate
-      className="flex flex-col gap-8 rounded-2xl border border-warm-200 bg-surface-card p-6 md:p-8"
+      className="flex flex-col gap-8 rounded-card border border-line bg-paper p-6 md:p-8"
     >
       {errors.root && (
         <div
           role="alert"
           aria-live="assertive"
-          className="rounded-md border border-red-200 bg-red-50 px-4 py-3 font-body text-sm text-red-700"
+          className="rounded-tile border border-danger-border bg-danger-surface px-4 py-3 font-body text-sm text-danger-solid"
         >
           {errors.root.message}
         </div>
@@ -167,7 +167,7 @@ export function CheckoutForm({ onShippingAmountChange }: CheckoutFormProps) {
       <DiscountCodeForm />
 
       <fieldset className="flex flex-col gap-4">
-        <legend className="mb-1 font-display text-lg tracking-[-0.02em] text-warm-900">
+        <legend className="mb-1 font-display text-title text-ink">
           Shipping address
         </legend>
 
@@ -188,7 +188,7 @@ export function CheckoutForm({ onShippingAmountChange }: CheckoutFormProps) {
             <p
               id="fullName-error"
               role="alert"
-              className="mt-1 font-body text-xs text-red-600"
+              className="mt-1 font-body text-xs text-danger-solid"
             >
               {errors.fullName.message}
             </p>
@@ -212,7 +212,7 @@ export function CheckoutForm({ onShippingAmountChange }: CheckoutFormProps) {
             <p
               id="line1-error"
               role="alert"
-              className="mt-1 font-body text-xs text-red-600"
+              className="mt-1 font-body text-xs text-danger-solid"
             >
               {errors.line1.message}
             </p>
@@ -222,7 +222,7 @@ export function CheckoutForm({ onShippingAmountChange }: CheckoutFormProps) {
         <div>
           <label htmlFor="line2" className={labelBase}>
             Address line 2{' '}
-            <span className="font-normal normal-case tracking-normal text-warm-400">
+            <span className="font-normal normal-case tracking-normal text-ink-faint">
               (optional)
             </span>
           </label>
@@ -255,7 +255,7 @@ export function CheckoutForm({ onShippingAmountChange }: CheckoutFormProps) {
               <p
                 id="city-error"
                 role="alert"
-                className="mt-1 font-body text-xs text-red-600"
+                className="mt-1 font-body text-xs text-danger-solid"
               >
                 {errors.city.message}
               </p>
@@ -278,7 +278,7 @@ export function CheckoutForm({ onShippingAmountChange }: CheckoutFormProps) {
               <p
                 id="state-error"
                 role="alert"
-                className="mt-1 font-body text-xs text-red-600"
+                className="mt-1 font-body text-xs text-danger-solid"
               >
                 {errors.state.message}
               </p>
@@ -304,7 +304,7 @@ export function CheckoutForm({ onShippingAmountChange }: CheckoutFormProps) {
               <p
                 id="postalCode-error"
                 role="alert"
-                className="mt-1 font-body text-xs text-red-600"
+                className="mt-1 font-body text-xs text-danger-solid"
               >
                 {errors.postalCode.message}
               </p>
@@ -342,18 +342,18 @@ export function CheckoutForm({ onShippingAmountChange }: CheckoutFormProps) {
       />
 
       <div className="flex flex-col gap-3">
-        <button
+        <Button
           type="submit"
           disabled={submitDisabled}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-400 px-5 py-3 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:self-start"
+          className="inline-flex w-full items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:self-start"
         >
           {submitting && (
             <Loader2 size={16} aria-hidden className="animate-spin" />
           )}
           Continue to payment
-        </button>
-        <p className="inline-flex items-center gap-1.5 font-body text-xs text-warm-600">
-          <Lock size={12} aria-hidden className="text-warm-600" />
+        </Button>
+        <p className="inline-flex items-center gap-1.5 font-body text-xs text-ink-muted">
+          <Lock size={12} aria-hidden className="text-ink-muted" />
           <span>
             Secure payment via Stripe — email collected on the next step
           </span>

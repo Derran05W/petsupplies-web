@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { WORDMARK_CLASSES } from '@/components/ui';
 import { brand } from '@/lib/config/brand';
 
 export const metadata: Metadata = {
@@ -12,13 +13,10 @@ export default function EmailLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-warm-50">
-      <div className="mx-auto max-w-2xl px-4 py-12">
-        <p className="mb-6 text-center">
-          <Link
-            href="/"
-            className="text-warm-500 font-body text-xs font-medium uppercase tracking-[0.2em] transition-colors hover:text-brand-600"
-          >
+    <div className="min-h-screen bg-paper text-ink">
+      <div className="mx-auto max-w-2xl px-gutter py-16">
+        <p className="mb-10 text-center">
+          <Link href="/" className={WORDMARK_CLASSES}>
             {brand.name}
           </Link>
         </p>

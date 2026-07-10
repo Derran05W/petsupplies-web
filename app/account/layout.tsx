@@ -1,6 +1,11 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { AccountShell } from '@/components/account/AccountShell';
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 /**
  * Account-area layout. Middleware (`/account/*`) already enforces auth

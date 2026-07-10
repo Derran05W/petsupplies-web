@@ -13,7 +13,7 @@ export function SitePagesList() {
 
   if (isPending) {
     return (
-      <p className="font-body text-sm text-warm-600" aria-busy="true">
+      <p className="font-body text-sm text-ink-muted" aria-busy="true">
         Loading pages…
       </p>
     );
@@ -21,7 +21,7 @@ export function SitePagesList() {
 
   if (error) {
     return (
-      <p className="font-body text-sm text-red-700" role="alert">
+      <p className="font-body text-sm text-danger-solid" role="alert">
         {adminApiErrorMessage(error)}
       </p>
     );
@@ -30,12 +30,12 @@ export function SitePagesList() {
   const pages = data?.pages ?? [];
 
   return (
-    <div className="max-w-full overflow-hidden rounded-2xl border border-warm-200 bg-surface-card">
+    <div className="max-w-full">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">Static site pages</caption>
-          <thead className="border-b border-warm-200 bg-warm-50">
-            <tr className="font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
+          <thead className="border-b border-line">
+            <tr className="font-body text-micro uppercase text-ink-muted">
               <th scope="col" className="px-4 py-3">
                 Page
               </th>
@@ -57,13 +57,13 @@ export function SitePagesList() {
             {pages.map((page) => (
               <tr
                 key={page.slug}
-                className="text-warm-800 border-b border-warm-100 font-body text-sm last:border-0"
+                className="border-b border-line font-body text-sm text-ink-secondary transition-colors duration-fast last:border-0 hover:bg-panel"
               >
                 <td className="px-4 py-3">
-                  <span className="font-medium text-warm-900">
+                  <span className="font-medium text-ink">
                     {staticPageLabel(page.slug as StaticPageSlug)}
                   </span>
-                  <span className="text-warm-500 mt-0.5 block font-mono text-xs">
+                  <span className="mt-0.5 block font-mono text-xs text-ink-faint">
                     /{page.slug}
                   </span>
                 </td>
@@ -74,10 +74,10 @@ export function SitePagesList() {
                 <td className="px-4 py-3">
                   <span
                     className={cn(
-                      'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium',
+                      'inline-flex rounded-tag border px-2 py-0.5 font-body text-micro uppercase',
                       page.isPublished
-                        ? 'bg-brand-50 text-brand-700'
-                        : 'bg-warm-100 text-warm-600',
+                        ? 'border-pine/40 bg-tile-sage text-tile-sage-ink'
+                        : 'border-line bg-panel text-ink-muted',
                     )}
                   >
                     {page.isPublished ? 'Published' : 'Draft'}
@@ -86,7 +86,7 @@ export function SitePagesList() {
                 <td className="px-4 py-3 text-right">
                   <Link
                     href={`/admin/settings/pages/${page.slug}`}
-                    className="font-body text-sm text-brand-600 hover:text-brand-700"
+                    className="border-b border-ink pb-0.5 font-body text-micro uppercase text-ink transition-opacity duration-fast hover:opacity-60"
                   >
                     Edit
                   </Link>

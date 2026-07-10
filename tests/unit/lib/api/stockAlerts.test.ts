@@ -6,7 +6,12 @@ import {
   listStockAlerts,
   normalizeStockAlertRow,
 } from '@/lib/api/stockAlerts';
-import { sampleStockAlert } from '@/tests/fixtures/stockAlerts';
+import {
+  sampleStockAlert,
+  sampleStockAlertApiEnvelope,
+  sampleStockAlertApiItem,
+} from '@/tests/fixtures/stockAlerts';
+import { oneFeaturedProduct } from '@/tests/fixtures/products';
 
 describe('lib/api/stockAlerts', () => {
   beforeEach(() => {
@@ -19,7 +24,31 @@ describe('lib/api/stockAlerts', () => {
   });
 
   describe('normalizeStockAlertRow', () => {
-    it('derives productId from nested product', () => {
+    it('maps the backend product snapshot to an app Product', () => {
+      const row = normalizeStockAlertRow(sampleStockAlertApiItem());
+      expect(row?.productId).toBe('prod-1');
+      expect(row?.product.priceCents).toBe(1299);
+      expect(row?.product.inStock).toBe(true);
+      expect(row?.createdAt).toBe('2026-03-01T00:00:00.000Z');
+    });
+
+    it('infers out-of-stock from the snapshot stock count', () => {
+      const row = normalizeStockAlertRow(
+        sampleStockAlertApiItem({
+          product: {
+            id: 'prod-2',
+            name: 'Empty',
+            slug: 'empty',
+            price: 500,
+            active: true,
+            stock: 0,
+          },
+        }),
+      );
+      expect(row?.product.inStock).toBe(false);
+    });
+
+    it('derives productId from an already-app product row', () => {
       const alert = sampleStockAlert();
       const row = { product: alert.product, createdAt: alert.createdAt };
       expect(normalizeStockAlertRow(row)?.productId).toEqual(alert.product.id);
@@ -35,15 +64,18 @@ describe('lib/api/stockAlerts', () => {
     });
   });
 
-  it('GET normalises bare array payload', async () => {
-    const row = sampleStockAlert();
+  it('GET unwraps the { data: [...] } envelope and maps rows', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => Response.json([row], { status: 200 })),
+      vi.fn(async () =>
+        Response.json(sampleStockAlertApiEnvelope(), { status: 200 }),
+      ),
     );
 
     const rows = await listStockAlerts({ accessToken: 'tok' });
-    expect(rows).toEqual([row]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.productId).toBe('prod-1');
+    expect(rows[0]!.product.priceCents).toBe(1299);
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       'http://localhost:3001/users/me/stock-alerts',
       expect.objectContaining({
@@ -54,17 +86,17 @@ describe('lib/api/stockAlerts', () => {
     );
   });
 
-  it('GET normalises items[] envelope', async () => {
-    const row = sampleStockAlert();
+  it('GET maps a bare array payload', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () =>
-        Response.json({ items: [row], meta: {} }, { status: 200 }),
+        Response.json([sampleStockAlertApiItem()], { status: 200 }),
       ),
     );
 
     const rows = await listStockAlerts({ accessToken: 'tok' });
-    expect(rows).toEqual([row]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.product.slug).toBe('salmon-feast');
   });
 
   it('GET throws on network failure', async () => {
@@ -91,45 +123,48 @@ describe('lib/api/stockAlerts', () => {
     ).rejects.toBeInstanceOf(ApiError);
   });
 
-  it('POST returns payload on 201', async () => {
-    const row = sampleStockAlert();
+  it('POST returns the mapped row on 201', async () => {
+    const product = oneFeaturedProduct();
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => Response.json(row, { status: 201 })),
+      vi.fn(async () =>
+        Response.json(sampleStockAlertApiItem(), { status: 201 }),
+      ),
     );
 
-    const result = await createStockAlert(row.productId, {
+    const result = await createStockAlert('prod-1', {
       accessToken: 'tok',
-      product: row.product,
+      product,
     });
-    expect(result.productId).toBe(row.productId);
+    expect(result.productId).toBe('prod-1');
+    expect(result.product.priceCents).toBe(1299);
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(
       'http://localhost:3001/users/me/stock-alerts',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ productId: row.productId }),
+        body: JSON.stringify({ productId: 'prod-1' }),
       }),
     );
   });
 
   it('POST treats 409 as success when product snapshot is provided', async () => {
-    const row = sampleStockAlert();
+    const product = oneFeaturedProduct();
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => Response.json({ message: 'exists' }, { status: 409 })),
     );
 
-    const result = await createStockAlert(row.productId, {
+    const result = await createStockAlert(product.id, {
       accessToken: 'tok',
-      product: row.product,
+      product,
     });
-    expect(result.product).toEqual(row.product);
-    expect(result.productId).toBe(row.productId);
+    expect(result.product).toEqual(product);
+    expect(result.productId).toBe(product.id);
     expect(result.createdAt.length).toBeGreaterThan(0);
   });
 
   it('POST throws on network error', async () => {
-    const row = sampleStockAlert();
+    const product = oneFeaturedProduct();
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => {
@@ -138,9 +173,9 @@ describe('lib/api/stockAlerts', () => {
     );
 
     await expect(
-      createStockAlert(row.productId, {
+      createStockAlert(product.id, {
         accessToken: 'tok',
-        product: row.product,
+        product,
       }),
     ).rejects.toBeInstanceOf(ApiError);
   });

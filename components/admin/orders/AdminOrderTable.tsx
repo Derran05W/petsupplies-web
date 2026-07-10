@@ -13,12 +13,12 @@ export function AdminOrderTable({
   buildViewHref,
 }: AdminOrderTableProps) {
   return (
-    <div className="max-w-full overflow-hidden rounded-2xl border border-warm-200 bg-surface-card">
+    <div className="max-w-full overflow-hidden rounded-card border border-line bg-paper">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">Admin orders list</caption>
-          <thead className="border-b border-warm-200 bg-warm-50">
-            <tr className="font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
+          <thead className="border-b border-line">
+            <tr className="font-body text-micro uppercase text-ink-muted">
               <th scope="col" className="px-4 py-3">
                 Order
               </th>

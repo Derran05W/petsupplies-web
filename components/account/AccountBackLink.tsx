@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
 import { safeReturnPath } from '@/lib/navigation/safe-return-path';
 import { cn } from '@/lib/utils';
 
@@ -40,7 +39,7 @@ function AccountBackLinkInner({ className }: { className?: string }) {
   const destination = fromParam ?? fromStorage;
 
   const baseClass =
-    'inline-flex items-center gap-2 font-body text-sm font-medium text-warm-700 transition-colors hover:text-warm-900';
+    'inline-flex items-center gap-2 font-body text-micro uppercase text-ink no-underline opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine';
 
   function handleBack() {
     try {
@@ -64,7 +63,7 @@ function AccountBackLinkInner({ className }: { className?: string }) {
           }
         }}
       >
-        <ArrowLeft size={16} aria-hidden className="text-warm-500 shrink-0" />
+        <span aria-hidden>←</span>
         Back
       </Link>
     );
@@ -76,7 +75,7 @@ function AccountBackLinkInner({ className }: { className?: string }) {
       onClick={handleBack}
       className={cn(baseClass, className)}
     >
-      <ArrowLeft size={16} aria-hidden className="text-warm-500 shrink-0" />
+      <span aria-hidden>←</span>
       Back
     </button>
   );
@@ -92,7 +91,7 @@ export function AccountBackLink({ className }: { className?: string }) {
       fallback={
         <div
           className={cn(
-            'h-7 w-20 animate-pulse rounded-md bg-warm-100',
+            'h-7 w-20 animate-pulse rounded-tile bg-panel',
             className,
           )}
           aria-hidden

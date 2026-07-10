@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import type { BrandValue } from '@/types/site';
 import { adminApiErrorMessage } from '@/lib/api/admin/error-messages';
 import {
@@ -82,7 +82,7 @@ export function SiteSettingsHomepageForm() {
 
   if (isPending) {
     return (
-      <p className="font-body text-sm text-warm-600" aria-busy="true">
+      <p className="font-body text-sm text-ink-muted" aria-busy="true">
         Loading homepage settings…
       </p>
     );
@@ -90,7 +90,7 @@ export function SiteSettingsHomepageForm() {
 
   if (loadError) {
     return (
-      <p className="font-body text-sm text-red-700" role="alert">
+      <p className="font-body text-sm text-danger-solid" role="alert">
         {adminApiErrorMessage(loadError)}
       </p>
     );
@@ -220,13 +220,13 @@ export function SiteSettingsHomepageForm() {
         </div>
       </div>
 
-      <div className="border-t border-warm-200 pt-8">
+      <div className="border-t border-line pt-8">
         <div className="mb-4 flex items-center justify-between gap-4">
           <div>
-            <h3 className="font-display text-xl tracking-[-0.02em] text-warm-900">
+            <h3 className="font-display text-xl tracking-[-0.01em] text-ink">
               Brand values
             </h3>
-            <p className="mt-1 font-body text-sm text-warm-600">
+            <p className="mt-1 font-body text-sm text-ink-secondary">
               Up to three cards shown below featured products on the homepage.
             </p>
           </div>
@@ -234,7 +234,7 @@ export function SiteSettingsHomepageForm() {
             type="button"
             disabled={fields.length >= 3 || mutation.isPending}
             onClick={() => append({ title: '', body: '', icon: 'truck' })}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-warm-300 px-3 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-pill border border-ink bg-transparent px-4 py-2 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-ink"
           >
             <Plus size={14} aria-hidden />
             Add card
@@ -245,19 +245,19 @@ export function SiteSettingsHomepageForm() {
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="bg-warm-50/50 rounded-lg border border-warm-200 p-4"
+              className="border-b border-line pb-4 last:border-0 last:pb-0"
             >
               <div className="mb-3 flex items-center justify-between gap-3">
-                <p className="font-body text-sm font-medium text-warm-900">
+                <p className="font-body text-micro uppercase text-ink">
                   Card {index + 1}
                 </p>
                 <button
                   type="button"
                   aria-label={`Remove brand value card ${index + 1}`}
                   onClick={() => remove(index)}
-                  className="inline-flex size-8 items-center justify-center rounded-lg text-warm-600 transition-colors hover:bg-warm-100 hover:text-red-700"
+                  className="font-body text-micro uppercase text-danger-solid transition-opacity duration-fast hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger-solid"
                 >
-                  <Trash2 size={14} aria-hidden />
+                  Remove
                 </button>
               </div>
 
@@ -319,7 +319,7 @@ export function SiteSettingsHomepageForm() {
           ))}
 
           {fields.length === 0 ? (
-            <p className="text-warm-500 font-body text-sm">
+            <p className="font-body text-sm text-ink-muted">
               No brand value cards yet. Add up to three.
             </p>
           ) : null}
@@ -327,13 +327,13 @@ export function SiteSettingsHomepageForm() {
       </div>
 
       {submitError ? (
-        <p className="font-body text-sm text-red-700" role="alert">
+        <p className="font-body text-sm text-danger-solid" role="alert">
           {submitError}
         </p>
       ) : null}
 
       {success ? (
-        <p className="font-body text-sm text-brand-700" role="status">
+        <p className="font-body text-sm text-pine" role="status">
           {success}
         </p>
       ) : null}
@@ -342,7 +342,7 @@ export function SiteSettingsHomepageForm() {
         <button
           type="submit"
           disabled={!isDirty || mutation.isPending}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
         >
           {mutation.isPending ? (
             <Loader2 size={14} className="animate-spin" aria-hidden />

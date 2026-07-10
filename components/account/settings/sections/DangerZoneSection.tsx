@@ -32,31 +32,31 @@ export function DangerZoneSection() {
     <section
       id="danger"
       aria-labelledby="danger-heading"
-      className="scroll-mt-24 rounded-2xl border border-red-200 bg-red-50/40 p-6 md:p-8"
+      className="scroll-mt-24 rounded-card border border-danger-border bg-danger-surface p-6 md:p-8"
     >
       <h2
         id="danger-heading"
-        className="mb-1 font-display text-2xl tracking-[-0.02em] text-red-900"
+        className="mb-1 font-display text-2xl tracking-[-0.01em] text-danger-solid"
       >
         Danger zone
       </h2>
-      <p className="mb-6 font-body text-sm text-red-800/80">
+      <p className="mb-6 font-body text-sm text-ink-secondary">
         Irreversible or sensitive actions for your account.
       </p>
 
       <div className="flex flex-col gap-6">
         <div>
-          <h3 className="mb-2 font-body text-sm font-semibold text-warm-900">
+          <h3 className="mb-2 font-body text-sm font-semibold text-ink">
             Sign out everywhere
           </h3>
-          <p className="mb-3 font-body text-xs text-warm-600">
+          <p className="mb-3 font-body text-xs text-ink-muted">
             Ends all active sessions on every device. You&apos;ll need to sign
             in again.
           </p>
           {error ? (
             <p
               role="alert"
-              className="mb-3 rounded-md border border-red-200 bg-surface-card px-3 py-2 font-body text-xs text-red-700"
+              className="mb-3 rounded-tile border border-danger-border bg-paper px-3 py-2 font-body text-xs text-danger-solid"
             >
               {error}
             </p>
@@ -65,7 +65,7 @@ export function DangerZoneSection() {
             type="button"
             disabled={signingOut}
             onClick={() => void signOutEverywhere()}
-            className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-surface-card px-4 py-2 font-body text-sm font-medium text-red-800 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-danger-solid bg-danger-solid px-6 py-2.5 font-body text-micro uppercase text-danger-on-solid transition-all duration-base ease-soft hover:border-danger-solid-hover hover:bg-danger-solid-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-danger-solid disabled:cursor-not-allowed disabled:opacity-50"
           >
             {signingOut ? (
               <Loader2 size={14} aria-hidden className="animate-spin" />
@@ -74,18 +74,18 @@ export function DangerZoneSection() {
           </button>
         </div>
 
-        <div className="border-t border-red-200 pt-6">
-          <h3 className="mb-2 font-body text-sm font-semibold text-warm-900">
+        <div className="border-t border-danger-border pt-6">
+          <h3 className="mb-2 font-body text-sm font-semibold text-ink">
             Delete account
           </h3>
-          <p className="mb-3 font-body text-xs text-warm-600">
+          <p className="mb-3 font-body text-xs text-ink-muted">
             Account deletion is handled manually to protect your order history
             and subscriptions. Email us and we&apos;ll confirm within a few
             business days.
           </p>
           <a
             href={`mailto:${brand.supportEmail}?subject=Account%20deletion%20request`}
-            className="font-body text-sm font-medium text-brand-700 underline-offset-2 hover:underline"
+            className="inline-flex border-b border-danger-solid pb-0.5 font-body text-micro uppercase text-danger-solid transition-opacity duration-fast hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-danger-solid"
           >
             Request account deletion
           </a>

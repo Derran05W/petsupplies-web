@@ -23,7 +23,7 @@ describe('userHasAdminRole', () => {
     expect(userHasAdminRole(null)).toBe(false);
   });
 
-  it('prefers app_metadata.role ADMIN', () => {
+  it('grants admin on app_metadata.role ADMIN', () => {
     expect(
       userHasAdminRole(
         mockUser({
@@ -34,14 +34,15 @@ describe('userHasAdminRole', () => {
     ).toBe(true);
   });
 
-  it('falls back to user_metadata.role ADMIN', () => {
+  it('does NOT trust user_metadata.role (client-mutable)', () => {
     expect(
       userHasAdminRole(
         mockUser({
+          app_metadata: {},
           user_metadata: { role: 'ADMIN' },
         }),
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('rejects non-admin', () => {

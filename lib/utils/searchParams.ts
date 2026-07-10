@@ -13,11 +13,14 @@ const VALID_CATEGORIES: ReadonlyArray<Category> = [
   'healthcare',
 ];
 
+/**
+ * Pet types shoppers can filter by. Fish and bird products are no longer
+ * carried — their `?petType=` values are dropped like any other invalid
+ * param, so old links render the default listing instead of an empty shelf.
+ */
 const VALID_PET_TYPES: ReadonlyArray<PetType> = [
   'dog',
   'cat',
-  'bird',
-  'fish',
   'reptile',
   'small-animal',
 ];
@@ -26,8 +29,6 @@ const VALID_PET_TYPES: ReadonlyArray<PetType> = [
 const API_PET_CATEGORY_PARAM: Readonly<Record<string, PetType>> = {
   dog: 'dog',
   cat: 'cat',
-  bird: 'bird',
-  fish: 'fish',
   reptile: 'reptile',
   small_pet: 'small-animal',
 };

@@ -23,9 +23,9 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
   const isRemote = /^https?:\/\//i.test(img);
 
   return (
-    <li className="overflow-hidden rounded-2xl border border-warm-200 bg-surface-card shadow-sm">
+    <li className="overflow-hidden rounded-card border border-line bg-paper">
       <div className="flex flex-col gap-4 p-4 sm:flex-row">
-        <div className="relative mx-auto aspect-square w-full shrink-0 overflow-hidden rounded-xl bg-warm-100 sm:mx-0 sm:size-28">
+        <div className="relative mx-auto aspect-square w-full shrink-0 overflow-hidden rounded-tile bg-panel sm:mx-0 sm:size-28">
           <Image
             src={img}
             alt={subscription.productName}
@@ -38,16 +38,16 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
 
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-display text-lg tracking-[-0.02em] text-warm-900">
+            <h2 className="font-display text-xl tracking-[-0.01em] text-ink">
               {subscription.productName}
             </h2>
             <SubscriptionStatusPill status={subscription.status} />
           </div>
 
-          <p className="font-body text-sm text-warm-600">
+          <p className="font-body text-sm text-ink-muted">
             {subscription.quantity} ×{' '}
             {SUBSCRIPTION_INTERVAL_LABEL[subscription.interval]}
-            <span aria-hidden className="mx-1.5 text-warm-300">
+            <span aria-hidden className="mx-1.5 text-ink-faint">
               ·
             </span>
             {formatPrice(subscription.unitPriceCents)} each
@@ -55,7 +55,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
 
           {subscription.cancelAtPeriodEnd &&
           subscription.status !== 'canceled' ? (
-            <p role="status" className="font-body text-sm text-amber-800">
+            <p role="status" className="font-body text-sm text-amber">
               Cancels on{' '}
               <span className="font-medium">
                 {periodEndIsoToYyyyMmDd(subscription.currentPeriodEnd)}
@@ -63,14 +63,14 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
               ({formatDate(subscription.currentPeriodEnd)})
             </p>
           ) : subscription.status !== 'canceled' ? (
-            <p className="font-body text-sm text-warm-600">
+            <p className="font-body text-sm text-ink-muted">
               Next period ends{' '}
               <time dateTime={subscription.currentPeriodEnd}>
                 {formatDate(subscription.currentPeriodEnd)}
               </time>
             </p>
           ) : (
-            <p className="text-warm-500 font-body text-sm">
+            <p className="font-body text-sm text-ink-muted">
               No upcoming deliveries — this subscription has ended.
             </p>
           )}

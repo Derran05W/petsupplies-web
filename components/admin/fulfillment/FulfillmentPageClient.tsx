@@ -134,10 +134,10 @@ function FulfillmentInner() {
             key={f.label}
             href={filterHref(f.value)}
             className={cn(
-              'rounded-lg px-3 py-1.5 font-body text-xs font-medium transition-colors',
+              'rounded-pill border px-3 py-1.5 font-body text-micro uppercase transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
               (f.value || '') === (status ?? '')
-                ? 'bg-brand-400 text-white'
-                : 'text-warm-700 bg-warm-100 hover:bg-warm-200',
+                ? 'border-ink bg-ink text-paper'
+                : 'border-line bg-transparent text-ink-secondary hover:border-ink',
             )}
           >
             {f.label}
@@ -153,13 +153,13 @@ function FulfillmentInner() {
             setSubmitError(null);
             setDialogOpen(true);
           }}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-4 py-2 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-pill border border-ink bg-ink px-5 py-2 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
         >
           {busy && <Loader2 size={14} className="animate-spin" aria-hidden />}
           Mark selected shipped ({selected.size})
         </button>
         {lastFailed && lastFailed.length > 0 && (
-          <p role="status" className="font-body text-xs text-amber-800">
+          <p role="status" className="font-body text-xs text-amber">
             {lastFailed.length} order(s) could not be updated. See API message
             per row in console-free UI below.
           </p>
@@ -168,7 +168,7 @@ function FulfillmentInner() {
 
       {lastFailed && lastFailed.length > 0 && (
         <ul
-          className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 font-body text-xs text-amber-900"
+          className="border-amber/40 mb-4 rounded-tile border bg-tile-amber px-4 py-3 font-body text-xs text-tile-amber-ink"
           aria-label="Bulk ship failures"
         >
           {lastFailed.map((f) => (
@@ -186,32 +186,32 @@ function FulfillmentInner() {
         />
       )}
       {isError && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="font-body text-sm text-danger-solid">
           {error instanceof Error ? error.message : 'Failed to load queue.'}
         </p>
       )}
       {!isPending && !isError && orders.length === 0 && (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-warm-200 bg-surface-card px-6 py-12 text-center">
-          <Package className="text-warm-400" size={36} aria-hidden />
-          <p className="font-body text-sm text-warm-600">
+        <div className="flex flex-col items-center gap-3 rounded-card border border-line bg-paper px-6 py-12 text-center">
+          <Package className="text-ink-faint" size={36} aria-hidden />
+          <p className="font-body text-sm text-ink-secondary">
             No orders in this queue.
           </p>
         </div>
       )}
       {!isPending && !isError && orders.length > 0 && (
         <>
-          <div className="overflow-hidden rounded-2xl border border-warm-200 bg-surface-card">
+          <div className="overflow-hidden rounded-card border border-line bg-paper">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] font-body text-sm">
-                <thead className="border-b border-warm-200 bg-warm-50">
-                  <tr className="text-left text-xs uppercase tracking-[0.06em] text-warm-600">
+                <thead className="border-b border-line">
+                  <tr className="text-left font-body text-micro uppercase text-ink-muted">
                     <th className="px-3 py-3">
                       <input
                         type="checkbox"
                         checked={allSelected}
                         onChange={toggleAll}
                         aria-label="Select all on this page"
-                        className="size-4 rounded border-warm-300"
+                        className="size-4 rounded-sm border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
                       />
                     </th>
                     <th className="px-3 py-3 font-medium">Order</th>
@@ -223,41 +223,44 @@ function FulfillmentInner() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-warm-200">
+                <tbody className="divide-y divide-line">
                   {orders.map((order: AdminOrderSummary) => (
-                    <tr key={order.id} className="hover:bg-warm-50/80">
+                    <tr
+                      key={order.id}
+                      className="transition-colors duration-fast hover:bg-panel"
+                    >
                       <td className="px-3 py-3">
                         <input
                           type="checkbox"
                           checked={selected.has(order.id)}
                           onChange={() => toggleOne(order.id)}
                           aria-label={`Select order ${order.id}`}
-                          className="size-4 rounded border-warm-300"
+                          className="size-4 rounded-sm border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
                         />
                       </td>
                       <td className="px-3 py-3">
-                        <span className="text-warm-500 font-mono text-xs">
+                        <span className="font-mono text-xs text-ink-faint">
                           {order.id.slice(0, 12)}…
                         </span>
-                        <span className="mt-0.5 block text-xs text-warm-600">
+                        <span className="mt-0.5 block text-xs text-ink-muted">
                           {formatDate(order.createdAt)}
                         </span>
                       </td>
                       <td className="px-3 py-3">
-                        <span className="text-warm-800 line-clamp-2">
+                        <span className="line-clamp-2 text-ink-secondary">
                           {order.customerName ?? order.customerEmail ?? '—'}
                         </span>
                       </td>
                       <td className="px-3 py-3">
                         <OrderStatusPill status={order.status} />
                       </td>
-                      <td className="px-3 py-3 text-right font-medium tabular-nums text-warm-900">
+                      <td className="px-3 py-3 text-right font-display tabular-nums text-ink">
                         {formatPrice(order.totalCents, order.currency)}
                       </td>
                       <td className="px-3 py-3 text-right">
                         <Link
                           href={`/admin/orders?selected=${encodeURIComponent(order.id)}`}
-                          className="font-medium text-brand-600 hover:text-brand-700"
+                          className="font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast hover:opacity-100"
                         >
                           Open
                         </Link>
@@ -289,11 +292,11 @@ function FulfillmentInner() {
         onClose={() => !busy && setDialogOpen(false)}
         onConfirm={onBulkConfirm}
       >
-        <div className="mt-4 flex flex-col gap-3 border-t border-warm-200 pt-4">
+        <div className="mt-4 flex flex-col gap-3 border-t border-line pt-4">
           <div>
             <label
               htmlFor="bulk-tracking"
-              className="mb-1 block font-body text-xs font-medium text-warm-600"
+              className="mb-1 block font-body text-micro uppercase text-ink"
             >
               Tracking number
             </label>
@@ -301,14 +304,14 @@ function FulfillmentInner() {
               id="bulk-tracking"
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
-              className="w-full rounded-lg border border-warm-300 px-3 py-2 font-body text-sm"
+              className="w-full rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none"
               placeholder="Optional — e.g. 1Z999…"
             />
           </div>
           <div>
             <label
               htmlFor="bulk-url"
-              className="mb-1 block font-body text-xs font-medium text-warm-600"
+              className="mb-1 block font-body text-micro uppercase text-ink"
             >
               Tracking URL
             </label>
@@ -317,14 +320,14 @@ function FulfillmentInner() {
               type="url"
               value={trackingUrl}
               onChange={(e) => setTrackingUrl(e.target.value)}
-              className="w-full rounded-lg border border-warm-300 px-3 py-2 font-body text-sm"
+              className="w-full rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none"
               placeholder="https://…"
             />
           </div>
           <div>
             <label
               htmlFor="bulk-carrier"
-              className="mb-1 block font-body text-xs font-medium text-warm-600"
+              className="mb-1 block font-body text-micro uppercase text-ink"
             >
               Carrier
             </label>
@@ -332,12 +335,12 @@ function FulfillmentInner() {
               id="bulk-carrier"
               value={carrier}
               onChange={(e) => setCarrier(e.target.value)}
-              className="w-full rounded-lg border border-warm-300 px-3 py-2 font-body text-sm"
+              className="w-full rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none"
               placeholder="Optional"
             />
           </div>
           {submitError && (
-            <p role="alert" className="text-xs text-red-600">
+            <p role="alert" className="font-body text-xs text-danger-solid">
               {submitError}
             </p>
           )}

@@ -1,27 +1,91 @@
 import type { Product } from '@/types/product';
-import type { WishlistItem, WishlistListResponse } from '@/types/wishlist';
+import type { WishlistItem } from '@/types/wishlist';
 import { ApiError, apiFetch } from './client';
+import { mapCatalogProduct } from './product-mapper';
 
 export interface WishlistApiOptions {
   accessToken?: string;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Wire types + mappers. Backend `WishlistItemResponse` nests a minimal        */
+/* product snapshot ({ id, name, slug, price, active, images }) and the list   */
+/* is a `{ data: [...] }` envelope. The snapshot has no stock field, so        */
+/* availability is inferred from `active`.                                     */
+/* -------------------------------------------------------------------------- */
+
+interface ApiWishlistProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  active: boolean;
+  images: {
+    id: string;
+    url: string;
+    altText: string | null;
+    sortOrder: number;
+    isPrimary: boolean;
+  }[];
+}
+
+function mapWishlistProduct(p: ApiWishlistProduct): Product {
+  return mapCatalogProduct({
+    ...p,
+    imageUrl: null,
+    stock: p.active ? 1 : 0,
+    inStock: p.active,
+    description: '',
+    category: '',
+    tags: [],
+    avgRating: null,
+    reviewCount: 0,
+    createdAt: '',
+    images: (p.images ?? []).map((img) => ({ ...img, productId: p.id })),
+  });
+}
+
+/** Returns null when the row is not a recognisable wishlist item. */
+function mapWishlistItem(
+  raw: unknown,
+  fallbackProduct?: Product,
+): WishlistItem | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const r = raw as Record<string, unknown>;
+  const addedRaw = r.addedAt ?? r.added_at;
+  const addedAt =
+    typeof addedRaw === 'string' ? addedRaw : new Date().toISOString();
+  const rawProduct = r.product;
+  let product: Product | undefined;
+  if (rawProduct && typeof rawProduct === 'object') {
+    product = mapWishlistProduct(rawProduct as ApiWishlistProduct);
+  } else {
+    product = fallbackProduct;
+  }
+  if (!product) return null;
+  return { product, addedAt };
 }
 
 /** Canonical path per docs/backend-api-routes.md */
 const BASE = '/users/me/wishlist';
 
 function normalizeListPayload(raw: unknown): WishlistItem[] {
+  let rows: unknown[] = [];
   if (Array.isArray(raw)) {
-    return raw as WishlistItem[];
+    rows = raw;
+  } else if (raw && typeof raw === 'object') {
+    // Backend paginated envelope is `{ data: [...] }`; `items` tolerated too.
+    for (const key of ['data', 'items'] as const) {
+      const value = (raw as Record<string, unknown>)[key];
+      if (Array.isArray(value)) {
+        rows = value;
+        break;
+      }
+    }
   }
-  if (
-    raw &&
-    typeof raw === 'object' &&
-    'items' in raw &&
-    Array.isArray((raw as WishlistListResponse).items)
-  ) {
-    return (raw as WishlistListResponse).items;
-  }
-  return [];
+  return rows
+    .map((row) => mapWishlistItem(row))
+    .filter((x): x is WishlistItem => x !== null);
 }
 
 /** GET wishlist for the current user. */
@@ -49,11 +113,20 @@ export async function addWishlistItem(
   const { accessToken, product } = options;
   const body = JSON.stringify({ productId });
   try {
-    return await apiFetch<WishlistItem>(BASE, {
+    const raw = await apiFetch<unknown>(BASE, {
       method: 'POST',
       body,
       ...(accessToken ? { accessToken } : {}),
     });
+    const mapped = mapWishlistItem(raw, product);
+    if (mapped) {
+      // Prefer the caller's richer product snapshot over the minimal wire one.
+      return product ? { product, addedAt: mapped.addedAt } : mapped;
+    }
+    if (product) {
+      return { product, addedAt: new Date().toISOString() };
+    }
+    throw new ApiError('Unexpected wishlist add response', 0);
   } catch (err) {
     if (err instanceof ApiError && err.status === 409 && product) {
       return {

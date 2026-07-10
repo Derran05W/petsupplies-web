@@ -28,19 +28,11 @@ export const CATEGORY_STRIP_FALLBACK: CategoryStripItem[] = [
     isActive: true,
   },
   {
-    id: 'fallback-birds',
-    label: 'Birds',
-    imageUrl: categoryStripIconStorageKey('bird'),
-    href: '/products?petType=bird',
-    position: 3,
-    isActive: true,
-  },
-  {
     id: 'fallback-small',
     label: 'Small animals',
     imageUrl: categoryStripIconStorageKey('rabbit'),
     href: '/products?petType=small-animal',
-    position: 4,
+    position: 3,
     isActive: true,
   },
 ];

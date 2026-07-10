@@ -4,10 +4,19 @@ import type {
   AdminAnalyticsLowStock,
   AdminAnalyticsLowStockRow,
   AdminAnalyticsOverview,
+  AdminAnalyticsRevenuePoint,
+  AdminAnalyticsRevenueTimeseries,
   AdminAnalyticsSubscriptions,
   AdminAnalyticsTopProductRow,
   AdminAnalyticsTopProducts,
 } from '@/types/admin-analytics';
+
+/**
+ * The store settles in one currency; the backend analytics endpoints omit a
+ * currency field, so we default it here.
+ * followup: backend should include the store currency in analytics responses.
+ */
+const DEFAULT_CURRENCY = 'cad';
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -41,11 +50,42 @@ export function normalizeAdminAnalyticsOverview(
 
   return {
     revenueCents: Number(o.revenueCents ?? 0),
+    // Wire uses `orderCount`; keep the alias in case it is ever renamed.
     ordersCount: Number(o.ordersCount ?? o.orderCount ?? 0),
+    // Backend `OverviewResult` has no customer count — surface 0 until it does.
     customersCount: Number(o.customersCount ?? 0),
     aovCents: Number(o.aovCents ?? 0),
-    currency: typeof o.currency === 'string' ? o.currency : 'usd',
+    currency: typeof o.currency === 'string' ? o.currency : DEFAULT_CURRENCY,
     periodDays,
+  };
+}
+
+/**
+ * `GET /admin/analytics/revenue-timeseries` returns
+ * `{ granularity, points: [{ bucket, revenueCents, orderCount }] }` with no
+ * currency. Map `bucket` → `date` and default the currency.
+ */
+export function normalizeAdminAnalyticsRevenueTimeseries(
+  raw: unknown,
+): AdminAnalyticsRevenueTimeseries {
+  const o = asRecord(raw) ?? {};
+  const rawPoints = Array.isArray(o.points) ? o.points : [];
+  const points: AdminAnalyticsRevenuePoint[] = rawPoints.map((pt) => {
+    const p = asRecord(pt) ?? {};
+    return {
+      date:
+        typeof p.date === 'string'
+          ? p.date
+          : typeof p.bucket === 'string'
+            ? p.bucket
+            : '',
+      revenueCents: Number(p.revenueCents ?? 0),
+      orderCount: Number(p.orderCount ?? 0),
+    };
+  });
+  return {
+    currency: typeof o.currency === 'string' ? o.currency : DEFAULT_CURRENCY,
+    points,
   };
 }
 

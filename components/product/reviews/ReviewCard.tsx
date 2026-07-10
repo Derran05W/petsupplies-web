@@ -16,17 +16,17 @@ export function ReviewCard({ review, isOwnReview = false }: ReviewCardProps) {
     <article
       id={`review-${review.id}`}
       aria-labelledby={`review-${review.id}-title`}
-      className="scroll-mt-28 rounded-xl border border-warm-200 bg-surface-card p-5 shadow-sm"
+      className="scroll-mt-28 border-t border-line py-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-body text-sm font-medium text-warm-900">
+          <p className="font-body text-sm font-semibold text-ink">
             {review.displayName}
           </p>
           {formatted.length > 0 ? (
             <time
               dateTime={review.createdAt}
-              className="text-warm-500 font-body text-xs"
+              className="font-body text-xs text-ink-faint"
             >
               {formatted}
             </time>
@@ -37,7 +37,7 @@ export function ReviewCard({ review, isOwnReview = false }: ReviewCardProps) {
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {isOwnReview ? (
-          <span className="rounded-md bg-brand-50 px-2.5 py-1 font-body text-xs font-medium text-brand-700">
+          <span className="border-slate/40 rounded-tag border bg-tile-slate px-2 py-0.5 font-body text-micro uppercase text-tile-slate-ink">
             Your review
           </span>
         ) : null}
@@ -47,7 +47,7 @@ export function ReviewCard({ review, isOwnReview = false }: ReviewCardProps) {
       {review.title ? (
         <h3
           id={`review-${review.id}-title`}
-          className="mt-3 font-display text-lg tracking-[-0.02em] text-warm-900"
+          className="mt-3 font-display text-lg tracking-[-0.01em] text-ink"
         >
           {review.title}
         </h3>
@@ -57,7 +57,7 @@ export function ReviewCard({ review, isOwnReview = false }: ReviewCardProps) {
         </span>
       )}
 
-      <p className="text-warm-700 mt-2 line-clamp-6 whitespace-pre-wrap font-body text-sm leading-relaxed">
+      <p className="mt-2 line-clamp-6 whitespace-pre-wrap font-body text-sm leading-body text-ink-secondary">
         {review.body}
       </p>
     </article>

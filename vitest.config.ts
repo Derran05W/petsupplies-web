@@ -33,7 +33,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       include: [
-        'components/product/ProductCard.tsx',
+        'components/ui/ProductCard.tsx',
         'components/cart/CartItem.tsx',
         'components/admin/products/AiDescriptionBtn.tsx',
         'lib/store/cart.ts',

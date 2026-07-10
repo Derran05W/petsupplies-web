@@ -1,22 +1,37 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type FieldError } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSearchParams } from 'next/navigation';
-import { Loader2, Mail, Lock, User } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import {
   resolvePostLoginPath,
   withAuthRedirectQuery,
 } from '@/lib/auth/post-login-redirect';
 import { signupSchema, type SignupInput } from '@/lib/auth/schemas';
+import { Button } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { AuthCard } from './AuthCard';
 import { AuthDivider } from './AuthDivider';
 import { GoogleButton } from './GoogleButton';
 import { AppleButton } from './AppleButton';
 import Link from 'next/link';
 import { brand } from '@/lib/config/brand';
+
+const inputBase =
+  'w-full rounded-tile border border-line bg-paper px-3 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none';
+const inputError = 'border-danger-solid focus:border-danger-solid';
+const labelBase = 'mb-1.5 block font-body text-micro uppercase text-ink';
+
+function fieldErrorProps(id: string, error: FieldError | undefined) {
+  if (!error) return { 'aria-invalid': false as const };
+  return {
+    'aria-invalid': true as const,
+    'aria-describedby': `${id}-error`,
+  };
+}
 
 export function SignupForm() {
   const searchParams = useSearchParams();
@@ -59,15 +74,15 @@ export function SignupForm() {
   if (checkEmail) {
     return (
       <AuthCard heading="Check your email">
-        <p className="font-body text-sm leading-relaxed text-warm-600">
+        <p className="font-body text-sm leading-body text-ink-secondary">
           We sent a confirmation link to your email address. Click it to
           activate your account and you&apos;ll be signed in automatically.
         </p>
-        <p className="mt-4 font-body text-sm text-warm-600">
+        <p className="mt-4 font-body text-sm text-ink-secondary">
           Already confirmed?{' '}
           <Link
             href={withAuthRedirectQuery('/login', searchParams.get('redirect'))}
-            className="font-medium text-brand-600 underline-offset-2 hover:text-brand-700 hover:underline"
+            className="font-medium text-pine underline-offset-2 hover:underline"
           >
             Sign in
           </Link>
@@ -83,131 +98,124 @@ export function SignupForm() {
     >
       <form onSubmit={onSubmit} noValidate className="space-y-5">
         {errors.root && (
-          <div className="rounded-md bg-red-50 px-3 py-2 font-body text-sm text-red-700">
+          <div
+            role="alert"
+            className="rounded-tile border border-danger-border bg-danger-surface px-3 py-2 font-body text-sm text-danger-solid"
+          >
             {errors.root.message}
           </div>
         )}
 
         <div>
-          <label
-            htmlFor="name"
-            className="mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600"
-          >
+          <label htmlFor="name" className={labelBase}>
             Full name
           </label>
-          <div className="relative">
-            <User
-              size={15}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-warm-400"
-            />
-            <input
-              id="name"
-              type="text"
-              autoComplete="name"
-              {...register('name')}
-              className="w-full rounded-lg border border-warm-300 bg-surface-card py-2.5 pl-9 pr-3 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
-              placeholder="Jane Smith"
-            />
-          </div>
+          <input
+            id="name"
+            type="text"
+            autoComplete="name"
+            placeholder="Jane Smith"
+            {...register('name')}
+            {...fieldErrorProps('name', errors.name)}
+            className={cn(inputBase, errors.name && inputError)}
+          />
           {errors.name && (
-            <p className="mt-1 font-body text-xs text-red-600">
+            <p
+              id="name-error"
+              role="alert"
+              className="mt-1 font-body text-xs text-danger-solid"
+            >
               {errors.name.message}
             </p>
           )}
         </div>
 
         <div>
-          <label
-            htmlFor="email"
-            className="mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600"
-          >
+          <label htmlFor="email" className={labelBase}>
             Email
           </label>
-          <div className="relative">
-            <Mail
-              size={15}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-warm-400"
-            />
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              {...register('email')}
-              className="w-full rounded-lg border border-warm-300 bg-surface-card py-2.5 pl-9 pr-3 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
-              placeholder="you@example.com"
-            />
-          </div>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            {...register('email')}
+            {...fieldErrorProps('email', errors.email)}
+            className={cn(inputBase, errors.email && inputError)}
+          />
           {errors.email && (
-            <p className="mt-1 font-body text-xs text-red-600">
+            <p
+              id="email-error"
+              role="alert"
+              className="mt-1 font-body text-xs text-danger-solid"
+            >
               {errors.email.message}
             </p>
           )}
         </div>
 
         <div>
-          <label
-            htmlFor="password"
-            className="mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600"
-          >
+          <label htmlFor="password" className={labelBase}>
             Password
           </label>
-          <div className="relative">
-            <Lock
-              size={15}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-warm-400"
-            />
-            <input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              {...register('password')}
-              className="w-full rounded-lg border border-warm-300 bg-surface-card py-2.5 pl-9 pr-3 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
-              placeholder="At least 8 characters"
-            />
-          </div>
+          <input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="At least 8 characters"
+            {...register('password')}
+            {...fieldErrorProps('password', errors.password)}
+            className={cn(inputBase, errors.password && inputError)}
+          />
           {errors.password && (
-            <p className="mt-1 font-body text-xs text-red-600">
+            <p
+              id="password-error"
+              role="alert"
+              className="mt-1 font-body text-xs text-danger-solid"
+            >
               {errors.password.message}
             </p>
           )}
         </div>
 
         <div>
-          <label
-            htmlFor="confirm"
-            className="mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600"
-          >
+          <label htmlFor="confirm" className={labelBase}>
             Confirm password
           </label>
-          <div className="relative">
-            <Lock
-              size={15}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-warm-400"
-            />
-            <input
-              id="confirm"
-              type="password"
-              autoComplete="new-password"
-              {...register('confirm')}
-              className="w-full rounded-lg border border-warm-300 bg-surface-card py-2.5 pl-9 pr-3 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
-              placeholder="••••••••"
-            />
-          </div>
+          <input
+            id="confirm"
+            type="password"
+            autoComplete="new-password"
+            placeholder="••••••••"
+            {...register('confirm')}
+            {...fieldErrorProps('confirm', errors.confirm)}
+            className={cn(inputBase, errors.confirm && inputError)}
+          />
           {errors.confirm && (
-            <p className="mt-1 font-body text-xs text-red-600">
+            <p
+              id="confirm-error"
+              role="alert"
+              className="mt-1 font-body text-xs text-danger-solid"
+            >
               {errors.confirm.message}
             </p>
           )}
         </div>
 
-        <button
+        <Button
           type="submit"
           disabled={submitting}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:opacity-50"
+          className="w-full disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {submitting && <Loader2 size={16} className="animate-spin" />}
+          {submitting && (
+            <Loader2
+              size={16}
+              aria-hidden
+              className="mr-2 inline animate-spin align-[-2px]"
+            />
+          )}
           Create account
-        </button>
+        </Button>
       </form>
 
       <AuthDivider />
@@ -216,11 +224,11 @@ export function SignupForm() {
         <AppleButton redirectTarget={redirectTarget} />
       </div>
 
-      <p className="mt-6 text-center font-body text-sm text-warm-600">
+      <p className="mt-6 text-center font-body text-sm text-ink-secondary">
         Already have an account?{' '}
         <Link
           href={withAuthRedirectQuery('/login', searchParams.get('redirect'))}
-          className="font-medium text-brand-600 underline-offset-2 hover:text-brand-700 hover:underline"
+          className="font-medium text-pine underline-offset-2 hover:underline"
         >
           Sign in
         </Link>

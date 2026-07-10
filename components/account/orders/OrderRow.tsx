@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
 import type { OrderSummary } from '@/types/order';
 import { formatDate, formatPrice } from '@/lib/utils/format';
 import { OrderStatusPill } from './OrderStatusPill';
@@ -45,28 +44,28 @@ export function OrderRow({ order, extraQuery }: OrderRowProps) {
     <li>
       <Link
         href={detailHref(order.id, extraQuery)}
-        className="group flex flex-col gap-3 rounded-2xl border border-warm-200 bg-surface-card px-5 py-4 transition-colors hover:border-warm-300 hover:shadow-sm sm:flex-row sm:items-center sm:gap-6 sm:px-6 sm:py-5"
+        className="group flex flex-col gap-3 px-2 py-4 transition-colors duration-fast hover:bg-panel focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine sm:flex-row sm:items-center sm:gap-6 sm:px-3 sm:py-5"
       >
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex items-center gap-3">
-            <span className="font-body text-sm font-medium text-warm-900">
+            <span className="font-body text-sm font-medium text-ink">
               Order {shortId(order.id)}
             </span>
             <OrderStatusPill status={order.status} />
           </div>
-          <p className="font-body text-xs text-warm-600">
+          <p className="font-body text-xs text-ink-muted">
             {formatDate(order.createdAt)} ·{' '}
             {pluralise(itemCount, 'item', 'items')}
           </p>
         </div>
 
         <div className="flex items-center justify-between gap-4 sm:justify-end">
-          <span className="font-display text-lg tracking-[-0.02em] text-warm-900">
+          <span className="font-display text-lg tracking-[-0.02em] text-ink">
             {formatPrice(order.totalCents, order.currency)}
           </span>
-          <span className="inline-flex items-center gap-1 font-body text-xs font-medium uppercase tracking-[0.08em] text-brand-600 transition-colors group-hover:text-brand-700">
+          <span className="inline-flex items-center gap-1.5 font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast group-hover:opacity-100">
             View
-            <ChevronRight size={14} aria-hidden />
+            <span aria-hidden>→</span>
           </span>
         </div>
       </Link>

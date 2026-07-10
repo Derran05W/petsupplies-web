@@ -3,6 +3,7 @@ import {
   normalizeAdminAnalyticsDiscounts,
   normalizeAdminAnalyticsLowStock,
   normalizeAdminAnalyticsOverview,
+  normalizeAdminAnalyticsRevenueTimeseries,
   normalizeAdminAnalyticsSubscriptions,
   normalizeAdminAnalyticsTopProducts,
 } from '@/lib/api/admin/analytics-normalize';
@@ -38,7 +39,29 @@ describe('normalizeAdminAnalyticsOverview', () => {
       aovCents: 200,
     });
     expect(result.ordersCount).toBe(5);
-    expect(result.currency).toBe('usd');
+    expect(result.currency).toBe('cad');
+  });
+});
+
+describe('normalizeAdminAnalyticsRevenueTimeseries', () => {
+  it('maps point.bucket to date and defaults currency', () => {
+    const result = normalizeAdminAnalyticsRevenueTimeseries({
+      granularity: 'day',
+      points: [
+        {
+          bucket: '2026-01-01T00:00:00.000Z',
+          revenueCents: 500,
+          orderCount: 2,
+        },
+      ],
+    });
+    expect(result.currency).toBe('cad');
+    expect(result.points[0]?.date).toBe('2026-01-01T00:00:00.000Z');
+    expect(result.points[0]?.revenueCents).toBe(500);
+  });
+
+  it('returns empty points for missing envelope', () => {
+    expect(normalizeAdminAnalyticsRevenueTimeseries({}).points).toEqual([]);
   });
 });
 

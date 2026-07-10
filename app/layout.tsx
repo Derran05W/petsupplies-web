@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Fraunces, DM_Sans } from 'next/font/google';
+import { Fraunces, Archivo } from 'next/font/google';
 import { getBrand } from '@/lib/config/brand';
 import { buildRootMetadata } from '@/lib/site/metadata';
 import { AuthProvider } from '@/components/providers/AuthProvider';
@@ -17,7 +17,7 @@ const fraunces = Fraunces({
   display: 'swap',
 });
 
-const dmSans = DM_Sans({
+const archivo = Archivo({
   subsets: ['latin'],
   variable: '--font-body',
   display: 'swap',
@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${dmSans.variable}`}
+      className={`${fraunces.variable} ${archivo.variable}`}
       data-theme="light"
       suppressHydrationWarning
     >

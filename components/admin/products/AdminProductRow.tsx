@@ -18,10 +18,10 @@ export function AdminProductRow({ product }: AdminProductRowProps) {
     product.images.find((image) => image.isPrimary) ?? product.images[0];
 
   return (
-    <tr className="border-b border-warm-200 last:border-b-0 hover:bg-warm-50">
+    <tr className="border-b border-line transition-colors duration-fast last:border-b-0 hover:bg-panel">
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="relative size-10 shrink-0 overflow-hidden rounded-md bg-warm-100">
+          <div className="relative size-10 shrink-0 overflow-hidden rounded-tile bg-panel">
             <Image
               src={
                 primary?.url && primary.url.length > 0
@@ -35,19 +35,19 @@ export function AdminProductRow({ product }: AdminProductRowProps) {
             />
           </div>
           <div className="min-w-0">
-            <p className="truncate font-body text-sm font-medium text-warm-900">
+            <p className="truncate font-body text-sm font-medium text-ink">
               {product.name}
             </p>
-            <p className="truncate font-body text-xs text-warm-600">
+            <p className="truncate font-body text-xs text-ink-muted">
               /{product.slug}
             </p>
           </div>
         </div>
       </td>
-      <td className="px-4 py-3 font-body text-sm text-warm-900">
+      <td className="px-4 py-3 font-body text-sm text-ink-secondary">
         {ADMIN_PRODUCT_CATEGORY_LABEL[product.category]}
       </td>
-      <td className="px-4 py-3 font-body text-sm font-medium text-warm-900">
+      <td className="px-4 py-3 font-display text-sm text-ink">
         {formatPrice(product.priceCents)}
       </td>
       <td className="px-4 py-3">
@@ -56,10 +56,10 @@ export function AdminProductRow({ product }: AdminProductRowProps) {
       <td className="hidden px-4 py-3 sm:table-cell">
         <span
           className={cn(
-            'inline-flex items-center rounded-md px-2 py-0.5 font-body text-xs font-medium',
+            'inline-flex items-center rounded-tag border px-2 py-0.5 font-body text-micro uppercase',
             product.isPublished
-              ? 'bg-brand-50 text-brand-600'
-              : 'bg-warm-100 text-warm-600',
+              ? 'border-pine/40 bg-tile-sage text-tile-sage-ink'
+              : 'border-line bg-panel text-ink-muted',
           )}
         >
           {product.isPublished ? 'Active' : 'Draft'}
@@ -69,7 +69,7 @@ export function AdminProductRow({ product }: AdminProductRowProps) {
         <div className="inline-flex items-center gap-1">
           <Link
             href={`/admin/products/${product.id}/edit`}
-            className="inline-flex items-center gap-1 rounded-md border border-warm-300 bg-surface-card px-2.5 py-1 font-body text-xs text-warm-900 transition-colors hover:bg-warm-100"
+            className="inline-flex items-center gap-1 rounded-pill border border-line bg-transparent px-3 py-1 font-body text-micro uppercase text-ink transition-colors duration-fast hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
           >
             <Pencil size={12} aria-hidden />
             Edit
@@ -77,7 +77,7 @@ export function AdminProductRow({ product }: AdminProductRowProps) {
           <Link
             href={`/admin/products/${product.id}/edit?focus=description`}
             aria-label={`Generate description for ${product.name}`}
-            className="inline-flex items-center gap-1 rounded-md border border-brand-200 bg-brand-50 px-2.5 py-1 font-body text-xs text-brand-700 transition-colors hover:bg-brand-100"
+            className="border-pine/40 inline-flex items-center gap-1 rounded-pill border bg-transparent px-3 py-1 font-body text-micro uppercase text-pine transition-colors duration-fast hover:border-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
           >
             <Sparkles size={12} aria-hidden />
             AI

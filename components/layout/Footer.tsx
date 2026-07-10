@@ -77,11 +77,11 @@ export async function Footer({ brand }: { brand: Brand }) {
   const socials = buildSocials(brand);
 
   return (
-    <footer className="mt-24 border-t border-warm-200 bg-warm-50">
-      <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[1.4fr_1fr_1fr_1fr] md:px-8 lg:px-12">
+    <footer className="mt-24 border-t border-line bg-panel text-ink">
+      <div className="mx-auto grid max-w-wrap gap-10 px-gutter py-16 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <BrandLogo brand={brand} />
-          <p className="mt-3 max-w-xs font-body text-sm leading-relaxed text-warm-600">
+          <p className="mt-3 max-w-xs font-body text-sm leading-body text-ink-secondary">
             {brand.tagline}
           </p>
           {socials.length > 0 && (
@@ -93,7 +93,7 @@ export async function Footer({ brand }: { brand: Brand }) {
                     aria-label={label}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex size-9 items-center justify-center rounded-lg border border-warm-200 text-warm-600 transition-colors hover:border-warm-300 hover:text-warm-900"
+                    className="inline-flex size-9 items-center justify-center rounded-tile border border-line text-ink-muted transition-colors duration-fast hover:border-ink hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
                   >
                     <Icon />
                   </a>
@@ -105,7 +105,7 @@ export async function Footer({ brand }: { brand: Brand }) {
 
         {columns.map(({ column, links }) => (
           <div key={column.key}>
-            <h2 className="font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
+            <h2 className="font-body text-kicker uppercase text-pine">
               {column.label}
             </h2>
             <ul className="mt-4 flex flex-col gap-2.5">
@@ -118,7 +118,7 @@ export async function Footer({ brand }: { brand: Brand }) {
                     {isExternal ? (
                       <a
                         href={link.href}
-                        className="font-body text-sm text-warm-900 transition-colors hover:text-brand-600"
+                        className="font-body text-sm text-ink-muted transition-colors duration-fast hover:text-ink"
                         {...(link.href.startsWith('http')
                           ? { target: '_blank', rel: 'noopener noreferrer' }
                           : {})}
@@ -128,7 +128,7 @@ export async function Footer({ brand }: { brand: Brand }) {
                     ) : (
                       <Link
                         href={link.href}
-                        className="font-body text-sm text-warm-900 transition-colors hover:text-brand-600"
+                        className="font-body text-sm text-ink-muted transition-colors duration-fast hover:text-ink"
                       >
                         {link.label}
                       </Link>
@@ -141,15 +141,15 @@ export async function Footer({ brand }: { brand: Brand }) {
         ))}
       </div>
 
-      <div className="border-t border-warm-200">
-        <div className="mx-auto flex max-w-7xl flex-col items-start gap-2 px-6 py-6 md:flex-row md:items-center md:justify-between md:px-8 lg:px-12">
-          <p className="font-body text-xs text-warm-400">
+      <div className="border-t border-line">
+        <div className="mx-auto flex max-w-wrap flex-col items-start gap-2 px-gutter py-6 md:flex-row md:items-center md:justify-between">
+          <p className="font-body text-micro uppercase text-ink-faint">
             © {year} {brand.name}. All rights reserved.
           </p>
-          <p className="font-body text-xs text-warm-400">
+          <p className="font-body text-micro text-ink-faint">
             <a
               href={`mailto:${brand.supportEmail}`}
-              className="hover:text-warm-600"
+              className="uppercase transition-colors duration-fast hover:text-ink"
             >
               {brand.supportEmail}
             </a>

@@ -94,7 +94,9 @@ describe('SettingsDrawer', () => {
     ).toHaveAttribute('href', '/admin');
   });
 
-  it('shows admin banner when user_metadata.role is ADMIN (fallback)', async () => {
+  it('does NOT show admin banner when only user_metadata.role is ADMIN (spoof guard)', async () => {
+    // Admin is granted solely by the trusted app_metadata.role claim; a
+    // client-editable user_metadata.role must never unlock the console.
     mockUseAuth.mockReturnValue({
       user: mockUser({ role: 'ADMIN' }),
       loading: false,
@@ -105,8 +107,8 @@ describe('SettingsDrawer', () => {
     render(<SettingsDrawer open onClose={vi.fn()} />);
 
     expect(
-      screen.getByRole('link', { name: /open admin console/i }),
-    ).toHaveAttribute('href', '/admin');
+      screen.queryByRole('link', { name: /open admin console/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows sign-in hint when signed out', () => {

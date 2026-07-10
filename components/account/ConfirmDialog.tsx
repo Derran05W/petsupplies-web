@@ -96,7 +96,7 @@ export function ConfirmDialog({
       <div
         role="presentation"
         onClick={busy ? undefined : onClose}
-        className="bg-warm-900/40 absolute inset-0"
+        className="absolute inset-0 bg-scrim"
       />
       <div className="absolute inset-0 flex items-center justify-center px-4">
         <div
@@ -105,17 +105,17 @@ export function ConfirmDialog({
           aria-modal="true"
           aria-labelledby="confirm-dialog-title"
           aria-describedby="confirm-dialog-desc"
-          className="w-full max-w-md rounded-2xl border border-warm-200 bg-surface-card p-6 shadow-xl"
+          className="w-full max-w-md rounded-card border border-line bg-paper p-6 text-ink shadow-lifted"
         >
           <h2
             id="confirm-dialog-title"
-            className="font-display text-xl tracking-[-0.02em] text-warm-900"
+            className="font-display text-2xl tracking-[-0.01em] text-ink"
           >
             {title}
           </h2>
           <p
             id="confirm-dialog-desc"
-            className="mt-2 font-body text-sm leading-relaxed text-warm-600"
+            className="mt-2 font-body text-sm leading-body text-ink-secondary"
           >
             {description}
           </p>
@@ -126,7 +126,7 @@ export function ConfirmDialog({
               type="button"
               onClick={onClose}
               disabled={busy}
-              className="inline-flex items-center justify-center rounded-lg border border-warm-300 bg-transparent px-5 py-2.5 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex cursor-pointer items-center justify-center rounded-pill border border-ink bg-transparent px-6 py-2.5 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-ink"
             >
               {cancelLabel}
             </button>
@@ -136,8 +136,8 @@ export function ConfirmDialog({
               disabled={busy}
               className={
                 destructive
-                  ? 'inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60'
-                  : 'inline-flex items-center justify-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60'
+                  ? 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-danger-solid bg-danger-solid px-6 py-2.5 font-body text-micro uppercase text-danger-on-solid transition-all duration-base ease-soft hover:border-danger-solid-hover hover:bg-danger-solid-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-danger-solid disabled:cursor-not-allowed disabled:opacity-50'
+                  : 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50'
               }
             >
               {busy && (

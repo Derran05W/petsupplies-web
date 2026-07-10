@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function CheckoutPage() {
   return (
-    <section className="px-6 pb-20 pt-8 md:px-8 md:pt-12 lg:px-12">
-      <div className="mx-auto flex max-w-7xl flex-col gap-8">
+    <section className="bg-paper px-gutter pb-24 pt-12 text-ink md:pt-16">
+      <div className="mx-auto flex max-w-wrap flex-col gap-8">
         <CheckoutHeading />
         <CheckoutClient />
       </div>

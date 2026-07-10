@@ -11,8 +11,10 @@ test.describe('phase 11 email UX', () => {
   }) => {
     await page.goto('/email/unsubscribe');
 
-    await expect(page.getByText(/link/i)).toBeVisible();
-    await expect(page.getByText(/invalid/i)).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /unsubscribe link is invalid/i }),
+    ).toBeVisible();
+    await expect(page.getByText(/link expired/i)).toBeVisible();
   });
 
   test('/email/order without parameters warns that the link is invalid', async ({
@@ -20,7 +22,9 @@ test.describe('phase 11 email UX', () => {
   }) => {
     await page.goto('/email/order');
 
-    await expect(page.getByText(/link/i)).toBeVisible();
-    await expect(page.getByText(/invalid/i)).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /order link is invalid/i }),
+    ).toBeVisible();
+    await expect(page.getByText(/link expired/i)).toBeVisible();
   });
 });

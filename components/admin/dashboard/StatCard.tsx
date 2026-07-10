@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { ArrowDownRight, ArrowUpRight, type LucideIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface StatCardProps {
   label: string;
   value: string;
-  /** Icon rendered inside the small brand-50 chip. */
+  /** Icon rendered inside the small paper chip. */
   icon: LucideIcon;
   /**
    * Week-over-week delta as a signed integer (positive = up, negative
@@ -18,9 +18,9 @@ interface StatCardProps {
 }
 
 function deltaClassName(delta: number): string {
-  if (delta > 0) return 'bg-brand-50 text-brand-600';
-  if (delta < 0) return 'bg-amber-50 text-amber-700';
-  return 'bg-warm-100 text-warm-600';
+  if (delta > 0) return 'text-pine';
+  if (delta < 0) return 'text-danger-solid';
+  return 'text-ink-muted';
 }
 
 export function StatCard({
@@ -33,33 +33,31 @@ export function StatCard({
   const inner = (
     <article
       className={cn(
-        'flex flex-col gap-3 rounded-2xl border border-warm-200 bg-surface-card p-5 transition-shadow',
+        'flex flex-col gap-3 rounded-card border border-line bg-panel p-5 transition-shadow duration-base ease-soft',
         href && 'hover:shadow-sm',
       )}
     >
       <header className="flex items-center justify-between">
-        <p className="font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
-          {label}
-        </p>
+        <p className="font-body text-micro uppercase text-ink-muted">{label}</p>
         <span
           aria-hidden
-          className="inline-flex size-8 items-center justify-center rounded-full bg-brand-50 text-brand-600"
+          className="inline-flex size-8 items-center justify-center rounded-full border border-line bg-paper text-pine"
         >
           <Icon size={16} />
         </span>
       </header>
-      <p className="font-display text-3xl tracking-[-0.02em] text-warm-900">
+      <p className="font-display text-3xl tracking-tight-display text-ink">
         {value}
       </p>
       {deltaPercent !== undefined && deltaPercent !== null && (
         <span
           className={cn(
-            'inline-flex w-fit items-center gap-1 rounded-md px-2 py-0.5 font-body text-xs font-medium',
+            'inline-flex w-fit items-center gap-1 font-body text-micro uppercase',
             deltaClassName(deltaPercent),
           )}
         >
-          {deltaPercent > 0 && <ArrowUpRight size={12} aria-hidden />}
-          {deltaPercent < 0 && <ArrowDownRight size={12} aria-hidden />}
+          {deltaPercent > 0 && <span aria-hidden>↑</span>}
+          {deltaPercent < 0 && <span aria-hidden>↓</span>}
           {deltaPercent === 0 ? (
             <span>No change vs last week</span>
           ) : (
@@ -72,7 +70,10 @@ export function StatCard({
 
   if (href) {
     return (
-      <Link href={href} className="block">
+      <Link
+        href={href}
+        className="block rounded-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
+      >
         {inner}
       </Link>
     );

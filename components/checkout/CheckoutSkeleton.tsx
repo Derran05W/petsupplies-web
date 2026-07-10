@@ -8,27 +8,27 @@
 export function CheckoutSkeleton() {
   return (
     <div aria-hidden className="grid grid-cols-1 gap-10 lg:grid-cols-[3fr_2fr]">
-      <div className="flex flex-col gap-6 rounded-2xl border border-warm-200 bg-surface-card p-6">
+      <div className="flex flex-col gap-6 rounded-card border border-line bg-paper p-6">
         <div className="flex flex-col gap-3">
-          <div className="h-3 w-20 animate-pulse rounded bg-warm-100" />
-          <div className="h-11 w-full animate-pulse rounded-lg bg-warm-100" />
+          <div className="h-3 w-20 animate-pulse rounded bg-panel" />
+          <div className="h-11 w-full animate-pulse rounded-tile bg-panel" />
         </div>
         <div className="flex flex-col gap-3">
-          <div className="h-3 w-32 animate-pulse rounded bg-warm-100" />
-          <div className="h-11 w-full animate-pulse rounded-lg bg-warm-100" />
-          <div className="h-11 w-full animate-pulse rounded-lg bg-warm-100" />
+          <div className="h-3 w-32 animate-pulse rounded bg-panel" />
+          <div className="h-11 w-full animate-pulse rounded-tile bg-panel" />
+          <div className="h-11 w-full animate-pulse rounded-tile bg-panel" />
           <div className="grid grid-cols-2 gap-3">
-            <div className="h-11 w-full animate-pulse rounded-lg bg-warm-100" />
-            <div className="h-11 w-full animate-pulse rounded-lg bg-warm-100" />
+            <div className="h-11 w-full animate-pulse rounded-tile bg-panel" />
+            <div className="h-11 w-full animate-pulse rounded-tile bg-panel" />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="h-11 w-full animate-pulse rounded-lg bg-warm-100" />
-            <div className="h-11 w-full animate-pulse rounded-lg bg-warm-100" />
+            <div className="h-11 w-full animate-pulse rounded-tile bg-panel" />
+            <div className="h-11 w-full animate-pulse rounded-tile bg-panel" />
           </div>
         </div>
-        <div className="h-12 w-full animate-pulse rounded-lg bg-warm-100" />
+        <div className="h-12 w-full animate-pulse rounded-tile bg-panel" />
       </div>
-      <div className="h-72 animate-pulse rounded-2xl border border-warm-200 bg-surface-card" />
+      <div className="h-72 animate-pulse rounded-card border border-line bg-panel" />
     </div>
   );
 }

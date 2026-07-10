@@ -86,13 +86,13 @@ function AdminCustomerDetailError({ err }: { err: unknown }) {
         ? err.message
         : 'Failed to load customer.';
   return (
-    <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4">
-      <p role="alert" className="font-body text-sm text-red-800">
+    <div className="rounded-card border border-danger-border bg-danger-surface px-5 py-4">
+      <p role="alert" className="font-body text-sm text-danger-solid">
         {message}
       </p>
       <Link
         href="/admin/customers"
-        className="mt-3 inline-block text-sm font-medium text-brand-600"
+        className="mt-3 inline-block font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast hover:opacity-100"
       >
         ← Back to customers
       </Link>

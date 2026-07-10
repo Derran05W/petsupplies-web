@@ -15,6 +15,7 @@ import {
 import type {
   AdminBulkShipRequest,
   AdminBulkShipResponse,
+  AdminBulkShipResult,
   AdminFulfillmentQueueResponse,
 } from '@/types/admin-fulfillment';
 import type { OrderStatus } from '@/types/order';
@@ -76,15 +77,22 @@ export function useAdminBulkShipMutation(): UseMutationResult<
   });
 }
 
-/** Patch orders in every cached admin orders list + fulfillment queue after bulk ship. */
+/**
+ * Patch orders in every cached admin orders list + fulfillment queue after a
+ * bulk ship. The backend only echoes `{ id, status }` per shipped order, so we
+ * merge the new status onto the cached row (a full refetch reconciles the
+ * rest via the mutation's `onSettled` invalidation).
+ */
 export function mergeUpdatedOrdersIntoCaches(
   queryClient: ReturnType<typeof useQueryClient>,
-  updated: AdminOrderSummary[],
+  updated: AdminBulkShipResult[],
 ): void {
   if (updated.length === 0) return;
   const byId = new Map(updated.map((o) => [o.id, o]));
-  const patchOrder = (o: AdminOrderSummary): AdminOrderSummary =>
-    byId.get(o.id) ?? o;
+  const patchOrder = (o: AdminOrderSummary): AdminOrderSummary => {
+    const next = byId.get(o.id);
+    return next ? { ...o, status: next.status } : o;
+  };
 
   const listEntries = queryClient.getQueriesData<AdminOrderListResponse>({
     queryKey: [...ADMIN_ORDERS_ROOT, 'list'],

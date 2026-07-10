@@ -2,6 +2,12 @@
 
 import { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
+import {
+  PetIcon,
+  TONE_CLASSES,
+  type PetIconName,
+  type TileTone,
+} from '@/components/ui';
 import type { Pet } from '@/types/pet';
 import {
   petProfileFormValuesToPetInput,
@@ -13,8 +19,38 @@ import { PetProfileForm } from './PetProfileForm';
 const SPECIES_LABEL: Record<Pet['species'], string> = {
   dog: 'Dog',
   cat: 'Cat',
+  fish: 'Fish',
   bird: 'Bird',
-  small_animal: 'Small animal',
+  rabbit: 'Rabbit',
+  hamster: 'Hamster',
+  guinea_pig: 'Guinea pig',
+  reptile: 'Reptile',
+  other: 'Other',
+};
+
+/** Line-art glyph + gradient tile tone per species ('paw' where no dedicated icon exists). */
+const SPECIES_ICON: Record<Pet['species'], PetIconName> = {
+  dog: 'dog',
+  cat: 'cat',
+  fish: 'fish',
+  bird: 'paw',
+  rabbit: 'paw',
+  hamster: 'paw',
+  guinea_pig: 'paw',
+  reptile: 'paw',
+  other: 'paw',
+};
+
+const SPECIES_TONE: Record<Pet['species'], TileTone> = {
+  dog: 'amber',
+  cat: 'slate',
+  fish: 'sage',
+  bird: 'sage',
+  rabbit: 'clay',
+  hamster: 'clay',
+  guinea_pig: 'clay',
+  reptile: 'sage',
+  other: 'slate',
 };
 
 export function petToFormValues(pet: Pet): PetProfileFormValues {
@@ -109,7 +145,7 @@ export function PetProfileCard({
   const weight = formatWeightKg(pet.weightGrams);
 
   return (
-    <article className="flex h-full flex-col gap-4 rounded-2xl border border-warm-200 bg-surface-card p-5">
+    <article className="flex h-full flex-col gap-4 rounded-card border border-line bg-paper p-5">
       <header className="flex items-start gap-3">
         {pet.profilePhotoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -121,49 +157,47 @@ export function PetProfileCard({
         ) : (
           <span
             aria-hidden
-            className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-brand-50 font-body text-lg font-medium text-brand-700"
+            className={`inline-flex size-12 shrink-0 items-center justify-center rounded-tile ${TONE_CLASSES[SPECIES_TONE[pet.species]]}`}
           >
-            {pet.name.charAt(0).toUpperCase()}
+            <PetIcon name={SPECIES_ICON[pet.species]} className="size-8" />
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <p className="font-body text-sm font-medium text-warm-900">
-            {pet.name}
-          </p>
-          <p className="font-body text-xs text-warm-600">
+          <p className="font-body text-title text-ink">{pet.name}</p>
+          <p className="font-body text-xs text-ink-muted">
             {SPECIES_LABEL[pet.species]}
             {pet.breed ? ` · ${pet.breed}` : ''}
           </p>
         </div>
       </header>
 
-      <dl className="grid gap-2 font-body text-sm text-warm-600">
+      <dl className="grid gap-2 font-body text-sm text-ink-secondary">
         {birth && (
           <div className="flex justify-between gap-2">
-            <dt className="text-warm-500">Birthday</dt>
-            <dd className="text-right text-warm-900">{birth}</dd>
+            <dt className="text-ink-muted">Birthday</dt>
+            <dd className="text-right text-ink">{birth}</dd>
           </div>
         )}
         {weight && (
           <div className="flex justify-between gap-2">
-            <dt className="text-warm-500">Weight</dt>
-            <dd className="text-right text-warm-900">{weight}</dd>
+            <dt className="text-ink-muted">Weight</dt>
+            <dd className="text-right text-ink">{weight}</dd>
           </div>
         )}
         {pet.dietaryNotes && (
-          <div className="flex flex-col gap-0.5 border-t border-warm-100 pt-2">
-            <dt className="text-warm-500">Diet</dt>
-            <dd className="text-warm-900">{pet.dietaryNotes}</dd>
+          <div className="flex flex-col gap-0.5 border-t border-line pt-2">
+            <dt className="text-ink-muted">Diet</dt>
+            <dd className="text-ink">{pet.dietaryNotes}</dd>
           </div>
         )}
       </dl>
 
-      <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-warm-200 pt-4">
+      <div className="mt-auto flex flex-wrap items-center gap-4 border-t border-line pt-4">
         <button
           type="button"
           onClick={() => setEditing(true)}
           disabled={disabled}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-warm-300 bg-transparent px-3 py-1.5 font-body text-xs text-warm-900 transition-colors hover:bg-warm-100 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Pencil size={12} aria-hidden />
           Edit
@@ -172,7 +206,7 @@ export function PetProfileCard({
           type="button"
           onClick={() => onDelete(pet.id)}
           disabled={disabled}
-          className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-body text-xs text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="ml-auto inline-flex items-center gap-1.5 font-body text-micro uppercase text-danger-solid opacity-90 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-danger-solid disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Trash2 size={12} aria-hidden />
           Delete

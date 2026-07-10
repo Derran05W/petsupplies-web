@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Button } from '@/components/ui';
 import { OrderReceiptBody } from '@/components/checkout/OrderReceiptBody';
 import { brand } from '@/lib/config/brand';
 import { getSharedOrder } from '@/lib/api/orders';
@@ -39,23 +39,24 @@ export default async function SharedOrderPage({
   const order = await getSharedOrder(params.id, token);
   if (!order) notFound();
 
-  const maskedEmail = maskEmail(order.email);
+  const maskedEmail = order.email ? maskEmail(order.email) : null;
 
   return (
     <div className="flex justify-center">
       <article
         aria-label="Order summary"
-        className="w-full max-w-2xl rounded-2xl border border-warm-200 bg-white px-6 py-8 shadow-sm md:px-10 md:py-10"
+        className="w-full max-w-2xl rounded-card border border-line bg-panel px-6 py-8 md:px-10 md:py-10"
       >
         <header className="flex flex-col items-center gap-3 text-center">
-          <h1 className="font-display text-3xl tracking-[-0.02em] text-warm-900 md:text-4xl">
-            Your order
-          </h1>
-          <p className="font-body text-sm text-warm-600">
-            Receipt also sent to{' '}
-            <span className="font-medium text-warm-900">{maskedEmail}</span>.
-          </p>
-          <span className="mt-1 inline-flex items-center rounded-full bg-warm-100 px-3 py-1 font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
+          <p className="font-body text-kicker uppercase text-pine">Receipt</p>
+          <h1 className="font-display text-display text-ink">Your order</h1>
+          {maskedEmail ? (
+            <p className="font-body text-sm leading-body text-ink-secondary">
+              Receipt also sent to{' '}
+              <span className="font-medium text-ink">{maskedEmail}</span>.
+            </p>
+          ) : null}
+          <span className="mt-1 inline-flex items-center rounded-tag border border-line bg-paper px-3 py-1 font-body text-micro uppercase text-ink-secondary">
             Order #{order.id.slice(-8)}
           </span>
         </header>
@@ -63,19 +64,16 @@ export default async function SharedOrderPage({
         <OrderReceiptBody order={order} />
 
         <div className="mt-8">
-          <Link
-            href="/products"
-            className="inline-flex w-full items-center justify-center rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 sm:w-auto"
-          >
+          <Button href="/products" className="w-full sm:w-auto">
             Continue shopping
-          </Link>
+          </Button>
         </div>
 
-        <p className="mt-4 text-center font-body text-xs text-warm-400">
+        <p className="mt-4 text-center font-body text-xs text-ink-faint">
           Questions? Email{' '}
           <a
             href={`mailto:${brand.supportEmail}`}
-            className="text-warm-600 underline-offset-2 hover:text-warm-900 hover:underline"
+            className="text-ink-secondary underline-offset-2 hover:text-ink hover:underline"
           >
             {brand.supportEmail}
           </a>

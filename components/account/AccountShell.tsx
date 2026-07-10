@@ -17,9 +17,9 @@ interface AccountShellProps {
  */
 export function AccountShell({ user, children }: AccountShellProps) {
   return (
-    <div className="flex min-h-svh flex-col">
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 pb-10 pt-8 md:px-8 lg:px-12 lg:pb-14 lg:pt-10">
-        <div className="border-warm-200/80 bg-warm-50/95 sticky top-0 z-20 -mx-6 mb-6 border-b px-6 py-3 backdrop-blur-sm md:-mx-8 md:px-8 lg:-mx-12 lg:px-12">
+    <div className="flex min-h-svh flex-col bg-paper text-ink">
+      <div className="mx-auto flex w-full max-w-wrap flex-1 flex-col px-6 pb-10 pt-8 md:px-8 lg:px-12 lg:pb-14 lg:pt-10">
+        <div className="bg-paper/95 sticky top-0 z-20 -mx-6 mb-6 border-b border-line px-6 py-3 backdrop-blur-sm md:-mx-8 md:px-8 lg:-mx-12 lg:px-12">
           <AccountBackLink className="self-start" />
         </div>
         <div className="flex flex-1 flex-col gap-10 lg:flex-row lg:gap-10">

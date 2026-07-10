@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { NAV_LINK_CLASSES } from '@/components/ui';
 import { isAdminUser } from '@/lib/account/user-display';
 import type { SettingsDrawerProps } from '@/components/layout/settings-drawer/types';
 import { DrawerPortal } from '@/components/layout/DrawerPortal';
@@ -87,7 +87,7 @@ export function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
           role="presentation"
           onClick={onClose}
           className={cn(
-            'absolute inset-0 bg-overlay transition-opacity duration-300',
+            'absolute inset-0 bg-scrim transition-opacity duration-base',
             open ? 'opacity-100' : 'opacity-0',
           )}
         />
@@ -98,13 +98,13 @@ export function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
           aria-modal="true"
           aria-label="Settings"
           className={cn(
-            'absolute right-0 top-0 z-[1] flex h-full w-full max-w-md flex-col bg-surface-drawer text-warm-900 shadow-xl transition-transform duration-300 ease-in-out',
+            'absolute right-0 top-0 z-[1] flex h-full w-full max-w-md flex-col border-l border-line bg-paper text-ink shadow-lifted transition-transform duration-base ease-soft',
             open ? 'translate-x-0' : 'translate-x-full',
           )}
         >
-          <div className="shrink-0 border-b border-warm-200 bg-surface-drawer px-6 py-4">
+          <div className="shrink-0 border-b border-line px-6 py-5">
             <div className="flex items-center justify-between gap-4">
-              <h2 className="font-display text-xl tracking-[-0.02em] text-warm-900">
+              <h2 className="font-display text-2xl tracking-[-0.01em] text-ink">
                 Settings
               </h2>
               <button
@@ -112,25 +112,25 @@ export function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
                 type="button"
                 onClick={onClose}
                 aria-label="Close settings"
-                className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-warm-900 transition-colors hover:bg-warm-100"
+                className={cn(
+                  NAV_LINK_CLASSES,
+                  'shrink-0 font-body text-label uppercase text-ink',
+                )}
               >
-                <X size={18} aria-hidden />
+                Close
               </button>
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface-drawer">
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
             {loading ? (
-              <div
-                className="flex flex-1 flex-col gap-4 bg-surface-drawer p-6"
-                aria-busy
-              >
-                <div className="h-16 animate-pulse rounded-xl bg-warm-100" />
-                <div className="h-24 animate-pulse rounded-xl bg-warm-100" />
-                <div className="h-32 animate-pulse rounded-xl bg-warm-100" />
+              <div className="flex flex-1 flex-col gap-4 p-6" aria-busy>
+                <div className="h-16 animate-pulse rounded-card bg-panel" />
+                <div className="h-24 animate-pulse rounded-card bg-panel" />
+                <div className="h-32 animate-pulse rounded-card bg-panel" />
               </div>
             ) : !user ? (
-              <div className="bg-surface-drawer p-6 font-body text-sm text-warm-600">
+              <div className="p-6 font-body text-sm text-ink-muted">
                 Sign in to manage your account.
               </div>
             ) : (

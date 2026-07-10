@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { SlidersHorizontal, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button, NAV_LINK_CLASSES } from '@/components/ui';
 import { FilterControls } from './FilterControls';
 
 interface FilterDrawerProps {
@@ -10,8 +10,8 @@ interface FilterDrawerProps {
 }
 
 /**
- * Mobile-only filter affordance. Renders a "Filters (n)" trigger button
- * and a bottom sheet that slides up from the bottom of the viewport.
+ * Mobile-only filter affordance. Renders a "Filters (n)" pill trigger and
+ * a bottom sheet that slides up from the bottom of the viewport.
  *
  * Accessibility:
  *   - The sheet is a real `role="dialog" aria-modal="true"` panel.
@@ -59,12 +59,11 @@ export function FilterDrawer({ activeCount }: FilterDrawerProps) {
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="inline-flex items-center gap-2 rounded-lg border border-warm-300 bg-surface-card px-4 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
+        className="inline-flex cursor-pointer items-center gap-2 rounded-pill border border-ink bg-transparent px-5 py-2.5 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
       >
-        <SlidersHorizontal size={16} aria-hidden />
         Filters
         {activeCount > 0 ? (
-          <span className="inline-flex size-5 items-center justify-center rounded-full bg-brand-400 font-body text-xs font-medium text-white">
+          <span className="inline-flex size-5 items-center justify-center rounded-full bg-pine font-body text-[10px] font-semibold leading-none text-paper">
             {activeCount}
           </span>
         ) : null}
@@ -81,7 +80,7 @@ export function FilterDrawer({ activeCount }: FilterDrawerProps) {
           role="presentation"
           onClick={close}
           className={cn(
-            'absolute inset-0 bg-overlay transition-opacity duration-300',
+            'absolute inset-0 bg-scrim transition-opacity duration-base',
             open ? 'opacity-100' : 'opacity-0',
           )}
         />
@@ -90,12 +89,12 @@ export function FilterDrawer({ activeCount }: FilterDrawerProps) {
           aria-modal="true"
           aria-label="Filter products"
           className={cn(
-            'absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-2xl bg-warm-50 shadow-xl transition-transform duration-300 ease-in-out',
+            'absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-card border-t border-line bg-paper text-ink shadow-lifted transition-transform duration-base ease-soft',
             open ? 'translate-y-0' : 'translate-y-full',
           )}
         >
-          <div className="flex items-center justify-between border-b border-warm-200 px-6 py-4">
-            <h2 className="font-display text-xl tracking-[-0.02em] text-warm-900">
+          <div className="flex items-center justify-between border-b border-line px-6 py-4">
+            <h2 className="font-display text-2xl tracking-[-0.01em] text-ink">
               Filters
             </h2>
             <button
@@ -103,22 +102,21 @@ export function FilterDrawer({ activeCount }: FilterDrawerProps) {
               type="button"
               onClick={close}
               aria-label="Close filters"
-              className="inline-flex size-9 items-center justify-center rounded-lg text-warm-900 hover:bg-warm-100"
+              className={cn(
+                NAV_LINK_CLASSES,
+                'font-body text-label uppercase text-ink',
+              )}
             >
-              <X size={18} aria-hidden />
+              Close
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-6 py-6">
             <FilterControls />
           </div>
-          <div className="border-t border-warm-200 px-6 py-4">
-            <button
-              type="button"
-              onClick={close}
-              className="w-full rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm text-white transition-colors hover:bg-brand-500"
-            >
+          <div className="border-t border-line px-6 py-4">
+            <Button onClick={close} className="w-full px-5 py-3.5">
               See results
-            </button>
+            </Button>
           </div>
         </div>
       </div>

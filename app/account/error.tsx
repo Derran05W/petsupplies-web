@@ -29,7 +29,7 @@ export default function AccountError({ error, reset }: AccountErrorProps) {
       />
       <section
         role="alert"
-        className="rounded-2xl border border-red-200 bg-red-50 px-6 py-8 font-body text-sm text-red-900"
+        className="rounded-card border border-danger-border bg-danger-surface px-6 py-8 font-body text-sm text-danger-solid"
       >
         <p className="font-medium">
           {apiMisconfigured
@@ -37,35 +37,35 @@ export default function AccountError({ error, reset }: AccountErrorProps) {
             : 'Something went wrong loading your orders.'}
         </p>
         {apiMisconfigured ? (
-          <p className="mt-2 text-red-800">
+          <p className="mt-2">
             Set{' '}
-            <code className="rounded bg-red-100 px-1 py-0.5 text-xs">
+            <code className="rounded-tag bg-panel px-1 py-0.5 text-xs text-ink">
               NEXT_PUBLIC_API_URL
             </code>{' '}
             to a running petsupplies-api instance (e.g.{' '}
-            <code className="rounded bg-red-100 px-1 py-0.5 text-xs">
+            <code className="rounded-tag bg-panel px-1 py-0.5 text-xs text-ink">
               http://localhost:3001
             </code>
             ) and restart{' '}
-            <code className="rounded bg-red-100 px-1 py-0.5 text-xs">
+            <code className="rounded-tag bg-panel px-1 py-0.5 text-xs text-ink">
               next dev
             </code>
             .
           </p>
         ) : (
-          <p className="mt-2 text-red-800">{error.message}</p>
+          <p className="mt-2">{error.message}</p>
         )}
         <div className="mt-6 flex flex-wrap gap-3">
           <button
             type="button"
             onClick={reset}
-            className="rounded-lg bg-red-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-950"
+            className="inline-flex cursor-pointer items-center justify-center rounded-pill border border-danger-solid bg-danger-solid px-6 py-2.5 font-body text-micro uppercase text-danger-on-solid transition-all duration-base ease-soft hover:border-danger-solid-hover hover:bg-danger-solid-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-danger-solid"
           >
             Try again
           </button>
           <Link
             href="/products"
-            className="inline-flex items-center rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-900 transition-colors hover:bg-red-100"
+            className="inline-flex items-center justify-center rounded-pill border border-ink bg-transparent px-6 py-2.5 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
           >
             Browse products
           </Link>

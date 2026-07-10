@@ -2,6 +2,7 @@ import type { OrderSummary } from '@/types/order';
 import type { ShippingSelectionInput } from '@/types/shipping';
 import { ApiError, apiFetch } from './client';
 import { getOrderById } from './orders';
+import { mapApiOrder, type ApiOrderDetail } from './order-mapper';
 import {
   clearPendingOrderId,
   loadPendingOrderId,
@@ -73,11 +74,17 @@ export async function getOrderByCheckoutSession(
     }
   }
 
+  // BACKEND GAP: `GET /orders/by-checkout-session/:sessionId` does not exist
+  // (only `GET /orders` and `GET /orders/:id` are mounted). It 404s, which we
+  // treat as "order not confirmed yet" so the poll keeps retrying until it
+  // either resolves via the saved pending order id above or times out into the
+  // success page's friendly "still processing" panel. See `backendGaps`.
   try {
-    return await apiFetch<OrderSummary>(
+    const raw = await apiFetch<ApiOrderDetail>(
       `/orders/by-checkout-session/${encodeURIComponent(sessionId)}`,
       accessToken ? { cache: 'no-store', accessToken } : { cache: 'no-store' },
     );
+    return { ...mapApiOrder(raw), checkoutSessionId: sessionId };
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) return null;
     throw err;

@@ -9,36 +9,34 @@ export const metadata: Metadata = {
 
 export default function CartPage() {
   return (
-    <section className="px-6 pb-20 pt-8 md:px-8 md:pt-12 lg:px-12">
-      <div className="mx-auto max-w-7xl">
+    <section className="bg-paper px-gutter pb-24 pt-12 text-ink md:pt-16">
+      <div className="mx-auto max-w-wrap">
         <nav
           aria-label="Breadcrumb"
-          className="mb-6 font-body text-sm text-warm-600"
+          className="mb-6 font-body text-micro uppercase text-ink-muted"
         >
           <ol className="flex items-center gap-2">
             <li>
               <Link
                 href="/products"
-                className="transition-colors hover:text-warm-900"
+                className="transition-colors duration-fast hover:text-ink"
               >
                 Shop
               </Link>
             </li>
-            <li aria-hidden className="text-warm-300">
+            <li aria-hidden className="text-ink-faint">
               /
             </li>
-            <li
-              aria-current="page"
-              className="truncate font-medium text-warm-900"
-            >
+            <li aria-current="page" className="truncate text-ink">
               Your cart
             </li>
           </ol>
         </nav>
 
-        <h1 className="mb-8 font-display text-4xl leading-tight tracking-[-0.02em] text-warm-900 md:text-5xl">
-          Your cart
-        </h1>
+        <header className="mb-10 flex flex-col gap-3">
+          <p className="font-body text-kicker uppercase text-pine">Cart</p>
+          <h1 className="font-display text-display text-ink">Your cart</h1>
+        </header>
 
         <CartContents variant="page" />
       </div>

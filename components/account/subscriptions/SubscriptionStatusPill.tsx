@@ -8,11 +8,11 @@ interface SubscriptionStatusPillProps {
 }
 
 const STATUS_STYLES: Record<SubscriptionStatus, string> = {
-  active: 'bg-brand-50 text-brand-800 ring-1 ring-brand-100',
-  paused: 'bg-warm-100 text-warm-800 ring-1 ring-warm-200',
-  canceled: 'bg-warm-200 text-warm-700 ring-1 ring-warm-300',
-  past_due: 'bg-red-50 text-red-800 ring-1 ring-red-100',
-  incomplete: 'bg-amber-50 text-amber-900 ring-1 ring-amber-100',
+  active: 'border-pine/40 bg-tile-sage text-tile-sage-ink',
+  paused: 'border-amber/40 bg-tile-amber text-tile-amber-ink',
+  canceled: 'border-line bg-panel text-ink-muted',
+  past_due: 'border-danger-border bg-danger-surface text-danger-solid',
+  incomplete: 'border-amber/40 bg-tile-amber text-tile-amber-ink',
 };
 
 export function SubscriptionStatusPill({
@@ -24,7 +24,7 @@ export function SubscriptionStatusPill({
     <span
       role="status"
       className={cn(
-        'inline-flex items-center rounded-full px-2.5 py-0.5 font-body text-xs font-medium',
+        'inline-flex items-center rounded-tag border px-2 py-0.5 font-body text-micro uppercase',
         STATUS_STYLES[status],
         className,
       )}

@@ -22,14 +22,11 @@ export interface Address extends ShippingAddress {
   createdAt: string;
 }
 
-/** Raw paginated list from `GET /orders` (petsupplies-api). */
-export interface ApiOrderListResponse {
-  data: OrderSummary[];
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
+/**
+ * Raw paginated list from `GET /orders` — the wire types (`ApiOrderListResponse`,
+ * `ApiOrderListItem`, …) live alongside their mappers in
+ * [lib/api/order-mapper.ts](../lib/api/order-mapper.ts).
+ */
 
 /** Normalized list shape used by account UI components. */
 export interface OrderListResponse {

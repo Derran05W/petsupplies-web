@@ -29,7 +29,7 @@ export function OrdersList({
 
   return (
     <>
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-col divide-y divide-line border-y border-line">
         {data.orders.map((order) => (
           <OrderRow key={order.id} order={order} extraQuery={extraQuery} />
         ))}

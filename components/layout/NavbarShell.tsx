@@ -1,11 +1,18 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Menu, Search } from 'lucide-react';
-import { BrandLogo } from '@/components/brand/BrandLogo';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useStorefrontBrand } from '@/components/providers/StorefrontBrandProvider';
+import { useFreeShippingThresholdCents } from '@/components/providers/FreeShippingThresholdProvider';
+import { formatFreeShippingLabel } from '@/lib/site/shipping-copy';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  NAV_BAR_CLASSES,
+  NAV_LINK_CLASSES,
+  WORDMARK_CLASSES,
+  TopBar,
+} from '@/components/ui';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { CartLiveRegion } from '@/components/cart/CartLiveRegion';
 import { CartIcon } from './CartIcon';
@@ -18,11 +25,13 @@ import { SettingsDrawerContext } from './SettingsDrawerContext';
 import { SearchOverlay } from './SearchOverlay';
 
 /**
- * Top-level navbar wrapper. Owns:
- *   - sticky-shadow scroll state
- *   - mobile menu open / close + focus return to hamburger
- *   - cart drawer open / close + focus return to cart icon
- *   - settings drawer open / close + focus return to settings trigger
+ * Boutique site header: ink announcement TopBar (free-shipping offer)
+ * over the sticky blur nav — admin links left, italic wordmark center,
+ * uppercase Search / Cart (n) / Account triggers right. Owns:
+ *   - mobile menu open / close + focus return to the menu trigger
+ *   - cart drawer open / close + focus return to the cart trigger
+ *   - settings drawer open / close + focus return to the settings trigger
+ *   - search overlay open / close + focus return to the search trigger
  *   - the always-mounted CartLiveRegion (so add / remove announcements
  *     work from any shop page surface)
  *
@@ -30,14 +39,14 @@ import { SearchOverlay } from './SearchOverlay';
  */
 export function NavbarShell() {
   const brand = useStorefrontBrand();
+  const thresholdCents = useFreeShippingThresholdCents();
   const { user, loading } = useAuth();
-  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const hamburgerRef = useRef<HTMLButtonElement | null>(null);
-  const cartIconRef = useRef<HTMLButtonElement | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const cartButtonRef = useRef<HTMLButtonElement | null>(null);
   const settingsButtonRef = useRef<HTMLButtonElement | null>(null);
   const searchButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -53,23 +62,14 @@ export function NavbarShell() {
     [openSettings],
   );
 
-  useEffect(() => {
-    function handleScroll() {
-      setScrolled(window.scrollY > 8);
-    }
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   function closeMobile() {
     setMobileOpen(false);
-    hamburgerRef.current?.focus();
+    menuButtonRef.current?.focus();
   }
 
   function closeCartDrawer() {
     setDrawerOpen(false);
-    cartIconRef.current?.focus();
+    cartButtonRef.current?.focus();
   }
 
   function closeSettingsDrawer() {
@@ -106,54 +106,55 @@ export function NavbarShell() {
   return (
     <SettingsDrawerContext.Provider value={settingsDrawerContextValue}>
       <>
-        <header
-          className={cn(
-            'bg-warm-50/90 sticky top-0 z-40 backdrop-blur-sm transition-shadow',
-            scrolled ? 'border-b border-warm-200 shadow-sm' : '',
-          )}
-        >
-          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-6 md:px-8 lg:px-12">
-            <BrandLogo brand={brand} className="gap-1" />
+        <TopBar>{formatFreeShippingLabel(thresholdCents)}</TopBar>
+        <header className={cn('sticky top-0 z-40', NAV_BAR_CLASSES)}>
+          <nav aria-label="Primary" className="hidden md:block">
+            <NavLinks />
+          </nav>
 
-            <nav
-              aria-label="Primary"
-              className="hidden lg:flex lg:flex-1 lg:justify-center"
+          <Link
+            href="/"
+            aria-label={brand.name}
+            className={cn(
+              WORDMARK_CLASSES,
+              'justify-self-start whitespace-nowrap text-xl sm:text-2xl md:justify-self-center',
+            )}
+          >
+            {brand.name}
+          </Link>
+
+          <div className="flex items-center justify-end gap-4 font-body text-label uppercase text-ink sm:gap-7">
+            <button
+              ref={searchButtonRef}
+              type="button"
+              aria-label="Search"
+              aria-expanded={searchOpen}
+              onClick={openSearch}
+              className={cn(NAV_LINK_CLASSES, 'uppercase')}
             >
-              <NavLinks />
-            </nav>
-
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <button
-                ref={searchButtonRef}
-                type="button"
-                aria-label="Search"
-                aria-expanded={searchOpen}
-                onClick={openSearch}
-                className="inline-flex size-9 items-center justify-center rounded-lg text-warm-900 transition-colors hover:bg-warm-100"
-              >
-                <Search size={18} aria-hidden />
-              </button>
-              <CartIcon ref={cartIconRef} onOpenDrawer={openCartDrawer} />
-              {loading ? (
-                <div aria-hidden className="size-9 rounded-lg bg-warm-100" />
-              ) : user ? (
-                <SettingsButton ref={settingsButtonRef} onOpen={openSettings} />
-              ) : (
-                <div className="hidden lg:block">
-                  <AuthSlot />
-                </div>
-              )}
-              <button
-                ref={hamburgerRef}
-                type="button"
-                aria-label="Open menu"
-                aria-expanded={mobileOpen}
-                onClick={openMobileMenu}
-                className="inline-flex size-9 items-center justify-center rounded-lg text-warm-900 transition-colors hover:bg-warm-100 lg:hidden"
-              >
-                <Menu size={18} aria-hidden />
-              </button>
-            </div>
+              Search
+            </button>
+            <CartIcon ref={cartButtonRef} onOpenDrawer={openCartDrawer} />
+            {loading ? (
+              <span
+                aria-hidden
+                className="hidden h-4 w-16 rounded bg-panel md:block"
+              />
+            ) : user ? (
+              <SettingsButton ref={settingsButtonRef} onOpen={openSettings} />
+            ) : (
+              <AuthSlot className="hidden md:block" />
+            )}
+            <button
+              ref={menuButtonRef}
+              type="button"
+              aria-label="Open menu"
+              aria-expanded={mobileOpen}
+              onClick={openMobileMenu}
+              className={cn(NAV_LINK_CLASSES, 'uppercase md:hidden')}
+            >
+              Menu
+            </button>
           </div>
         </header>
 

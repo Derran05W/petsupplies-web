@@ -66,13 +66,13 @@ export function WishlistButton({
   const buttonClass =
     variant === 'overlay'
       ? cn(
-          'absolute right-3 top-3 z-10 inline-flex size-9 items-center justify-center rounded-full border border-warm-200 bg-surface-card/95 shadow-sm backdrop-blur-sm transition-colors',
-          'hover:bg-surface-card hover:border-brand-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400',
+          'absolute right-3 top-3 z-10 inline-flex size-9 items-center justify-center rounded-full border border-line bg-[color-mix(in_srgb,var(--paper)_92%,transparent)] backdrop-blur-sm transition-colors duration-fast',
+          'hover:border-ink hover:bg-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine',
           busy ? 'cursor-wait opacity-80' : '',
         )
       : cn(
-          'inline-flex items-center justify-center gap-2 rounded-lg border border-warm-300 bg-surface-card px-4 py-2.5 font-body text-sm font-medium text-warm-900 transition-colors',
-          'hover:border-brand-300 hover:bg-brand-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400',
+          'inline-flex items-center justify-center gap-2 rounded-pill border border-ink bg-transparent px-6 py-3 font-body text-button uppercase text-ink transition-all duration-base ease-soft',
+          'hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
           busy ? 'cursor-wait opacity-80' : '',
         );
 
@@ -93,8 +93,8 @@ export function WishlistButton({
         className={cn(
           'transition-colors',
           isWishlisted
-            ? 'fill-brand-500 text-brand-500'
-            : 'fill-transparent text-warm-600',
+            ? 'fill-pine text-pine'
+            : 'fill-transparent text-current',
         )}
       />
       {variant === 'inline' ? (

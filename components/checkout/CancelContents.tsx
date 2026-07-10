@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Button, TONE_CLASSES } from '@/components/ui';
 
 /**
  * Server component — the friendly `/checkout/cancel` panel that Stripe
@@ -8,10 +8,10 @@ import Link from 'next/link';
  */
 export function CancelContents() {
   return (
-    <section className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl border border-warm-200 bg-surface-card px-6 py-10 text-center shadow-sm md:px-10 md:py-12">
+    <section className="flex w-full max-w-md flex-col items-center gap-4 rounded-card border border-line bg-paper px-6 py-10 text-center md:px-10 md:py-12">
       <span
         aria-hidden
-        className="inline-flex size-12 items-center justify-center rounded-full bg-warm-100 text-warm-600"
+        className={`inline-flex size-12 items-center justify-center rounded-tile ${TONE_CLASSES.slate}`}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -28,26 +28,18 @@ export function CancelContents() {
           <polyline points="3 4 3 12 11 12" />
         </svg>
       </span>
-      <h1 className="font-display text-3xl tracking-[-0.02em] text-warm-900">
-        Checkout cancelled.
-      </h1>
-      <p className="font-body text-sm text-warm-600">
+      <h1 className="font-display text-title text-ink">Checkout cancelled.</h1>
+      <p className="font-body text-sm leading-body text-ink-secondary">
         Your cart is still saved. You can pick back up whenever you&apos;re
         ready.
       </p>
       <div className="mt-2 flex w-full flex-col gap-3 sm:flex-row">
-        <Link
-          href="/cart"
-          className="inline-flex flex-1 items-center justify-center rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500"
-        >
+        <Button href="/cart" className="flex-1 px-5 py-2.5">
           Return to cart
-        </Link>
-        <Link
-          href="/products"
-          className="inline-flex flex-1 items-center justify-center rounded-lg border border-warm-300 bg-transparent px-5 py-2.5 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
-        >
+        </Button>
+        <Button variant="ghost" href="/products" className="flex-1 px-5 py-2.5">
           Keep shopping
-        </Link>
+        </Button>
       </div>
     </section>
   );

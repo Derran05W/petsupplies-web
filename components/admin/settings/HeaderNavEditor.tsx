@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowDown, ArrowUp, Loader2, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Loader2, Plus } from 'lucide-react';
 import { adminApiErrorMessage } from '@/lib/api/admin/error-messages';
 import {
   useReplaceHeaderNavMutation,
@@ -36,7 +36,7 @@ export function HeaderNavEditor() {
 
   if (isPending) {
     return (
-      <p className="font-body text-sm text-warm-600" aria-busy="true">
+      <p className="font-body text-sm text-ink-muted" aria-busy="true">
         Loading header navigation…
       </p>
     );
@@ -44,7 +44,7 @@ export function HeaderNavEditor() {
 
   if (loadError) {
     return (
-      <p className="font-body text-sm text-red-700" role="alert">
+      <p className="font-body text-sm text-danger-solid" role="alert">
         {adminApiErrorMessage(loadError)}
       </p>
     );
@@ -73,7 +73,7 @@ export function HeaderNavEditor() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
-        <p className="font-body text-sm text-warm-600">
+        <p className="font-body text-sm text-ink-secondary">
           Links shown in the desktop navbar and mobile menu.
         </p>
         <button
@@ -82,7 +82,7 @@ export function HeaderNavEditor() {
             setSuccess(null);
             setLinks((current) => [...current, emptyLink()]);
           }}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-warm-300 px-3 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
+          className="inline-flex cursor-pointer items-center gap-1.5 rounded-pill border border-ink bg-transparent px-4 py-2 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
         >
           <Plus size={14} aria-hidden />
           Add link
@@ -93,7 +93,7 @@ export function HeaderNavEditor() {
         {links.map((link, index) => (
           <li
             key={`header-${index}`}
-            className="bg-warm-50/50 grid gap-3 rounded-lg border border-warm-200 p-4 sm:grid-cols-[1fr_1fr_auto]"
+            className="grid gap-3 border-b border-line pb-4 last:border-0 last:pb-0 sm:grid-cols-[1fr_1fr_auto]"
           >
             <div>
               <label
@@ -134,7 +134,7 @@ export function HeaderNavEditor() {
                 aria-label="Move link up"
                 disabled={index === 0}
                 onClick={() => moveLink(index, -1)}
-                className="inline-flex size-9 items-center justify-center rounded-lg text-warm-600 hover:bg-warm-100 disabled:opacity-40"
+                className="inline-flex size-9 items-center justify-center rounded-tile text-ink-faint transition-colors duration-fast hover:bg-panel hover:text-ink disabled:opacity-40"
               >
                 <ArrowUp size={14} aria-hidden />
               </button>
@@ -143,7 +143,7 @@ export function HeaderNavEditor() {
                 aria-label="Move link down"
                 disabled={index === links.length - 1}
                 onClick={() => moveLink(index, 1)}
-                className="inline-flex size-9 items-center justify-center rounded-lg text-warm-600 hover:bg-warm-100 disabled:opacity-40"
+                className="inline-flex size-9 items-center justify-center rounded-tile text-ink-faint transition-colors duration-fast hover:bg-panel hover:text-ink disabled:opacity-40"
               >
                 <ArrowDown size={14} aria-hidden />
               </button>
@@ -154,9 +154,9 @@ export function HeaderNavEditor() {
                   setSuccess(null);
                   setLinks((current) => current.filter((_, i) => i !== index));
                 }}
-                className="inline-flex size-9 items-center justify-center rounded-lg text-red-700 hover:bg-red-50"
+                className="font-body text-micro uppercase text-danger-solid transition-opacity duration-fast hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger-solid"
               >
-                <Trash2 size={14} aria-hidden />
+                Remove
               </button>
             </div>
           </li>
@@ -164,13 +164,13 @@ export function HeaderNavEditor() {
       </ul>
 
       {submitError ? (
-        <p className="font-body text-sm text-red-700" role="alert">
+        <p className="font-body text-sm text-danger-solid" role="alert">
           {submitError}
         </p>
       ) : null}
 
       {success ? (
-        <p className="font-body text-sm text-brand-700" role="status">
+        <p className="font-body text-sm text-pine" role="status">
           {success}
         </p>
       ) : null}
@@ -209,7 +209,7 @@ export function HeaderNavEditor() {
             setSubmitError(adminApiErrorMessage(err));
           }
         }}
-        className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
       >
         {mutation.isPending ? (
           <Loader2 size={14} className="animate-spin" aria-hidden />

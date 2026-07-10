@@ -1,9 +1,48 @@
 import type { Product } from '@/types/product';
-import type { StockAlert, StockAlertListPayload } from '@/types/stock-alert';
+import type { StockAlert } from '@/types/stock-alert';
 import { ApiError, apiFetch } from './client';
+import { mapCatalogProduct } from './product-mapper';
 
 export interface StockAlertsApiOptions {
   accessToken?: string;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Wire types + mappers. Backend `StockAlertItemResponse` nests a minimal      */
+/* product snapshot ({ id, name, slug, price, active, stock }) and the list is */
+/* a `{ data: [...] }` envelope.                                               */
+/* -------------------------------------------------------------------------- */
+
+interface ApiStockAlertProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  active: boolean;
+  stock: number;
+}
+
+function mapStockAlertProduct(p: ApiStockAlertProduct): Product {
+  return mapCatalogProduct({
+    ...p,
+    imageUrl: null,
+    images: [],
+    inStock: typeof p.stock === 'number' ? p.stock > 0 : Boolean(p.active),
+    description: '',
+    category: '',
+    tags: [],
+    avgRating: null,
+    reviewCount: 0,
+    createdAt: '',
+  });
+}
+
+function isApiStockAlertProduct(raw: unknown): raw is ApiStockAlertProduct {
+  // The wire snapshot carries `price` but not `priceCents`; an already-app
+  // `Product` has `priceCents` and is used as-is.
+  return (
+    !!raw && typeof raw === 'object' && !('priceCents' in raw) && 'price' in raw
+  );
 }
 
 /** Canonical path per docs/backend-api-routes.md */
@@ -19,7 +58,15 @@ export function normalizeStockAlertRow(
 ): StockAlert | null {
   if (!raw || typeof raw !== 'object') return null;
   const r = raw as Record<string, unknown>;
-  const product = (r.product as Product | undefined) ?? fallbackProduct;
+  const rawProduct = r.product;
+  let product: Product | undefined;
+  if (isApiStockAlertProduct(rawProduct)) {
+    product = mapStockAlertProduct(rawProduct);
+  } else if (rawProduct && typeof rawProduct === 'object') {
+    product = rawProduct as Product;
+  } else {
+    product = fallbackProduct;
+  }
   const productId =
     (typeof r.productId === 'string' ? r.productId : undefined) ?? product?.id;
   const createdRaw = r.createdAt ?? r.created_at;
@@ -33,13 +80,15 @@ function normalizeListPayload(raw: unknown): StockAlert[] {
   let rows: unknown[] = [];
   if (Array.isArray(raw)) {
     rows = raw;
-  } else if (
-    raw &&
-    typeof raw === 'object' &&
-    'items' in raw &&
-    Array.isArray((raw as StockAlertListPayload).items)
-  ) {
-    rows = (raw as StockAlertListPayload).items!;
+  } else if (raw && typeof raw === 'object') {
+    // Backend paginated envelope is `{ data: [...] }`; `items` tolerated too.
+    for (const key of ['data', 'items'] as const) {
+      const value = (raw as Record<string, unknown>)[key];
+      if (Array.isArray(value)) {
+        rows = value;
+        break;
+      }
+    }
   }
   return rows
     .map((row) => normalizeStockAlertRow(row))

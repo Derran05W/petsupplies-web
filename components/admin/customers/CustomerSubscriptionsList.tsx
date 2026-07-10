@@ -18,7 +18,7 @@ export function CustomerSubscriptionsList({
 }: CustomerSubscriptionsListProps) {
   if (subscriptions.length === 0) {
     return (
-      <p className="rounded-2xl border border-warm-200 bg-surface-card px-5 py-8 text-center font-body text-sm text-warm-600">
+      <p className="rounded-card border border-line bg-paper px-5 py-8 text-center font-body text-sm text-ink-secondary">
         No subscriptions for this customer.
       </p>
     );
@@ -29,9 +29,9 @@ export function CustomerSubscriptionsList({
       {subscriptions.map((sub) => (
         <li
           key={sub.id}
-          className="flex gap-4 rounded-2xl border border-warm-200 bg-surface-card p-4"
+          className="flex gap-4 rounded-card border border-line bg-paper p-4"
         >
-          <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-warm-100">
+          <div className="relative size-16 shrink-0 overflow-hidden rounded-tile bg-panel">
             <Image
               src={
                 sub.productImageUrl?.length ? sub.productImageUrl : PLACEHOLDER
@@ -43,17 +43,17 @@ export function CustomerSubscriptionsList({
             />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-body text-sm font-semibold text-warm-900">
+            <p className="font-body text-sm font-semibold text-ink">
               {sub.productName}
             </p>
-            <p className="mt-1 font-body text-xs text-warm-600">
+            <p className="mt-1 font-body text-xs text-ink-muted">
               {SUBSCRIPTION_INTERVAL_LABEL[sub.interval]} · Qty {sub.quantity}
             </p>
-            <p className="mt-1 font-body text-xs text-warm-600">
+            <p className="mt-1 font-body text-xs text-ink-muted">
               {SUBSCRIPTION_STATUS_LABEL[sub.status]} ·{' '}
               {formatPrice(sub.unitPriceCents, 'usd')} / shipment
             </p>
-            <p className="text-warm-500 mt-1 font-body text-xs">
+            <p className="mt-1 font-body text-xs text-ink-faint">
               Next / end: {formatDate(sub.currentPeriodEnd)}
             </p>
           </div>

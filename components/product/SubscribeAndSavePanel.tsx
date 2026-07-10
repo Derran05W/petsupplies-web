@@ -68,19 +68,14 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
     if (!user?.id) return;
     if (!product.inStock) return;
 
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const successUrl = `${origin}/account/subscriptions?checkout=success`;
-    const cancelUrl = `${origin}${product.slug ? `/products/${product.slug}?subscribe=cancelled` : '/products'}`;
-
     try {
+      // Success / cancel URLs are set server-side on the Stripe Checkout
+      // session; the strict validator rejects any extra fields.
       const payload = await checkoutMutation.mutateAsync({
         productId: product.id,
         quantity: qty,
         interval,
-        successUrl,
-        cancelUrl,
         ...(petId.trim().length > 0 ? { petId: petId.trim() } : {}),
-        clientReferenceId: user.id,
       });
       window.location.href = payload.url;
     } catch (err) {
@@ -106,10 +101,10 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
   const busy = checkoutMutation.isPending;
 
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6">
+    <div className="flex flex-col gap-5 rounded-card border border-line bg-panel p-5 md:p-6">
       <div className="flex flex-wrap items-center gap-3">
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-50 px-2.5 py-1 font-body text-xs font-medium text-brand-700">
-          <RefreshCw size={13} aria-hidden className="text-brand-500" />
+        <span className="border-pine/40 inline-flex items-center gap-1.5 rounded-tag border bg-tile-sage px-2 py-0.5 font-body text-micro uppercase text-tile-sage-ink">
+          <RefreshCw size={13} aria-hidden />
           Subscribe &amp; Save — save {discountPercent}%
         </span>
       </div>
@@ -136,10 +131,11 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
         <QuantitySelector product={product} />
       ) : (
         <>
-          <p className="font-display text-xl text-brand-700">
+          <p className="font-display text-xl text-ink">
             {formatPrice(subscribeUnit)}
-            <span className="ml-2 font-body text-sm font-normal text-warm-600">
-              / delivery ({discountPercent}% off)
+            <span className="ml-2 font-body text-sm font-normal text-ink-muted">
+              / delivery (<span className="text-pine">{discountPercent}%</span>{' '}
+              off)
             </span>
           </p>
 
@@ -147,7 +143,7 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
             <div className="flex flex-col gap-2">
               <label
                 htmlFor="subscribe-pet"
-                className="text-warm-800 font-body text-sm font-medium"
+                className="font-body text-micro uppercase text-ink"
               >
                 Pet (optional)
               </label>
@@ -156,7 +152,7 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
                 value={petId}
                 onChange={(e) => setPetId(e.target.value)}
                 disabled={busy}
-                className="rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink focus:border-ink focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <option value="">None</option>
                 {pets.map((p) => (
@@ -181,18 +177,20 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
 
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <span className="font-body text-sm text-warm-600">Quantity</span>
-              <div className="inline-flex items-center rounded-lg border border-warm-300 bg-surface-card">
+              <span className="font-body text-micro uppercase text-ink">
+                Quantity
+              </span>
+              <div className="inline-flex items-center rounded-pill border border-line">
                 <button
                   type="button"
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
                   disabled={decDisabled || busy}
                   aria-label="Decrease quantity"
                   className={cn(
-                    'inline-flex size-10 items-center justify-center rounded-l-lg text-warm-900 transition-colors',
+                    'inline-flex size-10 items-center justify-center rounded-l-pill transition-colors duration-fast',
                     decDisabled || busy
-                      ? 'cursor-not-allowed text-warm-400'
-                      : 'hover:bg-warm-100',
+                      ? 'cursor-not-allowed text-ink-faint opacity-50'
+                      : 'text-ink hover:bg-paper',
                   )}
                 >
                   <Minus size={14} aria-hidden />
@@ -210,7 +208,7 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
                     setQty(Math.max(1, Math.min(max, next)));
                   }}
                   aria-label="Subscription quantity"
-                  className="h-10 w-12 border-x border-warm-300 bg-surface-card text-center font-body text-sm text-warm-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-400 disabled:bg-warm-100 disabled:text-warm-400"
+                  className="h-10 w-12 border-x border-line bg-transparent text-center font-body text-sm text-ink focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-pine disabled:text-ink-faint disabled:opacity-60"
                 />
                 <button
                   type="button"
@@ -218,10 +216,10 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
                   disabled={incDisabled || busy}
                   aria-label="Increase quantity"
                   className={cn(
-                    'inline-flex size-10 items-center justify-center rounded-r-lg text-warm-900 transition-colors',
+                    'inline-flex size-10 items-center justify-center rounded-r-pill transition-colors duration-fast',
                     incDisabled || busy
-                      ? 'cursor-not-allowed text-warm-400'
-                      : 'hover:bg-warm-100',
+                      ? 'cursor-not-allowed text-ink-faint opacity-50'
+                      : 'text-ink hover:bg-paper',
                   )}
                 >
                   <Plus size={14} aria-hidden />
@@ -230,15 +228,15 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
             </div>
 
             {!product.inStock ? (
-              <p className="font-body text-sm text-warm-600" role="status">
+              <p className="font-body text-sm text-ink-secondary" role="status">
                 This item is out of stock — Subscribe & Save is unavailable for
                 now.
               </p>
             ) : showSignInChrome ? (
-              <p className="font-body text-sm text-warm-600">
+              <p className="font-body text-sm text-ink-secondary">
                 <Link
                   href={`/login?redirect=${encodeURIComponent(`/products/${product.slug}`)}`}
-                  className="font-medium text-brand-600 underline-offset-4 hover:text-brand-700 hover:underline"
+                  className="font-medium text-pine underline-offset-4 hover:underline"
                 >
                   Sign in
                 </Link>{' '}
@@ -246,7 +244,7 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
                 account.
               </p>
             ) : authLoading ? (
-              <span className="inline-flex items-center gap-2 font-body text-sm text-warm-600">
+              <span className="inline-flex items-center gap-2 font-body text-sm text-ink-muted">
                 <Loader2 className="size-4 animate-spin" aria-hidden />
                 Checking your session…
               </span>
@@ -256,8 +254,8 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
                 disabled={busy}
                 onClick={() => void handleSubscribe()}
                 className={cn(
-                  'inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 font-body text-sm font-medium text-white transition-colors sm:w-auto sm:min-w-[14rem]',
-                  busy ? 'bg-brand-500' : 'bg-brand-400 hover:bg-brand-500',
+                  'inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-3 font-body text-button uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine sm:w-auto sm:min-w-[14rem]',
+                  busy ? 'cursor-wait opacity-80 hover:bg-ink' : '',
                 )}
               >
                 {busy ? (
@@ -275,7 +273,7 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
           {rootError ? (
             <div
               role="alert"
-              className="rounded-md border border-red-200 bg-red-50 px-3 py-2 font-body text-sm text-red-800"
+              className="rounded-tile border border-danger-border bg-danger-surface px-3 py-2 font-body text-sm text-danger-solid"
             >
               <p>{rootError}</p>
               {rootError.includes('cart') ? (
@@ -311,10 +309,10 @@ function ModeButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'rounded-lg border px-4 py-2 font-body text-sm font-medium transition-colors',
+        'rounded-pill border px-4 py-2 font-body text-micro uppercase transition-all duration-base ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
         selected
-          ? 'text-brand-800 border-brand-400 bg-brand-50'
-          : 'text-warm-700 border-warm-200 bg-warm-50 hover:border-warm-300',
+          ? 'border-ink bg-ink text-paper'
+          : 'border-line bg-paper text-ink hover:border-ink',
         disabled ? 'cursor-not-allowed opacity-60' : '',
       )}
     >

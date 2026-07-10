@@ -34,10 +34,10 @@ export default function AdminCustomerDetailPage({
 
   const tabClass = (active: boolean) =>
     cn(
-      'rounded-lg px-4 py-2 font-body text-sm font-medium transition-colors',
+      'rounded-pill border px-4 py-2 font-body text-micro uppercase transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
       active
-        ? 'bg-brand-400 text-white'
-        : 'bg-warm-100 text-warm-700 hover:bg-warm-200',
+        ? 'border-ink bg-ink text-paper'
+        : 'border-line bg-transparent text-ink-secondary hover:border-ink',
     );
 
   const ordersLink = `/admin/customers/${encodeURIComponent(customerId)}`;
@@ -52,7 +52,7 @@ export default function AdminCustomerDetailPage({
 
       <nav
         aria-label="Customer sections"
-        className="mt-6 flex flex-wrap gap-2 border-b border-warm-200 pb-4"
+        className="mt-6 flex flex-wrap gap-2 border-b border-line pb-4"
       >
         <Link href={ordersLink} className={tabClass(tab === 'orders')}>
           Orders

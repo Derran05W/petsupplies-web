@@ -2,8 +2,9 @@
 
 import { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { X } from 'lucide-react';
 import type { AdminOrderSummary } from '@/types/admin';
+import { cn } from '@/lib/utils';
+import { NAV_LINK_CLASSES } from '@/components/ui';
 import { OrderSummaryCard } from '@/components/checkout/OrderSummaryCard';
 import { OrderStatusUpdateForm } from './OrderStatusUpdateForm';
 import { OrderTrackingForm } from './OrderTrackingForm';
@@ -113,23 +114,23 @@ export function OrderDetailDrawer({
       <div
         role="presentation"
         onClick={close}
-        className="bg-warm-900/40 absolute inset-0"
+        className="absolute inset-0 bg-scrim"
       />
       <div
         ref={drawerRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="admin-order-drawer-title"
-        className="absolute inset-x-0 bottom-0 max-h-[92svh] overflow-y-auto rounded-t-2xl border border-warm-200 bg-warm-50 shadow-xl sm:inset-y-0 sm:left-auto sm:right-0 sm:max-h-none sm:w-full sm:max-w-lg sm:rounded-l-2xl sm:rounded-tr-none"
+        className="absolute inset-x-0 bottom-0 max-h-[92svh] overflow-y-auto rounded-t-card border border-line bg-paper text-ink shadow-lifted sm:inset-y-0 sm:left-auto sm:right-0 sm:max-h-none sm:w-full sm:max-w-lg sm:rounded-l-card sm:rounded-tr-none"
       >
-        <header className="bg-warm-50/95 sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-warm-200 px-5 py-4 backdrop-blur-sm">
+        <header className="bg-paper/95 sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line px-5 py-4 backdrop-blur-sm">
           <div>
-            <p className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
+            <p className="font-body text-micro uppercase text-ink-muted">
               Order
             </p>
             <h2
               id="admin-order-drawer-title"
-              className="font-display text-lg tracking-[-0.02em] text-warm-900"
+              className="font-display text-2xl tracking-[-0.01em] text-ink"
             >
               #{order.id.slice(-8)}
             </h2>
@@ -139,9 +140,12 @@ export function OrderDetailDrawer({
             type="button"
             onClick={close}
             aria-label="Close order detail"
-            className="inline-flex size-8 items-center justify-center rounded-md text-warm-600 transition-colors hover:bg-warm-100 hover:text-warm-900"
+            className={cn(
+              NAV_LINK_CLASSES,
+              'shrink-0 font-body text-label uppercase text-ink',
+            )}
           >
-            <X size={16} aria-hidden />
+            Close
           </button>
         </header>
 

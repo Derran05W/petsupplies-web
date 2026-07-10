@@ -39,7 +39,10 @@ export function GoogleButton({
   return (
     <div className="flex flex-col gap-2">
       {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 font-body text-sm text-red-700">
+        <p
+          role="alert"
+          className="rounded-tile border border-danger-border bg-danger-surface px-3 py-2 font-body text-sm text-danger-solid"
+        >
           {error}
         </p>
       )}
@@ -47,10 +50,10 @@ export function GoogleButton({
         type="button"
         onClick={handleGoogleSignIn}
         disabled={loading}
-        className="flex w-full items-center justify-center gap-3 rounded-lg border border-warm-300 bg-transparent px-5 py-2.5 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100 disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-3 rounded-pill border border-ink bg-transparent px-6 py-3 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
       >
         {loading ? (
-          <Loader2 size={18} className="animate-spin text-warm-400" />
+          <Loader2 size={18} className="animate-spin" aria-hidden />
         ) : (
           <svg
             aria-hidden="true"

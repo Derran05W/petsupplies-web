@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingBag, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatPrice } from '@/lib/utils/format';
 import type { WishlistItem } from '@/types/wishlist';
@@ -47,28 +46,28 @@ export function WishlistItemCard({ item }: WishlistItemCardProps) {
   };
 
   return (
-    <article className="flex flex-col rounded-xl border border-warm-200 bg-surface-card p-4 shadow-sm transition-shadow hover:shadow-md">
+    <article className="flex flex-col rounded-card border border-line bg-paper p-4 transition-colors duration-base ease-soft hover:border-ink">
       <Link
         href={`/products/${product.slug}`}
-        className="relative mb-3 aspect-square overflow-hidden rounded-lg bg-warm-100"
+        className="relative mb-3 aspect-square overflow-hidden rounded-tile bg-panel"
       >
         <Image
           src={imageUrl}
           alt={imageAlt}
           fill
           sizes="(min-width: 1280px) 320px, (min-width: 640px) 50vw, 100vw"
-          className="object-cover"
+          className="object-cover transition-transform duration-slow ease-soft hover:scale-105 motion-reduce:transform-none"
         />
       </Link>
 
       <Link
         href={`/products/${product.slug}`}
-        className="font-display text-lg leading-snug tracking-[-0.02em] text-warm-900 hover:text-brand-600"
+        className="font-display text-xl leading-snug tracking-[-0.01em] text-ink transition-opacity duration-fast hover:opacity-70"
       >
         {product.name}
       </Link>
 
-      <p className="mt-2 font-body text-sm font-medium text-warm-900">
+      <p className="mt-2 font-body text-sm font-medium text-ink">
         {formatPrice(product.priceCents)}
       </p>
 
@@ -78,13 +77,12 @@ export function WishlistItemCard({ item }: WishlistItemCardProps) {
           onClick={handleMoveToCart}
           disabled={!canMoveToCart || busyRemove}
           className={cn(
-            'inline-flex min-w-[8rem] flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-body text-sm font-medium transition-colors',
+            'inline-flex min-w-[8rem] flex-1 items-center justify-center gap-2 rounded-pill border px-4 py-2.5 font-body text-micro uppercase transition-all duration-base ease-soft',
             canMoveToCart
-              ? 'bg-brand-400 text-white hover:bg-brand-500'
-              : 'cursor-not-allowed bg-warm-200 text-warm-600',
+              ? 'cursor-pointer border-ink bg-ink text-paper hover:border-pine hover:bg-pine disabled:cursor-not-allowed disabled:opacity-50'
+              : 'cursor-not-allowed border-line bg-panel text-ink-faint',
           )}
         >
-          <ShoppingBag size={16} aria-hidden />
           {canMoveToCart ? 'Move to cart' : 'Out of stock'}
         </button>
 
@@ -94,9 +92,8 @@ export function WishlistItemCard({ item }: WishlistItemCardProps) {
           disabled={busyRemove}
           aria-busy={busyRemove}
           aria-label={`Remove ${product.name} from wishlist`}
-          className="text-warm-700 inline-flex items-center justify-center gap-2 rounded-lg border border-warm-300 bg-surface-card px-4 py-2.5 font-body text-sm font-medium transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-800 disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-line bg-transparent px-4 py-2.5 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:border-danger-solid hover:text-danger-solid disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <Trash2 size={16} aria-hidden />
           Remove
         </button>
       </div>

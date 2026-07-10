@@ -13,50 +13,48 @@ export function SubscriptionStatsPanel({
   return (
     <section
       aria-label="Subscription analytics"
-      className="rounded-2xl border border-warm-200 bg-surface-card p-5"
+      className="rounded-card border border-line bg-panel p-5"
     >
-      <h2 className="font-display text-lg tracking-tight text-warm-900">
-        Subscriptions
-      </h2>
+      <h2 className="font-display text-xl text-ink">Subscriptions</h2>
       <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
         <div>
-          <dt className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
+          <dt className="font-body text-micro uppercase text-ink-muted">
             Active
           </dt>
-          <dd className="mt-1 font-display text-2xl text-warm-900">
+          <dd className="mt-1 font-display text-2xl text-ink">
             {stats.activeCount}
           </dd>
         </div>
         <div>
-          <dt className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
+          <dt className="font-body text-micro uppercase text-ink-muted">
             Paused
           </dt>
-          <dd className="mt-1 font-display text-2xl text-warm-900">
+          <dd className="mt-1 font-display text-2xl text-ink">
             {stats.pausedCount}
           </dd>
         </div>
         <div>
-          <dt className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
+          <dt className="font-body text-micro uppercase text-ink-muted">
             Cancelled
           </dt>
-          <dd className="mt-1 font-display text-2xl text-warm-900">
+          <dd className="mt-1 font-display text-2xl text-ink">
             {stats.cancelledCount}
           </dd>
         </div>
         <div>
-          <dt className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
+          <dt className="font-body text-micro uppercase text-ink-muted">
             Est. MRR
           </dt>
-          <dd className="mt-1 font-body text-lg font-semibold text-warm-900">
+          <dd className="mt-1 font-display text-lg text-ink">
             {formatPrice(stats.mrrCents, currency)}
           </dd>
         </div>
         {stats.churnPercent !== undefined && (
           <div>
-            <dt className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
+            <dt className="font-body text-micro uppercase text-ink-muted">
               Churn
             </dt>
-            <dd className="mt-1 font-body text-lg font-semibold text-warm-900">
+            <dd className="mt-1 font-display text-lg text-ink">
               {stats.churnPercent}%
             </dd>
           </div>

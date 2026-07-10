@@ -1,3 +1,14 @@
+/**
+ * Storefront links for pet types we no longer carry (fish, bird). The nav
+ * is admin-managed, so stale entries can keep arriving from the API long
+ * after the catalogue dropped them — filter them out before rendering.
+ */
+const UNSUPPORTED_NAV_HREF = /[?&](petType|category)=(fish|bird)s?(?=[&#]|$)/i;
+
+export function isSupportedNavLink(href: string): boolean {
+  return !UNSUPPORTED_NAV_HREF.test(href);
+}
+
 /** Whether a nav href matches the current pathname (ignores query string). */
 export function isNavLinkActive(pathname: string, href: string): boolean {
   if (href === '/') return pathname === '/';

@@ -78,16 +78,14 @@ export function OrderStatusUpdateForm({ order }: OrderStatusUpdateFormProps) {
           setError(errorMessageFor(err));
         }
       }}
-      className="flex flex-col gap-3 rounded-xl border border-warm-200 bg-surface-card p-4"
+      className="flex flex-col gap-3 rounded-card border border-line bg-paper p-4"
     >
-      <h3 className="font-body text-sm font-medium text-warm-900">
-        Order status
-      </h3>
+      <h3 className="font-body text-label uppercase text-ink">Order status</h3>
 
       {error && (
         <p
           role="alert"
-          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 font-body text-xs text-red-700"
+          className="rounded-tile border border-danger-border bg-danger-surface px-3 py-2 font-body text-xs text-danger-solid"
         >
           {error}
         </p>
@@ -96,7 +94,7 @@ export function OrderStatusUpdateForm({ order }: OrderStatusUpdateFormProps) {
         <p
           role="status"
           aria-live="polite"
-          className="rounded-md border border-brand-200 bg-brand-50 px-3 py-2 font-body text-xs text-brand-700"
+          className="border-pine/40 rounded-tile border bg-tile-sage px-3 py-2 font-body text-xs text-tile-sage-ink"
         >
           {success}
         </p>
@@ -105,7 +103,7 @@ export function OrderStatusUpdateForm({ order }: OrderStatusUpdateFormProps) {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <label
           htmlFor={`status-${order.id}`}
-          className="font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600 sm:w-24"
+          className="font-body text-micro uppercase text-ink sm:w-24"
         >
           Status
         </label>
@@ -117,7 +115,7 @@ export function OrderStatusUpdateForm({ order }: OrderStatusUpdateFormProps) {
             setSuccess(null);
             setError(null);
           }}
-          className="flex-1 rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="flex-1 rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink focus:border-ink focus:outline-none"
         >
           {STATUS_OPTIONS.map((option) => (
             <option key={option} value={option}>
@@ -131,7 +129,7 @@ export function OrderStatusUpdateForm({ order }: OrderStatusUpdateFormProps) {
         <p
           role="status"
           aria-live="polite"
-          className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 font-body text-xs text-amber-800"
+          className="border-amber/40 rounded-tile border bg-tile-amber px-3 py-2 font-body text-xs text-tile-amber-ink"
         >
           Marking shipped without a tracking number — customers will see a
           “tracking will appear once available” message until you add one below.
@@ -143,8 +141,8 @@ export function OrderStatusUpdateForm({ order }: OrderStatusUpdateFormProps) {
           type="submit"
           disabled={!dirty || mutation.isPending}
           className={cn(
-            'inline-flex items-center justify-center gap-2 rounded-lg bg-brand-400 px-4 py-2 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500',
-            'disabled:cursor-not-allowed disabled:opacity-60',
+            'inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-5 py-2 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
+            'disabled:cursor-not-allowed disabled:opacity-50',
           )}
         >
           {mutation.isPending && (

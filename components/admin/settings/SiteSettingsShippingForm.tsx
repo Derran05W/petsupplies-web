@@ -16,9 +16,8 @@ interface ShippingFormValues {
 }
 
 const inputBase =
-  'w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2.5 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
-const labelBase =
-  'mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600';
+  'w-full rounded-tile border border-line bg-paper px-3 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none';
+const labelBase = 'mb-1.5 block font-body text-micro uppercase text-ink';
 
 function centsToDollarsInput(cents: number): string {
   return (cents / 100).toFixed(2);
@@ -60,7 +59,7 @@ export function SiteSettingsShippingForm() {
 
   if (isPending) {
     return (
-      <p className="font-body text-sm text-warm-600" aria-busy="true">
+      <p className="font-body text-sm text-ink-muted" aria-busy="true">
         Loading shipping settings…
       </p>
     );
@@ -68,7 +67,7 @@ export function SiteSettingsShippingForm() {
 
   if (loadError) {
     return (
-      <p className="font-body text-sm text-red-700" role="alert">
+      <p className="font-body text-sm text-danger-solid" role="alert">
         {adminApiErrorMessage(loadError)}
       </p>
     );
@@ -115,7 +114,7 @@ export function SiteSettingsShippingForm() {
             Free shipping threshold
           </label>
           <div className="relative">
-            <span className="text-warm-500 pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm text-ink-faint">
               $
             </span>
             <input
@@ -127,7 +126,7 @@ export function SiteSettingsShippingForm() {
               {...register('freeShippingThresholdDollars', { required: true })}
             />
           </div>
-          <p className="text-warm-500 mt-1.5 font-body text-xs">
+          <p className="mt-1.5 font-body text-xs text-ink-faint">
             Orders at or above this subtotal qualify for free shipping on the
             storefront and at checkout.
           </p>
@@ -138,7 +137,7 @@ export function SiteSettingsShippingForm() {
             Flat shipping rate
           </label>
           <div className="relative">
-            <span className="text-warm-500 pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm text-ink-faint">
               $
             </span>
             <input
@@ -150,7 +149,7 @@ export function SiteSettingsShippingForm() {
               {...register('flatShippingDollars', { required: true })}
             />
           </div>
-          <p className="text-warm-500 mt-1.5 font-body text-xs">
+          <p className="mt-1.5 font-body text-xs text-ink-faint">
             Charged when the cart is below the free-shipping threshold. Use $0
             for free shipping on every order.
           </p>
@@ -158,13 +157,13 @@ export function SiteSettingsShippingForm() {
       </div>
 
       {submitError ? (
-        <p className="font-body text-sm text-red-700" role="alert">
+        <p className="font-body text-sm text-danger-solid" role="alert">
           {submitError}
         </p>
       ) : null}
 
       {success ? (
-        <p className="font-body text-sm text-brand-700" role="status">
+        <p className="font-body text-sm text-pine" role="status">
           {success}
         </p>
       ) : null}
@@ -173,7 +172,7 @@ export function SiteSettingsShippingForm() {
         <button
           type="submit"
           disabled={!isDirty || mutation.isPending}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
         >
           {mutation.isPending ? (
             <Loader2 size={14} className="animate-spin" aria-hidden />

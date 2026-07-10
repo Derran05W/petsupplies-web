@@ -16,10 +16,10 @@ export const fetchCategoryStrip = cache(
         },
       });
     } catch (err) {
-      if (
-        err instanceof ApiError &&
-        (err.isNetworkError || err.status >= 500)
-      ) {
+      // Chrome data must never take the page down: any API failure —
+      // network, 5xx, or a dead deployment answering 404 — falls back to
+      // the static defaults.
+      if (err instanceof ApiError) {
         return CATEGORY_STRIP_FALLBACK;
       }
       throw err;

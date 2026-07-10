@@ -345,16 +345,18 @@ All routes under `/admin` require **admin** auth (`auth` + `adminOnly`).
 | GET    | `/admin/analytics/subscriptions`      | admin |
 | GET    | `/admin/analytics/discounts`          | admin |
 
-Storefront response shapes (camelCase — verify with live API):
+Wire shapes (from `adminDashboardService`) → mapped in [lib/api/admin/analytics.ts](../lib/api/admin/analytics.ts) + [analytics-normalize.ts](../lib/api/admin/analytics-normalize.ts):
 
-| Path                                  | Query                           | Response                                                                                             |
-| ------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `/admin/analytics/overview`           | —                               | Overview KPIs: `revenueCents`, `ordersCount`, `customersCount`, `aovCents`, `currency`, `periodDays` |
-| `/admin/analytics/revenue-timeseries` | `range`: `7d` \| `30d` \| `90d` | `{ currency, points: [{ date, revenueCents, orderCount }] }`                                         |
-| `/admin/analytics/products/top`       | `limit` (optional)              | `{ items: [...] }`                                                                                   |
-| `/admin/analytics/products/low-stock` | `limit` (optional)              | `{ items: [...] }`                                                                                   |
-| `/admin/analytics/subscriptions`      | —                               | Subscription aggregate stats                                                                         |
-| `/admin/analytics/discounts`          | —                               | `{ items: [...] }`                                                                                   |
+| Path                                  | Query (sent)                            | Wire response                                                                   | App mapping                                                                            |
+| ------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `/admin/analytics/overview`           | `from?`, `to?`                          | `{ range, orderCount, paidOrderCount, revenueCents, aovCents, byStatus }`       | `orderCount`→`ordersCount`; `customersCount` not on wire (0); `currency` default `cad` |
+| `/admin/analytics/revenue-timeseries` | `from`, `to` (from UI `7d`/`30d`/`90d`) | `{ granularity, points: [{ bucket, revenueCents, orderCount }] }`               | `bucket`→`date`; `currency` default `cad`                                              |
+| `/admin/analytics/products/top`       | `from?`, `to?`, `limit`                 | `{ data: [{ productId, slug, name, unitsSold, revenueCents }] }`                | `data`→`items` (pagination not surfaced)                                               |
+| `/admin/analytics/products/low-stock` | `page`, `limit`, `threshold?`           | `{ data: [{ id, slug, name, stock, active }], page, limit, total, totalPages }` | `data`→`items`, `stock`→`stockCount` (pagination not surfaced)                         |
+| `/admin/analytics/subscriptions`      | —                                       | `{ byStatus, upcomingDeliveries7d, upcomingDeliveries30d }`                     | `byStatus.*`→`{activeCount,pausedCount,cancelledCount}`                                |
+| `/admin/analytics/discounts`          | `from?`, `to?`                          | `{ data: [...] }`                                                               | `data`→`items`; `redemptionsInRange`→`uses`, `revenueImpactCents`→`discountCents`      |
+
+There is **no `GET /admin/dashboard`** route — [lib/api/admin/dashboard.ts](../lib/api/admin/dashboard.ts) composes `DashboardStats` from `/admin/analytics/overview` + `/admin/analytics/products/low-stock` (no this-week/last-week split exists on the wire, so the "last week" tiles are 0).
 
 ### Customers (`/admin/customers`)
 
@@ -367,12 +369,16 @@ Storefront response shapes (camelCase — verify with live API):
 
 Storefront query/notes:
 
-| Path                                 | Query                        | Notes                                    |
-| ------------------------------------ | ---------------------------- | ---------------------------------------- |
-| `/admin/customers`                   | `page`, `pageSize`, `search` | Paginated list                           |
-| `/admin/customers/:id`               | —                            | Customer detail                          |
-| `/admin/customers/:id/orders`        | `page`, `pageSize`           | Customer order history                   |
-| `/admin/customers/:id/subscriptions` | —                            | Array or `{ items }` (client normalises) |
+Mapped in [lib/api/admin/customers.ts](../lib/api/admin/customers.ts):
+
+| Path                                 | Query (sent)             | Wire response → app mapping                                                                                    |
+| ------------------------------------ | ------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `/admin/customers`                   | `page`, `limit`, `email` | `{ data:[{…, orderCount}], page, limit, … }` → `{ customers:[{…, ordersCount, currency:'cad'}], pageSize, … }` |
+| `/admin/customers/:id`               | —                        | `{ …, counts:{ orders, subscriptions, … }, lastOrderAt }` → flattened `ordersCount`, `subscriptionsCount`      |
+| `/admin/customers/:id/orders`        | `page`, `limit`          | shared admin-order envelope `{ data, limit, … }` → `{ orders, pageSize, … }`                                   |
+| `/admin/customers/:id/subscriptions` | —                        | Array or `{ items }` (client normalises)                                                                       |
+
+The UI search box (`?search=`) is sent to the backend as the `email` filter param.
 
 ### Fulfillment (`/admin/fulfillment`)
 
@@ -383,10 +389,14 @@ Storefront query/notes:
 
 Storefront body/query:
 
-| Path                           | Body / query                                            | Notes                                          |
-| ------------------------------ | ------------------------------------------------------- | ---------------------------------------------- |
-| `/admin/fulfillment/queue`     | `page`, `pageSize`, `status` (optional)                 | Orders awaiting fulfillment                    |
-| `/admin/fulfillment/bulk-ship` | `{ orderIds, trackingNumber?, trackingUrl?, carrier? }` | Bulk mark shipped; may return partial failures |
+Mapped in [lib/api/admin/fulfillment.ts](../lib/api/admin/fulfillment.ts):
+
+| Path                           | Body / query (sent)                                                                        | Wire response → app mapping                                                                                 |
+| ------------------------------ | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `/admin/fulfillment/queue`     | `page`, `limit`, `status` (UPPERCASE, optional; defaults `PAID`)                           | `{ data, page, limit, total, totalPages }` → `{ orders, pageSize, … }`                                      |
+| `/admin/fulfillment/bulk-ship` | `{ items: [{ orderId, trackingNumber, carrier }] }` (from UI `orderIds` + shared tracking) | `{ results: [{ orderId, ok, status?, error? }] }` → `{ updated:[{id,status}], failed:[{orderId,message}] }` |
+
+The UI `trackingUrl` has no backend field and is dropped on bulk-ship.
 
 ### Products — CRUD & images (`/admin/products`)
 
@@ -434,6 +444,8 @@ Same `/admin/products` prefix; implemented on the top-level `adminRouter` (not t
 | GET    | `/admin/discounts`           | admin |
 
 **Note:** the storefront historically used `PATCH /admin/orders/:id` for combined updates; tracking-only edits should use `PATCH /admin/orders/:id/tracking` and status-only edits `PATCH /admin/orders/:id/status` to match the current backend.
+
+**List query/response:** `GET /admin/orders` takes `page`, `limit`, `status` (UPPERCASE), `userId?`, `email?`, `from?`, `to?` and returns the `{ data, page, limit, total, totalPages }` envelope. [lib/api/admin/orders.ts](../lib/api/admin/orders.ts) maps it to `{ orders, pageSize, … }`, reusing `mapApiOrderListItem` for the rows and layering `customerEmail`/`customerId`/`customerName` from the `user` relation.
 
 ---
 

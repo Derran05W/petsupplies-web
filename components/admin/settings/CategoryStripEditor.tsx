@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowDown, ArrowUp, Loader2, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Loader2, Plus } from 'lucide-react';
 import { adminApiErrorMessage } from '@/lib/api/admin/error-messages';
 import {
   useCategoryStripQuery,
@@ -28,7 +28,7 @@ interface EditableStripItem extends CategoryStripItemInput {
 }
 
 const selectBase =
-  'w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2.5 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
+  'w-full rounded-tile border border-line bg-paper px-3 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none';
 
 function emptyItem(position: number): EditableStripItem {
   return {
@@ -70,7 +70,7 @@ export function CategoryStripEditor() {
 
   if (isPending) {
     return (
-      <p className="font-body text-sm text-warm-600" aria-busy="true">
+      <p className="font-body text-sm text-ink-muted" aria-busy="true">
         Loading category strip…
       </p>
     );
@@ -78,7 +78,7 @@ export function CategoryStripEditor() {
 
   if (loadError) {
     return (
-      <p className="font-body text-sm text-red-700" role="alert">
+      <p className="font-body text-sm text-danger-solid" role="alert">
         {adminApiErrorMessage(loadError)}
       </p>
     );
@@ -107,10 +107,10 @@ export function CategoryStripEditor() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h3 className="font-display text-xl tracking-[-0.02em] text-warm-900">
+        <h3 className="font-display text-xl tracking-[-0.01em] text-ink">
           Category strip
         </h3>
-        <p className="mt-1 font-body text-sm text-warm-600">
+        <p className="mt-1 font-body text-sm text-ink-secondary">
           Horizontal chips below the hero on the homepage — each uses a Lucide
           icon instead of a photo. Inactive items are hidden on the storefront.
         </p>
@@ -123,7 +123,7 @@ export function CategoryStripEditor() {
             setSuccess(null);
             setItems((current) => [...current, emptyItem(current.length)]);
           }}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-warm-300 px-3 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
+          className="inline-flex cursor-pointer items-center gap-1.5 rounded-pill border border-ink bg-transparent px-4 py-2 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
         >
           <Plus size={14} aria-hidden />
           Add category
@@ -134,21 +134,21 @@ export function CategoryStripEditor() {
         {items.map((item, index) => (
           <li
             key={item.clientKey}
-            className="bg-warm-50/50 rounded-lg border border-warm-200 p-4"
+            className="border-b border-line pb-4 last:border-0 last:pb-0"
           >
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="font-body text-sm font-medium text-warm-900">
+              <p className="font-body text-micro uppercase text-ink">
                 Item {index + 1}
               </p>
               <div className="flex items-center gap-2">
-                <label className="inline-flex items-center gap-2 font-body text-xs text-warm-600">
+                <label className="inline-flex items-center gap-2 font-body text-xs text-ink-muted">
                   <input
                     type="checkbox"
                     checked={item.isActive ?? true}
                     onChange={(event) =>
                       updateItem(index, { isActive: event.target.checked })
                     }
-                    className="size-4 rounded border-warm-300 text-brand-500"
+                    className="size-4 rounded-sm border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
                   />
                   Active
                 </label>
@@ -157,7 +157,7 @@ export function CategoryStripEditor() {
                   aria-label="Move item up"
                   disabled={index === 0}
                   onClick={() => moveItem(index, -1)}
-                  className="inline-flex size-8 items-center justify-center rounded-lg text-warm-600 hover:bg-warm-100 disabled:opacity-40"
+                  className="inline-flex size-8 items-center justify-center rounded-tile text-ink-faint transition-colors duration-fast hover:bg-panel hover:text-ink disabled:opacity-40"
                 >
                   <ArrowUp size={14} aria-hidden />
                 </button>
@@ -166,7 +166,7 @@ export function CategoryStripEditor() {
                   aria-label="Move item down"
                   disabled={index === items.length - 1}
                   onClick={() => moveItem(index, 1)}
-                  className="inline-flex size-8 items-center justify-center rounded-lg text-warm-600 hover:bg-warm-100 disabled:opacity-40"
+                  className="inline-flex size-8 items-center justify-center rounded-tile text-ink-faint transition-colors duration-fast hover:bg-panel hover:text-ink disabled:opacity-40"
                 >
                   <ArrowDown size={14} aria-hidden />
                 </button>
@@ -179,9 +179,9 @@ export function CategoryStripEditor() {
                       current.filter((_, i) => i !== index),
                     );
                   }}
-                  className="inline-flex size-8 items-center justify-center rounded-lg text-red-700 hover:bg-red-50"
+                  className="font-body text-micro uppercase text-danger-solid transition-opacity duration-fast hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger-solid"
                 >
-                  <Trash2 size={14} aria-hidden />
+                  Remove
                 </button>
               </div>
             </div>
@@ -251,19 +251,19 @@ export function CategoryStripEditor() {
       </ul>
 
       {items.length === 0 ? (
-        <p className="text-warm-500 font-body text-sm">
+        <p className="font-body text-sm text-ink-muted">
           No categories yet. Add items or save an empty list to hide the strip.
         </p>
       ) : null}
 
       {submitError ? (
-        <p className="font-body text-sm text-red-700" role="alert">
+        <p className="font-body text-sm text-danger-solid" role="alert">
           {submitError}
         </p>
       ) : null}
 
       {success ? (
-        <p className="font-body text-sm text-brand-700" role="status">
+        <p className="font-body text-sm text-pine" role="status">
           {success}
         </p>
       ) : null}
@@ -316,7 +316,7 @@ export function CategoryStripEditor() {
             setSubmitError(adminApiErrorMessage(err));
           }
         }}
-        className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
       >
         {mutation.isPending ? (
           <Loader2 size={14} className="animate-spin" aria-hidden />

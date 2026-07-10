@@ -1,14 +1,67 @@
 import type {
   AdminCustomerDetail,
   AdminCustomerListResponse,
+  AdminCustomerListRow,
   AdminCustomerOrdersResponse,
   AdminCustomerSubscriptionsResponse,
+  ApiAdminCustomerDetail,
+  ApiAdminCustomerListResponse,
+  ApiAdminCustomerRow,
 } from '@/types/admin-customers';
 import type { Subscription } from '@/types/subscription';
 import { apiFetch } from '../client';
+import {
+  mapApiOrderListResponse,
+  type ApiOrderListResponse,
+} from '../order-mapper';
 
 export interface AdminApiOptions {
   accessToken?: string;
+}
+
+/**
+ * The backend `User` model has no per-customer currency; lifetime value is
+ * summed in the single store currency. Default here.
+ * followup: backend should expose the store currency on customer rows.
+ */
+const DEFAULT_CURRENCY = 'cad';
+
+function mapCustomerRow(row: ApiAdminCustomerRow): AdminCustomerListRow {
+  return {
+    id: row.id,
+    email: row.email,
+    name: row.name,
+    createdAt: row.createdAt,
+    ordersCount: row.orderCount,
+    lifetimeValueCents: row.lifetimeValueCents,
+    currency: DEFAULT_CURRENCY,
+  };
+}
+
+function mapCustomerListResponse(
+  raw: ApiAdminCustomerListResponse,
+): AdminCustomerListResponse {
+  return {
+    customers: raw.data.map(mapCustomerRow),
+    total: raw.total,
+    page: raw.page,
+    pageSize: raw.limit,
+    totalPages: raw.totalPages,
+  };
+}
+
+function mapCustomerDetail(raw: ApiAdminCustomerDetail): AdminCustomerDetail {
+  return {
+    id: raw.id,
+    email: raw.email,
+    name: raw.name,
+    createdAt: raw.createdAt,
+    ordersCount: raw.counts.orders,
+    lifetimeValueCents: raw.lifetimeValueCents,
+    currency: DEFAULT_CURRENCY,
+    subscriptionsCount: raw.counts.subscriptions,
+    ...(raw.lastOrderAt ? { lastOrderAt: raw.lastOrderAt } : {}),
+  };
 }
 
 export interface AdminCustomerListParams {
@@ -24,12 +77,17 @@ export async function adminListCustomers(
   const { page = 1, pageSize = 20, search, accessToken } = params;
   const q = new URLSearchParams();
   q.set('page', String(page));
-  q.set('pageSize', String(pageSize));
-  if (search?.trim()) q.set('search', search.trim());
-  return apiFetch<AdminCustomerListResponse>(`/admin/customers?${q}`, {
-    cache: 'no-store',
-    ...(accessToken ? { accessToken } : {}),
-  });
+  // Backend `listQuerySchema` uses `limit`; it filters by `email` (not `search`).
+  q.set('limit', String(pageSize));
+  if (search?.trim()) q.set('email', search.trim());
+  const raw = await apiFetch<ApiAdminCustomerListResponse>(
+    `/admin/customers?${q}`,
+    {
+      cache: 'no-store',
+      ...(accessToken ? { accessToken } : {}),
+    },
+  );
+  return mapCustomerListResponse(raw);
 }
 
 export async function adminGetCustomer(
@@ -37,10 +95,11 @@ export async function adminGetCustomer(
   options: AdminApiOptions = {},
 ): Promise<AdminCustomerDetail> {
   const { accessToken } = options;
-  return apiFetch<AdminCustomerDetail>(
+  const raw = await apiFetch<ApiAdminCustomerDetail>(
     `/admin/customers/${encodeURIComponent(id)}`,
     { cache: 'no-store', ...(accessToken ? { accessToken } : {}) },
   );
+  return mapCustomerDetail(raw);
 }
 
 export interface AdminCustomerOrdersParams {
@@ -56,11 +115,14 @@ export async function adminGetCustomerOrders(
   const { page = 1, pageSize = 10, accessToken } = params;
   const q = new URLSearchParams();
   q.set('page', String(page));
-  q.set('pageSize', String(pageSize));
-  return apiFetch<AdminCustomerOrdersResponse>(
+  // Backend `customerOrdersQuerySchema` uses `limit`; response is the shared
+  // admin-order envelope (`{ data, limit, ... }`).
+  q.set('limit', String(pageSize));
+  const raw = await apiFetch<ApiOrderListResponse>(
     `/admin/customers/${encodeURIComponent(customerId)}/orders?${q}`,
     { cache: 'no-store', ...(accessToken ? { accessToken } : {}) },
   );
+  return mapApiOrderListResponse(raw);
 }
 
 function normaliseSubscriptions(

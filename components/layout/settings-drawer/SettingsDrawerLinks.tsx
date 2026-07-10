@@ -48,19 +48,16 @@ export function SettingsDrawerLinks({ onNavigate }: SettingsDrawerLinksProps) {
   const pathname = usePathname();
 
   return (
-    <nav
-      aria-label="Settings shortcuts"
-      className="bg-surface-drawer px-2 py-3"
-    >
-      <ul className="flex flex-col gap-0.5">
+    <nav aria-label="Settings shortcuts" className="px-6 py-3">
+      <ul className="flex flex-col divide-y divide-line">
         {LINKS.map(({ href, label, icon: Icon }) => (
           <li key={href}>
             <Link
               href={appendReturnTo(href, pathname)}
               onClick={onNavigate}
-              className="text-warm-800 flex items-center gap-3 rounded-lg px-4 py-2.5 font-body text-sm transition-colors hover:bg-warm-100"
+              className="flex items-center gap-3 py-3.5 font-body text-label uppercase text-ink no-underline opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-pine"
             >
-              <Icon size={16} aria-hidden className="text-warm-500 shrink-0" />
+              <Icon size={15} aria-hidden className="shrink-0 text-ink-faint" />
               {label}
             </Link>
           </li>

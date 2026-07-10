@@ -101,7 +101,7 @@ export function SubscriptionActions({
     <>
       <div className="flex flex-col gap-3">
         {panelError ? (
-          <p role="alert" className="font-body text-sm text-red-600">
+          <p role="alert" className="font-body text-sm text-danger-solid">
             {panelError}
           </p>
         ) : null}
@@ -166,7 +166,7 @@ export function SubscriptionActions({
                 setConfirmCancel(true);
               }}
               className={cn(
-                'rounded-lg border border-red-200 bg-surface-card px-3 py-2 font-body text-sm font-medium text-red-700 transition-colors hover:bg-red-50',
+                'inline-flex cursor-pointer items-center justify-center rounded-pill border border-danger-solid bg-transparent px-5 py-2 font-body text-micro uppercase text-danger-solid transition-all duration-base ease-soft hover:bg-danger-solid hover:text-danger-on-solid focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-danger-solid disabled:cursor-not-allowed',
                 blocking && 'opacity-60',
               )}
             >
@@ -194,11 +194,11 @@ export function SubscriptionActions({
         </div>
 
         {editOpen ? (
-          <div className="bg-warm-50/60 flex flex-col gap-4 rounded-xl border border-warm-200 p-4">
+          <div className="flex flex-col gap-4 rounded-tile border border-line bg-panel p-4">
             <div className="flex flex-wrap items-center gap-3">
               <label
                 htmlFor={`sub-qty-${sub.id}`}
-                className="text-warm-700 font-body text-sm font-medium"
+                className="font-body text-micro uppercase text-ink"
               >
                 Quantity
               </label>
@@ -213,12 +213,12 @@ export function SubscriptionActions({
                     Math.max(1, Number.parseInt(e.target.value, 10) || 1),
                   )
                 }
-                className="h-10 w-16 rounded-lg border border-warm-300 bg-surface-card px-2 text-center font-body text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="h-10 w-16 rounded-tile border border-line bg-paper px-2 text-center font-body text-sm text-ink focus:border-ink focus:outline-none"
               />
             </div>
 
             <fieldset className="flex flex-col gap-2">
-              <legend className="text-warm-700 font-body text-sm font-medium">
+              <legend className="font-body text-micro uppercase text-ink">
                 Cadence
               </legend>
               <div className="flex flex-wrap gap-2">
@@ -226,16 +226,16 @@ export function SubscriptionActions({
                   <label
                     key={int}
                     className={cn(
-                      'cursor-pointer rounded-lg border px-3 py-2 font-body text-xs',
+                      'cursor-pointer rounded-tile border px-3 py-2 font-body text-xs transition-colors duration-fast',
                       editInterval === int
-                        ? 'border-brand-400 bg-brand-50'
-                        : 'border-warm-200 bg-surface-card',
+                        ? 'border-pine bg-tile-sage text-tile-sage-ink'
+                        : 'border-line bg-paper text-ink-secondary hover:text-ink',
                     )}
                   >
                     <input
                       type="radio"
                       name={`interval-${sub.id}`}
-                      className="mr-2"
+                      className="mr-2 accent-pine"
                       checked={editInterval === int}
                       onChange={() => setEditInterval(int)}
                     />
@@ -249,7 +249,7 @@ export function SubscriptionActions({
               <div className="flex flex-col gap-2">
                 <label
                   htmlFor={`sub-pet-${sub.id}`}
-                  className="text-warm-700 font-body text-sm font-medium"
+                  className="font-body text-micro uppercase text-ink"
                 >
                   Pet (optional)
                 </label>
@@ -257,7 +257,7 @@ export function SubscriptionActions({
                   id={`sub-pet-${sub.id}`}
                   value={editPetId}
                   onChange={(e) => setEditPetId(e.target.value)}
-                  className="rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+                  className="rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink focus:border-ink focus:outline-none"
                 >
                   <option value="">None</option>
                   {pets.map((p) => (
@@ -308,7 +308,7 @@ export function SubscriptionActions({
 }
 
 const actionButtonNeutral =
-  'inline-flex items-center justify-center gap-2 rounded-lg border border-warm-200 bg-surface-card px-3 py-2 font-body text-sm font-medium text-warm-800 transition-colors hover:bg-warm-50';
+  'inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-transparent px-5 py-2 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink';
 
 const primaryButtonClass =
-  'inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-brand-400 px-4 py-2 font-body text-sm font-medium text-white hover:bg-brand-500';
+  'inline-flex w-fit cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-5 py-2 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed';

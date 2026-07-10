@@ -42,3 +42,46 @@ export interface AdminCustomerOrdersResponse {
 
 /** GET /admin/customers/:id/subscriptions — bare array or wrapped */
 export type AdminCustomerSubscriptionsResponse = Subscription[];
+
+/* -------------------------------------------------------------------------- */
+/* Wire types (petsupplies-api → mapped to the app shapes above)              */
+/* -------------------------------------------------------------------------- */
+
+/** Row from `adminCustomerService.listCustomers`. */
+export interface ApiAdminCustomerRow {
+  id: string;
+  email: string;
+  name: string | null;
+  role?: string;
+  createdAt: string;
+  orderCount: number;
+  lifetimeValueCents: number;
+}
+
+/** GET /admin/customers wire envelope. */
+export interface ApiAdminCustomerListResponse {
+  data: ApiAdminCustomerRow[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+/** GET /admin/customers/:id wire shape (counts are nested). */
+export interface ApiAdminCustomerDetail {
+  id: string;
+  email: string;
+  name: string | null;
+  role?: string;
+  createdAt: string;
+  counts: {
+    orders: number;
+    subscriptions: number;
+    addresses?: number;
+    reviews?: number;
+    wishlist?: number;
+    pets?: number;
+  };
+  lifetimeValueCents: number;
+  lastOrderAt?: string | null;
+}

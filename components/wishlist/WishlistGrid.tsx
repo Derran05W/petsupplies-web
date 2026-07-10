@@ -21,16 +21,16 @@ export function WishlistGrid() {
     return (
       <div
         role="alert"
-        className="flex flex-col gap-4 rounded-2xl border border-red-200 bg-red-50 px-6 py-8 text-center"
+        className="flex flex-col gap-4 rounded-card border border-danger-border bg-danger-surface px-6 py-8 text-center"
       >
-        <p className="font-body text-sm text-red-900">
+        <p className="font-body text-sm text-danger-solid">
           {error.message || 'Could not load your wishlist.'}
         </p>
         <button
           type="button"
           onClick={() => void refetch()}
           disabled={isFetching}
-          className="mx-auto inline-flex items-center justify-center rounded-lg bg-red-700 px-5 py-2.5 font-body text-sm font-medium text-white hover:bg-red-800 disabled:opacity-60"
+          className="mx-auto inline-flex cursor-pointer items-center justify-center rounded-pill border border-danger-solid bg-danger-solid px-6 py-2.5 font-body text-micro uppercase text-danger-on-solid transition-all duration-base ease-soft hover:border-danger-solid-hover hover:bg-danger-solid-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           Try again
         </button>
