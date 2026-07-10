@@ -2,6 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Redesign tokens (Aileen's boutique mockup) ────────────────────────
+   Source: design-references/aileens-boutique-mockup.html
+   Theme-independent for now; dark remap can override these per-theme later. */
+:root {
+  /* core palette */
+  --ink: #26221c; /* near-black warm brown — text, solid buttons */
+  --paper: #f6f3ec; /* warm off-white page base */
+  --panel: #efeae0; /* slightly deeper band background */
+  --amber: #e09f3e;
+  --amber-soft: #f3dfc0;
+  --slate: #5b6da8;
+  --slate-soft: #dde2f0;
+  --pine: #3e5c48; /* accent — kickers, hover fills, focus rings */
+  --line: rgb(38 34 28 / 0.16); /* hairline borders */
+
+  /* text hierarchy on paper */
+  --ink-secondary: #4a443a; /* body copy */
+  --ink-muted: #6b6455; /* marquee, footer */
+  --ink-faint: #8a8271; /* captions, counts, jokes */
+
+  /* product-tile gradient stops + matching icon inks */
+  --tile-amber-from: #f3dfc0;
+  --tile-amber-to: #ebcb94;
+  --tile-amber-ink: #a66a14;
+  --tile-slate-from: #dde2f0;
+  --tile-slate-to: #c6cee8;
+  --tile-slate-ink: #3d4c82;
+  --tile-sage-from: #e3e8dd;
+  --tile-sage-to: #cbd6c2;
+  --tile-sage-ink: #4a6b3f;
+  --tile-clay-from: #f0ddd3;
+  --tile-clay-to: #e4c4b2;
+  --tile-clay-ink: #a05a3c;
+
+  /* motion */
+  --ease-soft: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --duration-fast: 200ms; /* opacity/color hovers */
+  --duration-base: 350ms; /* lifts, quick-add, arrows */
+  --duration-slow: 600ms; /* image zooms */
+  --duration-reveal: 850ms; /* scroll reveals, fade-ups */
+}
+
 /* ── Light (default — warm coral / saharaDawn) ─────────────────────────── */
 html,
 html[data-theme='light'] {
@@ -173,9 +215,21 @@ html[data-theme='tropical'] {
     text-wrap: balance;
   }
 
+  /* mockup `.marquee-track`: track renders its content twice and shifts
+     -50% for a seamless wrap (see components/ui/Marquee.tsx) */
+  .animate-marquee-x {
+    animation: marquee-x 30s linear infinite;
+  }
+
   .animate-cart-bounce {
     animation: cart-bounce 600ms cubic-bezier(0.22, 1, 0.36, 1) 1;
     transform-origin: center;
+  }
+}
+
+@keyframes marquee-x {
+  to {
+    transform: translateX(-50%);
   }
 }
 
