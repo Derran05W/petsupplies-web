@@ -14,9 +14,9 @@ const LABEL: Record<StockBadgeState, string> = {
 };
 
 const CLASSES: Record<StockBadgeState, string> = {
-  in_stock: 'bg-brand-50 text-brand-600',
-  low: 'bg-amber-50 text-amber-700',
-  out: 'bg-warm-200 text-warm-600',
+  in_stock: 'border-pine/40 bg-tile-sage text-tile-sage-ink',
+  low: 'border-amber/40 bg-tile-amber text-tile-amber-ink',
+  out: 'border-danger-border bg-danger-surface text-danger-solid',
 };
 
 export function StockBadge({ stockCount, className }: StockBadgeProps) {
@@ -24,7 +24,7 @@ export function StockBadge({ stockCount, className }: StockBadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 font-body text-xs font-medium',
+        'inline-flex items-center gap-1.5 rounded-tag border px-2 py-0.5 font-body text-micro uppercase',
         CLASSES[state],
         className,
       )}

@@ -108,11 +108,11 @@ export function AddressBook() {
 
   if (query.isLoading) {
     return (
-      <div className="flex min-h-[12rem] items-center justify-center rounded-2xl border border-dashed border-warm-300 bg-surface-card">
+      <div className="flex min-h-[12rem] items-center justify-center rounded-card border border-dashed border-line bg-paper">
         <Loader2
           size={20}
           aria-label="Loading addresses"
-          className="animate-spin text-warm-600"
+          className="animate-spin text-ink-muted"
         />
       </div>
     );
@@ -122,7 +122,7 @@ export function AddressBook() {
     return (
       <div
         role="alert"
-        className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 font-body text-sm text-red-700"
+        className="rounded-card border border-danger-border bg-danger-surface px-5 py-4 font-body text-sm text-danger-solid"
       >
         {errorMessageFor(query.error)}
       </div>
@@ -135,7 +135,7 @@ export function AddressBook() {
         <div
           role="alert"
           aria-live="assertive"
-          className="rounded-md border border-red-200 bg-red-50 px-4 py-3 font-body text-sm text-red-700"
+          className="rounded-tile border border-danger-border bg-danger-surface px-4 py-3 font-body text-sm text-danger-solid"
         >
           {topError}
         </div>
@@ -149,7 +149,7 @@ export function AddressBook() {
               setAdding(true);
               setTopError(undefined);
             }}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500"
+            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
           >
             <Plus size={14} aria-hidden />
             Add a new address

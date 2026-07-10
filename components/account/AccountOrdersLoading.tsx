@@ -4,16 +4,15 @@
 export function AccountOrdersLoading() {
   return (
     <div
-      className="flex flex-col gap-3"
+      className="flex flex-col divide-y divide-line border-y border-line"
       role="status"
       aria-busy="true"
       aria-label="Loading orders"
     >
       {Array.from({ length: 4 }, (_, i) => (
-        <div
-          key={i}
-          className="h-[5.5rem] animate-pulse rounded-2xl border border-warm-200 bg-warm-100"
-        />
+        <div key={i} className="py-4 sm:py-5">
+          <div className="h-[3.25rem] animate-pulse rounded-tile bg-panel" />
+        </div>
       ))}
     </div>
   );

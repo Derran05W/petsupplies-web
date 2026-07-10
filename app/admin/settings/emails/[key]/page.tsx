@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronLeft } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 import { PageHeader } from '@/components/account/PageHeader';
 import { AdminBanner } from '@/components/admin/AdminBanner';
@@ -49,14 +48,14 @@ export default function AdminEmailTemplateEditPage({
         action={
           <Link
             href="/admin/settings/emails"
-            className="inline-flex items-center gap-1 font-body text-sm text-warm-600 transition-colors hover:text-warm-900"
+            className="inline-flex items-center gap-1.5 font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
           >
-            <ChevronLeft size={16} aria-hidden />
+            <span aria-hidden>←</span>
             All templates
           </Link>
         }
       />
-      <section className="rounded-xl border border-warm-200 bg-surface-card p-6 md:p-8">
+      <section className="rounded-card border border-line bg-paper p-6 md:p-8">
         <EmailTemplateEditor templateKey={templateKey} />
       </section>
     </>

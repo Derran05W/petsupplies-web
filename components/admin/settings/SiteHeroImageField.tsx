@@ -61,7 +61,7 @@ export function SiteHeroImageField({
         Hero image
       </label>
 
-      <div className="relative aspect-[4/3] max-w-md overflow-hidden rounded-xl bg-warm-100">
+      <div className="relative aspect-[4/3] max-w-md overflow-hidden rounded-tile border border-line bg-panel">
         <Image
           src={previewSrc}
           alt="Hero preview"
@@ -77,7 +77,7 @@ export function SiteHeroImageField({
           type="button"
           disabled={disabled || busy}
           onClick={() => inputRef.current?.click()}
-          className="inline-flex items-center gap-2 rounded-lg border border-warm-300 bg-surface-card px-4 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-pill border border-ink bg-transparent px-4 py-2 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-ink"
         >
           {busy ? (
             <Loader2 size={14} className="animate-spin" aria-hidden />
@@ -112,14 +112,15 @@ export function SiteHeroImageField({
           placeholder="/images/hero-placeholder.jpg"
           className={settingsInputBase}
         />
-        <p id={helpId} className="text-warm-500 mt-1.5 font-body text-xs">
+        <p id={helpId} className="mt-1.5 font-body text-xs text-ink-faint">
           Upload to Supabase or paste a site-relative path. Requires the{' '}
-          <code className="text-warm-700">site-assets</code> bucket in prod.
+          <code className="text-ink-secondary">site-assets</code> bucket in
+          prod.
         </p>
       </div>
 
       {error ? (
-        <p className="font-body text-sm text-red-700" role="alert">
+        <p className="font-body text-sm text-danger-solid" role="alert">
           {error}
         </p>
       ) : null}

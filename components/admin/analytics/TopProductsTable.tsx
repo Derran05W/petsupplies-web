@@ -16,12 +16,10 @@ export function TopProductsTable({ items, currency }: TopProductsTableProps) {
     return (
       <section
         aria-label="Top products"
-        className="rounded-2xl border border-warm-200 bg-surface-card p-5"
+        className="rounded-card border border-line bg-paper p-5"
       >
-        <h2 className="font-display text-lg tracking-tight text-warm-900">
-          Top products
-        </h2>
-        <p className="mt-2 font-body text-sm text-warm-600">No sales yet.</p>
+        <h2 className="font-display text-xl text-ink">Top products</h2>
+        <p className="mt-2 font-body text-sm text-ink-muted">No sales yet.</p>
       </section>
     );
   }
@@ -29,31 +27,32 @@ export function TopProductsTable({ items, currency }: TopProductsTableProps) {
   return (
     <section
       aria-label="Top products"
-      className="overflow-hidden rounded-2xl border border-warm-200 bg-surface-card"
+      className="overflow-hidden rounded-card border border-line bg-paper"
     >
-      <header className="border-b border-warm-200 px-5 py-3">
-        <h2 className="font-display text-lg tracking-tight text-warm-900">
-          Top products
-        </h2>
+      <header className="border-b border-line px-5 py-3">
+        <h2 className="font-display text-xl text-ink">Top products</h2>
       </header>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[520px] font-body text-sm">
           <thead>
-            <tr className="border-b border-warm-200 bg-warm-50 text-left text-xs uppercase tracking-[0.06em] text-warm-600">
-              <th className="px-5 py-3 font-medium">Product</th>
-              <th className="px-5 py-3 text-right font-medium">Units</th>
-              <th className="px-5 py-3 text-right font-medium">Revenue</th>
+            <tr className="border-b border-line text-left font-body text-micro uppercase text-ink-muted">
+              <th className="px-5 py-3">Product</th>
+              <th className="px-5 py-3 text-right">Units</th>
+              <th className="px-5 py-3 text-right">Revenue</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-warm-200">
+          <tbody className="divide-y divide-line">
             {rows.map((row) => (
-              <tr key={row.productId} className="hover:bg-warm-50/80">
+              <tr
+                key={row.productId}
+                className="transition-colors duration-fast hover:bg-panel"
+              >
                 <td className="px-5 py-3">
                   <Link
                     href={`/admin/products/${row.productId}/edit`}
-                    className="flex items-center gap-3 text-warm-900 hover:text-brand-600"
+                    className="flex items-center gap-3 text-ink transition-colors duration-fast hover:text-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
                   >
-                    <div className="relative size-10 shrink-0 overflow-hidden rounded-lg bg-warm-100">
+                    <div className="relative size-10 shrink-0 overflow-hidden rounded-tile bg-panel">
                       <Image
                         src={row.imageUrl?.length ? row.imageUrl : PLACEHOLDER}
                         alt=""
@@ -65,10 +64,10 @@ export function TopProductsTable({ items, currency }: TopProductsTableProps) {
                     <span className="font-medium">{row.name}</span>
                   </Link>
                 </td>
-                <td className="text-warm-700 px-5 py-3 text-right tabular-nums">
+                <td className="px-5 py-3 text-right tabular-nums text-ink-secondary">
                   {row.unitsSold}
                 </td>
-                <td className="px-5 py-3 text-right font-medium tabular-nums text-warm-900">
+                <td className="px-5 py-3 text-right font-display tabular-nums text-ink">
                   {formatPrice(row.revenueCents, currency)}
                 </td>
               </tr>

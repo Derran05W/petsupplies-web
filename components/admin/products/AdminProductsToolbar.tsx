@@ -72,21 +72,21 @@ export function AdminProductsToolbar() {
         <Search
           size={16}
           aria-hidden
-          className="pointer-events-none absolute left-3.5 text-warm-400"
+          className="pointer-events-none absolute left-3.5 text-ink-faint"
         />
         <input
           type="search"
           value={value}
           onChange={(event) => setValue(event.target.value)}
           placeholder="Search products by name, tag, or description…"
-          className="h-11 w-full rounded-lg border border-warm-300 bg-surface-card pl-10 pr-10 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="h-11 w-full rounded-tile border border-line bg-paper pl-10 pr-10 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none"
         />
         {value.length > 0 && (
           <button
             type="button"
             onClick={() => setValue('')}
             aria-label="Clear search"
-            className="absolute right-2 inline-flex size-7 items-center justify-center rounded-md text-warm-400 hover:bg-warm-100 hover:text-warm-900"
+            className="absolute right-2 inline-flex size-7 items-center justify-center rounded-tile text-ink-faint transition-colors duration-fast hover:bg-panel hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
           >
             <X size={14} aria-hidden />
           </button>
@@ -107,10 +107,10 @@ export function AdminProductsToolbar() {
               onClick={() => handleStock(pill.value)}
               aria-pressed={active}
               className={cn(
-                'inline-flex items-center rounded-full px-3 py-1.5 font-body text-xs font-medium transition-colors',
+                'inline-flex items-center rounded-pill border px-3 py-1.5 font-body text-micro uppercase transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
                 active
-                  ? 'bg-warm-900 text-warm-50'
-                  : 'border border-warm-300 bg-surface-card text-warm-900 hover:bg-warm-100',
+                  ? 'border-ink bg-ink text-paper'
+                  : 'border-line bg-transparent text-ink-secondary hover:border-ink',
               )}
             >
               {pill.label}

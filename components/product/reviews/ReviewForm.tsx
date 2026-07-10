@@ -104,7 +104,7 @@ export function ReviewForm({
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-warm-200 bg-warm-50 p-6 font-body text-sm text-warm-600">
+      <div className="rounded-card border border-line bg-panel p-6 font-body text-sm text-ink-muted">
         Checking sign-in status…
       </div>
     );
@@ -112,34 +112,31 @@ export function ReviewForm({
 
   if (existingReview && user) {
     return (
-      <div className="rounded-xl border border-warm-200 bg-surface-card p-6 shadow-sm">
-        <h3 className="font-display text-lg tracking-[-0.02em] text-warm-900">
+      <div className="rounded-card border border-line bg-panel p-6">
+        <h3 className="font-display text-xl tracking-[-0.01em] text-ink">
           Your review
         </h3>
-        <p className="mt-2 font-body text-sm text-warm-600">
+        <p className="mt-2 font-body text-sm text-ink-secondary">
           You already shared feedback for this product
           {viewerFirstName ? (
             <>
               {' '}
-              as{' '}
-              <span className="font-medium text-warm-900">
-                {viewerFirstName}
-              </span>
+              as <span className="font-medium text-ink">{viewerFirstName}</span>
             </>
           ) : null}
           .
         </p>
         <a
           href={`#review-${existingReview.id}`}
-          className="mt-4 inline-flex font-body text-sm font-medium text-brand-600 underline-offset-2 hover:text-brand-700 hover:underline"
+          className="mt-4 inline-flex font-body text-sm font-medium text-pine underline-offset-2 hover:underline"
         >
           Jump to your review
         </a>
-        <p className="text-warm-500 mt-3 font-body text-xs">
+        <p className="mt-3 font-body text-xs text-ink-muted">
           Manage purchases and orders in{' '}
           <Link
             href="/account"
-            className="font-medium text-brand-600 underline-offset-2 hover:underline"
+            className="font-medium text-pine underline-offset-2 hover:underline"
           >
             your account
           </Link>
@@ -150,32 +147,32 @@ export function ReviewForm({
   }
 
   const disabledFieldClass =
-    'disabled:cursor-not-allowed disabled:bg-warm-50 disabled:text-warm-400';
+    'disabled:cursor-not-allowed disabled:bg-panel disabled:text-ink-faint';
 
   return (
-    <div className="rounded-xl border border-warm-200 bg-surface-card p-6 shadow-sm">
-      <h3 className="font-display text-lg tracking-[-0.02em] text-warm-900">
+    <div className="rounded-card border border-line bg-panel p-6">
+      <h3 className="font-display text-xl tracking-[-0.01em] text-ink">
         Write a review
       </h3>
 
       {!canSubmit ? (
         <p
-          className="mt-2 rounded-md border border-warm-200 bg-warm-50 px-3 py-2 font-body text-sm text-warm-600"
+          className="mt-2 rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink-secondary"
           title={SIGN_IN_REQUIRED}
         >
           {SIGN_IN_REQUIRED}.{' '}
           <Link
             href={loginHref}
-            className="font-medium text-brand-600 underline-offset-2 hover:text-brand-700 hover:underline"
+            className="font-medium text-pine underline-offset-2 hover:underline"
           >
             Sign in
           </Link>{' '}
           to post feedback linked to your account.
         </p>
       ) : (
-        <p className="text-warm-500 mt-2 font-body text-xs">
+        <p className="mt-2 font-body text-xs text-ink-muted">
           Posting as{' '}
-          <span className="text-warm-700 font-medium">{viewerFirstName}</span>.
+          <span className="font-medium text-ink">{viewerFirstName}</span>.
           Verified buyers may share feedback after a qualifying order ships.
         </p>
       )}
@@ -187,7 +184,7 @@ export function ReviewForm({
         aria-disabled={!canSubmit}
       >
         {errors.root ? (
-          <div className="rounded-md bg-red-50 px-3 py-2 font-body text-sm text-red-700">
+          <div className="rounded-tile border border-danger-border bg-danger-surface px-3 py-2 font-body text-sm text-danger-solid">
             {errors.root.message}
           </div>
         ) : null}
@@ -199,7 +196,7 @@ export function ReviewForm({
           <legend className="sr-only">Review fields</legend>
 
           <div>
-            <span className="mb-2 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
+            <span className="mb-2 block font-body text-micro uppercase text-ink">
               Rating
             </span>
             <Controller
@@ -223,15 +220,15 @@ export function ReviewForm({
                         aria-checked={field.value === star}
                         disabled={!canSubmit}
                         onClick={() => field.onChange(star)}
-                        className="rounded-md p-1 transition-colors hover:bg-warm-50 focus:outline-none focus:ring-2 focus:ring-brand-400 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                        className="rounded-tile p-1 transition-colors duration-fast hover:bg-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine disabled:cursor-not-allowed disabled:hover:bg-transparent"
                       >
                         <Star
                           size={28}
                           aria-hidden
                           className={
                             active
-                              ? 'fill-brand-400 text-brand-400'
-                              : 'fill-transparent text-warm-200'
+                              ? 'fill-amber text-amber'
+                              : 'fill-transparent text-ink-faint'
                           }
                         />
                         <span className="sr-only">{star} stars</span>
@@ -245,7 +242,7 @@ export function ReviewForm({
               Selected rating {ratingValue} out of 5
             </span>
             {errors.rating ? (
-              <p className="mt-1 font-body text-xs text-red-600">
+              <p className="mt-1 font-body text-xs text-danger-solid">
                 {errors.rating.message}
               </p>
             ) : null}
@@ -254,10 +251,10 @@ export function ReviewForm({
           <div className="mt-4">
             <label
               htmlFor="review-title"
-              className="mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600"
+              className="mb-1.5 block font-body text-micro uppercase text-ink"
             >
               Title{' '}
-              <span className="font-normal normal-case text-warm-400">
+              <span className="font-normal normal-case text-ink-faint">
                 (optional)
               </span>
             </label>
@@ -268,11 +265,11 @@ export function ReviewForm({
               title={!canSubmit ? SIGN_IN_REQUIRED : undefined}
               {...register('title')}
               maxLength={80}
-              className={`w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400 ${disabledFieldClass}`}
+              className={`w-full rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none ${disabledFieldClass}`}
               placeholder="Summarize your experience"
             />
             {errors.title ? (
-              <p className="mt-1 font-body text-xs text-red-600">
+              <p className="mt-1 font-body text-xs text-danger-solid">
                 {errors.title.message}
               </p>
             ) : null}
@@ -282,17 +279,17 @@ export function ReviewForm({
             <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-2">
               <label
                 htmlFor="review-body"
-                className="font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600"
+                className="font-body text-micro uppercase text-ink"
               >
                 Review
               </label>
               {canSubmit && isTyping && viewerFirstName ? (
                 <span
-                  className="text-warm-500 font-body text-xs"
+                  className="font-body text-xs text-ink-muted"
                   aria-live="polite"
                 >
                   Sharing as{' '}
-                  <span className="text-warm-800 font-medium">
+                  <span className="font-medium text-ink">
                     {viewerFirstName}
                   </span>
                 </span>
@@ -304,7 +301,7 @@ export function ReviewForm({
               title={!canSubmit ? SIGN_IN_REQUIRED : undefined}
               {...register('body')}
               rows={5}
-              className={`w-full resize-y rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400 ${disabledFieldClass}`}
+              className={`w-full resize-y rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none ${disabledFieldClass}`}
               placeholder={
                 canSubmit && viewerFirstName
                   ? `What did your pet think, ${viewerFirstName}?`
@@ -312,7 +309,7 @@ export function ReviewForm({
               }
             />
             {errors.body ? (
-              <p className="mt-1 font-body text-xs text-red-600">
+              <p className="mt-1 font-body text-xs text-danger-solid">
                 {errors.body.message}
               </p>
             ) : null}
@@ -323,7 +320,7 @@ export function ReviewForm({
           type="submit"
           disabled={!canSubmit || submitting}
           title={!canSubmit ? SIGN_IN_REQUIRED : undefined}
-          className="disabled:text-warm-500 flex w-full items-center justify-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:bg-warm-300"
+          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-5 py-3 font-body text-button uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:border-line disabled:bg-paper disabled:text-ink-faint"
         >
           {submitting ? (
             <>

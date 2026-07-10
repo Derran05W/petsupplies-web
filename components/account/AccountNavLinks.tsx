@@ -12,7 +12,7 @@ function AccountNavLinksFallback() {
     <ul className="flex flex-col gap-1" aria-hidden>
       {ACCOUNT_NAV_LINKS.map((link) => (
         <li key={link.href}>
-          <div className="h-10 animate-pulse rounded-lg bg-warm-100" />
+          <div className="h-10 animate-pulse rounded-pill bg-panel" />
         </li>
       ))}
     </ul>
@@ -36,10 +36,10 @@ function AccountNavLinksInner() {
               href={href}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 font-body text-sm transition-colors',
+                'flex items-center gap-3 rounded-pill px-4 py-2.5 font-body text-micro uppercase transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
                 active
-                  ? 'bg-warm-100 text-warm-900'
-                  : 'text-warm-600 hover:bg-warm-100 hover:text-warm-900',
+                  ? 'bg-ink text-paper'
+                  : 'text-ink-muted hover:bg-panel hover:text-ink',
               )}
             >
               <Icon size={16} aria-hidden />

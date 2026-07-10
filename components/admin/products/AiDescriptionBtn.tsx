@@ -99,7 +99,7 @@ export function AiDescriptionBtn({
           <button
             type="button"
             onClick={handleCancel}
-            className="inline-flex items-center gap-2 rounded-lg border border-warm-300 bg-surface-card px-3 py-1.5 font-body text-xs font-medium text-warm-900 transition-colors hover:bg-warm-100"
+            className="inline-flex items-center gap-2 rounded-pill border border-line bg-transparent px-4 py-1.5 font-body text-micro uppercase text-ink transition-colors duration-fast hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
           >
             <X size={12} aria-hidden />
             Cancel
@@ -108,14 +108,14 @@ export function AiDescriptionBtn({
           <button
             type="button"
             onClick={handleClick}
-            className="inline-flex items-center gap-2 rounded-lg border border-brand-200 bg-brand-50 px-3 py-1.5 font-body text-xs font-medium text-brand-700 transition-colors hover:bg-brand-100"
+            className="inline-flex items-center gap-2 rounded-pill border border-pine bg-transparent px-4 py-1.5 font-body text-micro uppercase text-pine transition-all duration-base ease-soft hover:bg-pine hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
           >
             <Sparkles size={12} aria-hidden />
             Generate with AI
           </button>
         )}
         {busy && (
-          <span className="inline-flex items-center gap-1.5 font-body text-xs text-warm-600">
+          <span className="inline-flex items-center gap-1.5 font-body text-xs text-ink-muted">
             <Loader2 size={12} aria-hidden className="animate-spin" />
             Streaming…
           </span>
@@ -124,12 +124,12 @@ export function AiDescriptionBtn({
       <p
         role="status"
         aria-live="polite"
-        className="font-body text-xs text-warm-600"
+        className="font-body text-xs text-ink-muted"
       >
         {statusMessage}
       </p>
       {validationMessage && (
-        <p role="alert" className="font-body text-xs text-red-600">
+        <p role="alert" className="font-body text-xs text-danger-solid">
           {validationMessage}
         </p>
       )}

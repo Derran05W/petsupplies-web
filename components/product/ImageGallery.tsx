@@ -4,8 +4,8 @@ import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { type ProductImage } from '@/types/product';
 import { cn } from '@/lib/utils';
-
-const FALLBACK_IMAGE = '/images/hero-placeholder.jpg';
+import { PetIcon } from '@/components/ui';
+import { TONE_CLASSES } from '@/components/ui/tones';
 
 interface ImageGalleryProps {
   productName: string;
@@ -14,8 +14,9 @@ interface ImageGalleryProps {
 
 /**
  * Primary image + thumbnail strip. Click a thumbnail to swap the main
- * image. If `images` is empty, renders a single placeholder slot in the
- * brand colour so the layout never collapses.
+ * image. Tiles sit on a tonal gradient (mirrors the boutique
+ * `ProductCard`); if `images` is empty, a line-art paw on the gradient
+ * keeps the layout from collapsing.
  */
 export function ImageGallery({ productName, images }: ImageGalleryProps) {
   const ordered = useMemo(() => {
@@ -31,7 +32,13 @@ export function ImageGallery({ productName, images }: ImageGalleryProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="relative aspect-square overflow-hidden rounded-xl bg-warm-100">
+      <div
+        className={cn(
+          'group relative flex aspect-square items-center justify-center overflow-hidden rounded-tile',
+          TONE_CLASSES.amber,
+        )}
+        {...(active ? {} : { role: 'img', 'aria-label': productName })}
+      >
         {active ? (
           <Image
             src={active.url}
@@ -39,15 +46,12 @@ export function ImageGallery({ productName, images }: ImageGalleryProps) {
             fill
             sizes="(min-width: 1024px) 50vw, 100vw"
             priority
-            className="object-cover"
+            className="object-cover transition-transform duration-slow ease-soft group-hover:scale-[1.06] motion-reduce:transform-none"
           />
         ) : (
-          <Image
-            src={FALLBACK_IMAGE}
-            alt={productName}
-            fill
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            className="object-cover"
+          <PetIcon
+            name="paw"
+            className="h-[44%] w-[44%] transition-transform duration-slow ease-soft group-hover:-rotate-3 group-hover:scale-110 motion-reduce:transform-none"
           />
         )}
       </div>
@@ -64,10 +68,9 @@ export function ImageGallery({ productName, images }: ImageGalleryProps) {
                   aria-label={`${productName} – image ${idx + 1}`}
                   aria-pressed={selected}
                   className={cn(
-                    'relative aspect-square size-20 overflow-hidden rounded-lg border-2 bg-warm-100 transition-colors',
-                    selected
-                      ? 'border-brand-400'
-                      : 'border-warm-200 hover:border-warm-300',
+                    'relative aspect-square size-20 overflow-hidden rounded-tile border transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine',
+                    TONE_CLASSES.amber,
+                    selected ? 'border-ink' : 'border-line hover:border-ink',
                   )}
                 >
                   <Image

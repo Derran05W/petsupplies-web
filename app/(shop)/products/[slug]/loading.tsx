@@ -9,8 +9,8 @@ export default function ProductDetailLoading() {
   return (
     <>
       <ProductDetailSkeleton />
-      <div className="px-6 pb-20 md:px-8 lg:px-12">
-        <div className="mx-auto max-w-7xl">
+      <div className="bg-paper px-gutter pb-24 text-ink">
+        <div className="mx-auto max-w-wrap">
           <ReviewSkeleton />
           <RelatedProductsSkeleton />
         </div>

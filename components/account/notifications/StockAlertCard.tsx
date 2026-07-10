@@ -36,10 +36,10 @@ export function StockAlertCard({ alert }: StockAlertCardProps) {
 
   return (
     <>
-      <article className="flex flex-col rounded-xl border border-warm-200 bg-surface-card p-4 shadow-sm transition-shadow hover:shadow-md">
+      <article className="flex flex-col rounded-card border border-line bg-paper p-4 transition-colors duration-fast hover:border-ink">
         <Link
           href={`/products/${product.slug}`}
-          className="relative mb-3 aspect-square overflow-hidden rounded-lg bg-warm-100"
+          className="relative mb-3 aspect-square overflow-hidden rounded-tile bg-panel"
         >
           <Image
             src={imageUrl}
@@ -52,21 +52,21 @@ export function StockAlertCard({ alert }: StockAlertCardProps) {
 
         <Link
           href={`/products/${product.slug}`}
-          className="font-display text-lg leading-snug tracking-[-0.02em] text-warm-900 hover:text-brand-600"
+          className="font-display text-lg leading-snug tracking-[-0.02em] text-ink transition-colors duration-fast hover:text-pine"
         >
           {product.name}
         </Link>
 
-        <p className="mt-2 font-body text-sm font-medium text-warm-900">
+        <p className="mt-2 font-display text-sm text-ink">
           {formatPrice(product.priceCents)}
         </p>
 
         {!product.inStock ? (
-          <p className="mt-2 font-body text-xs text-warm-600">
+          <p className="mt-2 font-body text-xs text-ink-muted">
             Waiting for stock
           </p>
         ) : (
-          <p className="mt-2 font-body text-xs text-brand-700">
+          <p className="mt-2 font-body text-xs text-pine">
             Back in stock — view product
           </p>
         )}
@@ -76,10 +76,10 @@ export function StockAlertCard({ alert }: StockAlertCardProps) {
           onClick={() => setConfirmOpen(true)}
           disabled={busy}
           className={cn(
-            'mt-4 inline-flex items-center justify-center rounded-lg border border-warm-300 bg-surface-card px-4 py-2.5 font-body text-sm font-medium text-warm-900 transition-colors',
+            'mt-4 inline-flex items-center justify-center rounded-pill border border-ink bg-transparent px-4 py-2 font-body text-micro uppercase text-ink transition-all duration-base ease-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
             busy
               ? 'cursor-wait opacity-70'
-              : 'hover:border-red-300 hover:bg-red-50 hover:text-red-800',
+              : 'hover:border-danger-solid hover:bg-danger-surface hover:text-danger-solid',
           )}
         >
           {busy ? (

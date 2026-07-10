@@ -17,33 +17,32 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
 };
 
 /**
- * Brand-aligned colour map for order status pills. Strictly uses
- * `brand-*` / `warm-*` tokens with one Tailwind-ships-by-default
- * `amber-*` accent for the in-transit state. Never `gray-*`.
+ * Boutique tonal-tile colour map for order status pills. Strictly uses
+ * design tokens (`tile-*` gradients + token inks). Never `gray-*`.
  *
- *   pending    → warm pill          (waiting on payment)
- *   paid       → brand pill         (confirmed)
- *   fulfilled  → brand pill         (warehouse done; pre-carrier)
- *   shipped    → amber pill         (in transit — visually distinct)
- *   delivered  → deeper brand pill  (terminal happy state)
- *   cancelled  → warm pill, struck  (terminal sad state)
- *   refunded   → warm pill          (terminal money-back state)
+ *   pending    → amber tile  (waiting on payment)
+ *   paid       → amber tile  (confirmed; processing family)
+ *   fulfilled  → amber tile  (warehouse done; pre-carrier)
+ *   shipped    → slate tile  (in transit — visually distinct)
+ *   delivered  → sage tile   (terminal happy state)
+ *   cancelled  → panel, struck (terminal sad state)
+ *   refunded   → panel       (terminal money-back state)
  */
 const STATUS_CLASSES: Record<OrderStatus, string> = {
-  pending: 'bg-warm-200 text-warm-600',
-  paid: 'bg-brand-50 text-brand-600',
-  fulfilled: 'bg-brand-50 text-brand-600',
-  shipped: 'bg-amber-50 text-amber-700',
-  delivered: 'bg-brand-100 text-brand-700',
-  cancelled: 'bg-warm-200 text-warm-600 line-through',
-  refunded: 'bg-warm-200 text-warm-600',
+  pending: 'border-amber/40 bg-tile-amber text-tile-amber-ink',
+  paid: 'border-amber/40 bg-tile-amber text-tile-amber-ink',
+  fulfilled: 'border-amber/40 bg-tile-amber text-tile-amber-ink',
+  shipped: 'border-slate/40 bg-tile-slate text-tile-slate-ink',
+  delivered: 'border-pine/40 bg-tile-sage text-tile-sage-ink',
+  cancelled: 'border-line bg-panel text-ink-muted line-through',
+  refunded: 'border-line bg-panel text-ink-muted',
 };
 
 export function OrderStatusPill({ status, className }: OrderStatusPillProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-md px-2.5 py-1 font-body text-xs font-medium uppercase tracking-[0.06em]',
+        'inline-flex items-center rounded-tag border px-2 py-0.5 font-body text-micro uppercase',
         STATUS_CLASSES[status],
         className,
       )}

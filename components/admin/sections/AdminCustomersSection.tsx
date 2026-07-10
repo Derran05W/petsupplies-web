@@ -32,7 +32,7 @@ export async function AdminCustomersSection({
 
     if (data.customers.length === 0) {
       return (
-        <p className="rounded-2xl border border-warm-200 bg-surface-card px-5 py-8 text-center font-body text-sm text-warm-600">
+        <p className="rounded-card border border-line bg-paper px-5 py-8 text-center font-body text-sm text-ink-secondary">
           {filtered ? 'No customers match this search.' : 'No customers yet.'}
         </p>
       );

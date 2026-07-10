@@ -66,12 +66,12 @@ export function ReviewsToolbar({
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <label className="inline-flex items-center gap-2 font-body text-sm text-warm-600">
+      <label className="inline-flex items-center gap-2 font-body text-micro uppercase text-ink-muted">
         <span>Sort</span>
         <select
           value={sort}
           onChange={(e) => handleSort(e.target.value)}
-          className="rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+          className="rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm normal-case tracking-normal text-ink focus:border-ink focus:outline-none"
         >
           {SORT_OPTIONS.map((key) => (
             <option key={key} value={key}>
@@ -82,26 +82,26 @@ export function ReviewsToolbar({
       </label>
 
       {totalPages > 1 ? (
-        <div className="flex flex-wrap items-center gap-3 font-body text-sm text-warm-600">
+        <div className="flex flex-wrap items-center gap-4 font-body text-micro uppercase text-ink-muted">
           <span className="tabular-nums">
             Page {page} of {totalPages}
           </span>
-          <div className="flex gap-2">
+          <div className="flex gap-4">
             <button
               type="button"
               onClick={goPrev}
               disabled={page <= 1}
-              className="rounded-lg border border-warm-300 bg-surface-card px-3 py-1.5 font-medium text-warm-900 transition-colors hover:border-warm-400 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:text-ink-faint disabled:opacity-60"
             >
-              Previous
+              <span aria-hidden>←</span> Previous
             </button>
             <button
               type="button"
               onClick={goNext}
               disabled={page >= totalPages}
-              className="rounded-lg border border-warm-300 bg-surface-card px-3 py-1.5 font-medium text-warm-900 transition-colors hover:border-warm-400 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:text-ink-faint disabled:opacity-60"
             >
-              Next
+              Next <span aria-hidden>→</span>
             </button>
           </div>
         </div>

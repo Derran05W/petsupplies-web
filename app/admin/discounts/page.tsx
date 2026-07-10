@@ -19,7 +19,7 @@ export default function AdminDiscountsPage() {
       />
       <Suspense
         fallback={
-          <p className="font-body text-sm text-warm-600" aria-busy="true">
+          <p className="font-body text-sm text-ink-muted" aria-busy="true">
             Loading discounts…
           </p>
         }

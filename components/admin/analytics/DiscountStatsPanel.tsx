@@ -14,12 +14,10 @@ export function DiscountStatsPanel({
     return (
       <section
         aria-label="Discount usage"
-        className="rounded-2xl border border-warm-200 bg-surface-card p-5"
+        className="rounded-card border border-line bg-paper p-5"
       >
-        <h2 className="font-display text-lg tracking-tight text-warm-900">
-          Discounts
-        </h2>
-        <p className="mt-2 font-body text-sm text-warm-600">
+        <h2 className="font-display text-xl text-ink">Discounts</h2>
+        <p className="mt-2 font-body text-sm text-ink-muted">
           No discount usage recorded.
         </p>
       </section>
@@ -29,36 +27,35 @@ export function DiscountStatsPanel({
   return (
     <section
       aria-label="Discount usage"
-      className="overflow-hidden rounded-2xl border border-warm-200 bg-surface-card"
+      className="overflow-hidden rounded-card border border-line bg-paper"
     >
-      <header className="border-b border-warm-200 px-5 py-3">
-        <h2 className="font-display text-lg tracking-tight text-warm-900">
-          Discounts
-        </h2>
+      <header className="border-b border-line px-5 py-3">
+        <h2 className="font-display text-xl text-ink">Discounts</h2>
       </header>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[420px] font-body text-sm">
           <thead>
-            <tr className="border-b border-warm-200 bg-warm-50 text-left text-xs uppercase tracking-[0.06em] text-warm-600">
-              <th className="px-5 py-3 font-medium">Code</th>
-              <th className="px-5 py-3 text-right font-medium">Uses</th>
-              <th className="px-5 py-3 text-right font-medium">Revenue</th>
-              <th className="px-5 py-3 text-right font-medium">Discounts</th>
+            <tr className="border-b border-line text-left font-body text-micro uppercase text-ink-muted">
+              <th className="px-5 py-3">Code</th>
+              <th className="px-5 py-3 text-right">Uses</th>
+              <th className="px-5 py-3 text-right">Revenue</th>
+              <th className="px-5 py-3 text-right">Discounts</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-warm-200">
+          <tbody className="divide-y divide-line">
             {items.map((row) => (
-              <tr key={row.code} className="hover:bg-warm-50/80">
-                <td className="px-5 py-3 font-medium text-warm-900">
-                  {row.code}
-                </td>
-                <td className="text-warm-700 px-5 py-3 text-right tabular-nums">
+              <tr
+                key={row.code}
+                className="transition-colors duration-fast hover:bg-panel"
+              >
+                <td className="px-5 py-3 font-medium text-ink">{row.code}</td>
+                <td className="px-5 py-3 text-right tabular-nums text-ink-secondary">
                   {row.uses}
                 </td>
-                <td className="px-5 py-3 text-right tabular-nums text-warm-900">
+                <td className="px-5 py-3 text-right font-display tabular-nums text-ink">
                   {formatPrice(row.revenueCents, currency)}
                 </td>
-                <td className="px-5 py-3 text-right tabular-nums text-warm-900">
+                <td className="px-5 py-3 text-right font-display tabular-nums text-ink">
                   {formatPrice(row.discountCents, currency)}
                 </td>
               </tr>

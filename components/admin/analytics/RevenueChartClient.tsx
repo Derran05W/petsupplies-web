@@ -41,9 +41,9 @@ function ChartTooltip({
   };
   if (!row) return null;
   return (
-    <div className="rounded-lg border border-warm-200 bg-surface-card px-3 py-2 font-body text-xs shadow-sm">
-      <p className="font-medium text-warm-900">{row.date}</p>
-      <p className="text-warm-600">
+    <div className="rounded-tile border border-line bg-paper px-3 py-2 font-body text-xs shadow-lifted">
+      <p className="font-medium text-ink">{row.date}</p>
+      <p className="text-ink-muted">
         {formatPrice(row.revenueCents, currency)} · {row.orderCount} orders
       </p>
     </div>
@@ -72,12 +72,10 @@ export function RevenueChartClient() {
   return (
     <section
       aria-label="Revenue over time"
-      className="rounded-2xl border border-warm-200 bg-surface-card p-5"
+      className="rounded-card border border-line bg-paper p-5"
     >
       <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="font-display text-lg tracking-tight text-warm-900">
-          Revenue
-        </h2>
+        <h2 className="font-display text-xl text-ink">Revenue</h2>
         <div
           role="tablist"
           aria-label="Date range"
@@ -91,10 +89,10 @@ export function RevenueChartClient() {
               aria-selected={range === r.value}
               onClick={() => setRange(r.value)}
               className={cn(
-                'rounded-lg px-3 py-1.5 font-body text-xs font-medium transition-colors',
+                'rounded-pill border px-3 py-1.5 font-body text-micro uppercase transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
                 range === r.value
-                  ? 'bg-brand-400 text-white'
-                  : 'text-warm-700 bg-warm-100 hover:bg-warm-200',
+                  ? 'border-ink bg-ink text-paper'
+                  : 'border-line bg-transparent text-ink-muted hover:bg-panel hover:text-ink',
               )}
             >
               {r.label}
@@ -109,18 +107,18 @@ export function RevenueChartClient() {
           role="status"
           aria-label="Loading revenue chart"
         >
-          <Loader2 size={28} className="animate-spin text-brand-500" />
+          <Loader2 size={28} className="animate-spin text-pine" />
         </div>
       )}
       {isError && (
-        <p role="alert" className="font-body text-sm text-red-600">
+        <p role="alert" className="font-body text-sm text-danger-solid">
           {error instanceof ApiError
             ? error.message
             : 'Could not load revenue data.'}
         </p>
       )}
       {!isPending && !isError && chartData.length === 0 && (
-        <p className="font-body text-sm text-warm-600">
+        <p className="font-body text-sm text-ink-muted">
           No revenue in this period yet.
         </p>
       )}
@@ -131,14 +129,14 @@ export function RevenueChartClient() {
               data={chartData}
               margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#E8E2DA" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
               <XAxis
                 dataKey="shortDate"
-                tick={{ fontSize: 11, fill: '#5C534A' }}
+                tick={{ fontSize: 11, fill: 'var(--ink-muted)' }}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fontSize: 11, fill: '#5C534A' }}
+                tick={{ fontSize: 11, fill: 'var(--ink-muted)' }}
                 tickLine={false}
                 tickFormatter={(v) =>
                   new Intl.NumberFormat('en-US', {
@@ -151,7 +149,7 @@ export function RevenueChartClient() {
               <Tooltip
                 content={<ChartTooltip currency={currency} />}
                 cursor={{
-                  stroke: '#2B6F4E',
+                  stroke: 'var(--pine)',
                   strokeWidth: 1,
                   strokeDasharray: '4 4',
                 }}
@@ -159,10 +157,10 @@ export function RevenueChartClient() {
               <Line
                 type="monotone"
                 dataKey="revenueDollars"
-                stroke="#3D8B6A"
+                stroke="var(--pine)"
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 4, fill: '#2B6F4E' }}
+                activeDot={{ r: 4, fill: 'var(--pine)' }}
               />
             </LineChart>
           </ResponsiveContainer>

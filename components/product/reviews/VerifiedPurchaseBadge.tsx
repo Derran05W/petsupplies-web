@@ -2,8 +2,8 @@ import { BadgeCheck } from 'lucide-react';
 
 export function VerifiedPurchaseBadge() {
   return (
-    <span className="inline-flex items-center gap-1 rounded-md bg-brand-50 px-2 py-0.5 font-body text-xs font-medium text-brand-700">
-      <BadgeCheck size={12} aria-hidden className="text-brand-600" />
+    <span className="border-pine/40 inline-flex items-center gap-1 rounded-tag border bg-tile-sage px-2 py-0.5 font-body text-micro uppercase text-tile-sage-ink">
+      <BadgeCheck size={12} aria-hidden className="text-pine" />
       Verified purchase
     </span>
   );

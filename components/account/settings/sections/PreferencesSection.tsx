@@ -21,15 +21,15 @@ export function PreferencesSection() {
     <section
       id="preferences"
       aria-labelledby="preferences-heading"
-      className="scroll-mt-24 rounded-2xl border border-warm-200 bg-surface-card p-6 md:p-8"
+      className="scroll-mt-24 rounded-card border border-line bg-paper p-6 md:p-8"
     >
       <h2
         id="preferences-heading"
-        className="mb-1 font-display text-2xl tracking-[-0.02em] text-warm-900"
+        className="mb-1 font-display text-2xl tracking-[-0.01em] text-ink"
       >
         Appearance
       </h2>
-      <p className="mb-6 font-body text-sm text-warm-600">
+      <p className="mb-6 font-body text-sm text-ink-secondary">
         Light is the default shop look. Dark keeps the warm coral palette on a
         deeper background. Tropical uses sage, sun, coral, and teal. System
         follows your device.
@@ -53,10 +53,10 @@ export function PreferencesSection() {
                 disabled={saving}
                 onClick={() => setAppearance(option.id)}
                 className={cn(
-                  'flex flex-col items-start gap-3 rounded-xl border px-4 py-4 text-left transition-colors',
+                  'flex flex-col items-start gap-3 rounded-tile border px-4 py-4 text-left transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
                   selected
-                    ? 'border-brand-400 bg-brand-50 ring-2 ring-brand-400 ring-offset-2 ring-offset-warm-50'
-                    : 'bg-warm-50/50 border-warm-200 hover:border-warm-300',
+                    ? 'border-pine bg-panel ring-2 ring-pine ring-offset-2 ring-offset-paper'
+                    : 'border-line bg-paper hover:border-ink',
                   saving && 'cursor-not-allowed opacity-60',
                 )}
               >
@@ -64,16 +64,16 @@ export function PreferencesSection() {
                   {option.preview.map((hex) => (
                     <span
                       key={hex}
-                      className="size-7 rounded-full border border-warm-200 shadow-sm"
+                      className="size-7 rounded-full border border-line shadow-sm"
                       style={{ backgroundColor: hex }}
                     />
                   ))}
                 </span>
                 <span>
-                  <span className="font-body text-sm font-medium text-warm-900">
+                  <span className="font-body text-sm font-medium text-ink">
                     {option.label}
                   </span>
-                  <span className="text-warm-500 mt-0.5 block font-body text-xs leading-snug">
+                  <span className="mt-0.5 block font-body text-xs leading-snug text-ink-muted">
                     {option.description}
                   </span>
                 </span>
@@ -82,12 +82,12 @@ export function PreferencesSection() {
           })}
         </div>
         {systemHint ? (
-          <p className="text-warm-500 mt-3 font-body text-xs">{systemHint}</p>
+          <p className="mt-3 font-body text-xs text-ink-muted">{systemHint}</p>
         ) : null}
       </fieldset>
 
       {saving ? (
-        <p className="text-warm-500 mt-4 inline-flex items-center gap-1 font-body text-xs">
+        <p className="mt-4 inline-flex items-center gap-1 font-body text-xs text-ink-muted">
           <Loader2 size={12} className="animate-spin" aria-hidden />
           Saving…
         </p>

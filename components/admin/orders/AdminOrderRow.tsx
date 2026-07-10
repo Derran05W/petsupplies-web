@@ -16,34 +16,34 @@ function shortId(id: string): string {
 
 export function AdminOrderRow({ order, viewHref }: AdminOrderRowProps) {
   return (
-    <tr className="border-b border-warm-200 last:border-b-0 hover:bg-warm-50">
+    <tr className="border-b border-line transition-colors duration-fast last:border-b-0 hover:bg-panel">
       <td className="px-4 py-3 align-top">
-        <p className="font-body text-sm font-medium text-warm-900">
+        <p className="font-body text-sm font-medium text-ink">
           {shortId(order.id)}
         </p>
-        <p className="font-body text-xs text-warm-600">
+        <p className="font-body text-xs text-ink-muted">
           {formatDate(order.createdAt)}
         </p>
       </td>
       <td className="hidden px-4 py-3 align-top md:table-cell">
-        <p className="font-body text-sm text-warm-900">
+        <p className="font-body text-sm text-ink">
           {order.customerName ?? order.shippingAddress.fullName}
         </p>
-        <p className="break-all font-body text-xs text-warm-600">
+        <p className="break-all font-body text-xs text-ink-muted">
           {order.customerEmail}
         </p>
       </td>
       <td className="px-4 py-3 align-top">
         <OrderStatusPill status={order.status} />
       </td>
-      <td className="px-4 py-3 align-top font-body text-sm font-medium text-warm-900">
+      <td className="px-4 py-3 align-top font-display text-sm text-ink">
         {formatPrice(order.totalCents, order.currency)}
       </td>
       <td className="px-4 py-3 text-right align-top">
         <Link
           href={viewHref}
           scroll={false}
-          className="inline-flex items-center rounded-md border border-warm-300 bg-surface-card px-2.5 py-1 font-body text-xs text-warm-900 transition-colors hover:bg-warm-100"
+          className="inline-flex items-center rounded-pill border border-line bg-transparent px-3 py-1 font-body text-micro uppercase text-ink transition-colors duration-fast hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
         >
           View
         </Link>

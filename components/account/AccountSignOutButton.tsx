@@ -25,7 +25,7 @@ export function AccountSignOutButton() {
           setBusy(false);
         }
       }}
-      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 font-body text-sm text-warm-600 transition-colors hover:bg-warm-100 hover:text-warm-900 disabled:cursor-not-allowed disabled:opacity-60"
+      className="flex w-full items-center gap-3 rounded-pill px-4 py-2.5 font-body text-micro uppercase text-ink-muted transition-colors duration-fast hover:bg-panel hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-60"
     >
       {busy ? (
         <Loader2 size={16} aria-hidden className="animate-spin" />

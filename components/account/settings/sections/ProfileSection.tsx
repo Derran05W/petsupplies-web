@@ -18,11 +18,11 @@ export function ProfileSection({
       <div>
         <h2
           id="profile-heading"
-          className="mb-1 font-display text-2xl tracking-[-0.02em] text-warm-900"
+          className="mb-1 font-display text-2xl tracking-[-0.01em] text-ink"
         >
           Profile
         </h2>
-        <p className="font-body text-sm text-warm-600">
+        <p className="font-body text-sm text-ink-secondary">
           Your name and email appear on orders and receipts.
         </p>
       </div>

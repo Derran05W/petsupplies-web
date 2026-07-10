@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { ArrowLeft } from 'lucide-react';
 import { brand } from '@/lib/config/brand';
 import { getOrderById } from '@/lib/api/orders';
 import { getServerAccessToken } from '@/lib/supabase/access-token';
@@ -72,9 +71,9 @@ export default async function OrderDetailPage({
         <div className="mt-8">
           <Link
             href={accountOrdersHref}
-            className="inline-flex items-center gap-2 rounded-lg border border-warm-300 bg-transparent px-4 py-2 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
+            className="inline-flex items-center gap-2 rounded-pill border border-ink bg-transparent px-6 py-2.5 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
           >
-            <ArrowLeft size={14} aria-hidden /> Back to orders
+            <span aria-hidden>←</span> Back to orders
           </Link>
         </div>
       </div>

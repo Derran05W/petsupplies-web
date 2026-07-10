@@ -33,20 +33,20 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
   return (
     <aside
       aria-label="Admin navigation"
-      className="hidden h-fit w-64 shrink-0 flex-col gap-6 rounded-2xl border border-warm-200 bg-surface-card p-5 lg:sticky lg:top-24 lg:flex"
+      className="hidden h-fit w-64 shrink-0 flex-col gap-6 rounded-card border border-line bg-paper p-5 lg:sticky lg:top-24 lg:flex"
     >
-      <div className="flex items-center gap-3 border-b border-warm-200 pb-4">
+      <div className="flex items-center gap-3 border-b border-line pb-4">
         <span
           aria-hidden
-          className="inline-flex size-10 items-center justify-center rounded-full bg-brand-50 font-body text-base font-medium text-brand-700"
+          className="inline-flex size-10 items-center justify-center rounded-full bg-panel font-display text-base text-ink"
         >
           {initial}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-body text-sm font-medium text-warm-900">
+          <p className="truncate font-body text-sm font-medium text-ink">
             {name}
           </p>
-          <p className="truncate font-body text-xs uppercase tracking-[0.08em] text-brand-600">
+          <p className="truncate font-body text-micro uppercase text-pine">
             Admin
           </p>
         </div>
@@ -56,7 +56,7 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
         <AdminNavLinks />
       </nav>
 
-      <div className="mt-auto border-t border-warm-200 pt-3">
+      <div className="mt-auto border-t border-line pt-3">
         <AdminSignOutButton />
       </div>
     </aside>

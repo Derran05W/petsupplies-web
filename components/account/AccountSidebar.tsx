@@ -22,14 +22,14 @@ export function AccountSidebar({ user }: AccountSidebarProps) {
   return (
     <aside
       aria-label="Account navigation"
-      className="hidden h-fit w-64 shrink-0 flex-col gap-6 rounded-2xl border border-warm-200 bg-surface-card p-5 lg:sticky lg:top-24 lg:flex"
+      className="hidden h-fit w-64 shrink-0 flex-col gap-6 rounded-card border border-line p-5 lg:sticky lg:top-24 lg:flex"
     >
-      <div className="border-b border-warm-200 pb-4">
-        <p className="truncate font-body text-sm font-medium text-warm-900">
+      <div className="border-b border-line pb-4">
+        <p className="truncate font-body text-sm font-medium text-ink">
           {name}
         </p>
         {user.email ? (
-          <p className="truncate font-body text-xs text-warm-600">
+          <p className="truncate font-body text-micro text-ink-faint">
             {user.email}
           </p>
         ) : null}
@@ -39,7 +39,7 @@ export function AccountSidebar({ user }: AccountSidebarProps) {
         <AccountNavLinks />
       </nav>
 
-      <div className="mt-auto border-t border-warm-200 pt-3">
+      <div className="mt-auto border-t border-line pt-3">
         <AccountSignOutButton />
       </div>
     </aside>

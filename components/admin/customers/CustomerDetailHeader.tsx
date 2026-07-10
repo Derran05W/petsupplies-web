@@ -9,65 +9,63 @@ interface CustomerDetailHeaderProps {
 
 export function CustomerDetailHeader({ customer }: CustomerDetailHeaderProps) {
   return (
-    <header className="rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6">
-      <p className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
-        Customer
-      </p>
-      <h1 className="mt-1 font-display text-2xl tracking-tight text-warm-900 md:text-3xl">
+    <header className="rounded-card border border-line bg-paper p-5 md:p-6">
+      <p className="font-body text-kicker uppercase text-pine">Customer</p>
+      <h1 className="mt-1 font-display text-2xl tracking-[-0.01em] text-ink md:text-3xl">
         {customer.name?.trim() || customer.email}
       </h1>
-      <p className="mt-2 font-body text-sm text-warm-600">{customer.email}</p>
+      <p className="mt-2 font-body text-sm text-ink-muted">{customer.email}</p>
       <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div>
-          <dt className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
+          <dt className="font-body text-micro uppercase text-ink-faint">
             Joined
           </dt>
-          <dd className="mt-1 font-body text-sm font-medium text-warm-900">
+          <dd className="mt-1 font-body text-sm font-medium text-ink">
             {formatDate(customer.createdAt)}
           </dd>
         </div>
         <div>
-          <dt className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
+          <dt className="font-body text-micro uppercase text-ink-faint">
             Orders
           </dt>
-          <dd className="mt-1 font-body text-sm font-medium text-warm-900">
+          <dd className="mt-1 font-body text-sm font-medium text-ink">
             {customer.ordersCount}
           </dd>
         </div>
         <div>
-          <dt className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
+          <dt className="font-body text-micro uppercase text-ink-faint">
             Lifetime value
           </dt>
-          <dd className="mt-1 font-body text-sm font-medium text-warm-900">
+          <dd className="mt-1 font-body text-sm font-medium text-ink">
             {formatPrice(customer.lifetimeValueCents, customer.currency)}
           </dd>
         </div>
         {customer.subscriptionsCount !== undefined && (
           <div>
-            <dt className="font-body text-xs uppercase tracking-[0.08em] text-warm-600">
+            <dt className="font-body text-micro uppercase text-ink-faint">
               Subscriptions
             </dt>
-            <dd className="mt-1 font-body text-sm font-medium text-warm-900">
+            <dd className="mt-1 font-body text-sm font-medium text-ink">
               {customer.subscriptionsCount}
             </dd>
           </div>
         )}
       </dl>
       {customer.defaultAddress && (
-        <p className="text-warm-700 mt-4 font-body text-sm">
-          <span className="font-medium text-warm-900">Address: </span>
+        <p className="mt-4 font-body text-sm text-ink-secondary">
+          <span className="font-medium text-ink">Address: </span>
           {customer.defaultAddress}
         </p>
       )}
       {customer.lastOrderAt && (
-        <p className="mt-2 font-body text-sm text-warm-600">
+        <p className="mt-2 font-body text-sm text-ink-muted">
           Last order {formatDate(customer.lastOrderAt)}
         </p>
       )}
       <div className="mt-4">
         <Link
           href="/admin/customers"
-          className="font-body text-sm font-medium text-brand-600 hover:text-brand-700"
+          className="font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast hover:opacity-100"
         >
           ← Back to customers
         </Link>

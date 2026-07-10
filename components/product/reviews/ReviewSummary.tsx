@@ -24,16 +24,16 @@ function BreakdownBars({ breakdown }: { breakdown: RatingBreakdown }) {
         return (
           <div
             key={stars}
-            className="flex items-center gap-3 font-body text-xs text-warm-600"
+            className="flex items-center gap-3 font-body text-xs text-ink-muted"
           >
             <span className="w-14 shrink-0">{stars} stars</span>
-            <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-warm-200">
+            <div className="bg-ink/10 h-2 min-w-0 flex-1 overflow-hidden rounded-pill">
               <div
-                className="h-full rounded-full bg-brand-400 transition-[width]"
+                className="h-full rounded-pill bg-amber transition-[width]"
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <span className="text-warm-500 w-8 shrink-0 text-right tabular-nums">
+            <span className="w-8 shrink-0 text-right tabular-nums text-ink-faint">
               {count}
             </span>
           </div>
@@ -61,26 +61,26 @@ export function ReviewSummary({
     );
 
   return (
-    <div className="rounded-xl border border-warm-200 bg-surface-card p-6 shadow-sm">
+    <div className="rounded-card border border-line bg-panel p-6">
       <div className="flex flex-wrap items-start gap-6">
         <div>
-          <p className="text-warm-500 font-body text-xs font-medium uppercase tracking-[0.08em]">
+          <p className="font-body text-micro uppercase text-ink-muted">
             Overall rating
           </p>
           {avg !== null && count !== null ? (
             <div className="mt-2 flex flex-wrap items-center gap-3">
-              <span className="font-display text-4xl tracking-[-0.02em] text-warm-900">
+              <span className="font-display text-4xl tracking-[-0.02em] text-ink">
                 {avg.toFixed(1)}
               </span>
               <div className="flex flex-col gap-1">
                 <RatingStars variant="full" value={Math.round(avg)} size={18} />
-                <span className="font-body text-sm text-warm-600">
+                <span className="font-body text-sm text-ink-muted">
                   Based on {count} {count === 1 ? 'review' : 'reviews'}
                 </span>
               </div>
             </div>
           ) : (
-            <p className="mt-2 font-body text-sm text-warm-600">
+            <p className="mt-2 font-body text-sm text-ink-secondary">
               No ratings yet — be the first to review.
             </p>
           )}

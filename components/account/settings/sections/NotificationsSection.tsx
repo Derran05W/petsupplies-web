@@ -31,15 +31,12 @@ function ToggleRow({
   onChange: (next: boolean) => void;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 rounded-xl border border-warm-200 bg-surface-card px-4 py-3">
+    <div className="flex items-start justify-between gap-4 rounded-tile border border-line bg-paper px-4 py-3">
       <div className="min-w-0 pr-2">
-        <label
-          htmlFor={id}
-          className="font-body text-sm font-medium text-warm-900"
-        >
+        <label htmlFor={id} className="font-body text-sm font-medium text-ink">
           {label}
         </label>
-        <p className="mt-0.5 font-body text-xs text-warm-600">{description}</p>
+        <p className="mt-0.5 font-body text-xs text-ink-muted">{description}</p>
       </div>
       <input
         id={id}
@@ -48,7 +45,7 @@ function ToggleRow({
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
         className={cn(
-          'mt-1 size-4 shrink-0 rounded border-warm-300 text-brand-500 focus:ring-brand-400',
+          'mt-1 size-4 shrink-0 rounded-sm border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine',
           disabled && 'cursor-not-allowed opacity-50',
         )}
       />
@@ -96,15 +93,15 @@ export function NotificationsSection({
     <section
       id="notifications"
       aria-labelledby="notifications-heading"
-      className="scroll-mt-24 rounded-2xl border border-warm-200 bg-surface-card p-6 md:p-8"
+      className="scroll-mt-24 rounded-card border border-line bg-paper p-6 md:p-8"
     >
       <h2
         id="notifications-heading"
-        className="mb-1 font-display text-2xl tracking-[-0.02em] text-warm-900"
+        className="mb-1 font-display text-2xl tracking-[-0.01em] text-ink"
       >
         Notifications
       </h2>
-      <p className="mb-6 font-body text-sm text-warm-600">
+      <p className="mb-6 font-body text-sm text-ink-secondary">
         Choose what we email you about. Transactional messages may still be sent
         when required for orders or legal notices.
       </p>
@@ -112,7 +109,7 @@ export function NotificationsSection({
       {error ? (
         <p
           role="alert"
-          className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 font-body text-xs text-red-700"
+          className="mb-4 rounded-tile border border-danger-border bg-danger-surface px-3 py-2 font-body text-xs text-danger-solid"
         >
           {error}
         </p>
@@ -154,11 +151,11 @@ export function NotificationsSection({
         />
       </fieldset>
 
-      <p className="mt-6 font-body text-xs text-warm-600">
+      <p className="mt-6 font-body text-xs text-ink-muted">
         Manage individual product alerts on the{' '}
         <Link
           href="/account/notifications"
-          className="font-medium text-brand-600 underline-offset-2 hover:underline"
+          className="font-medium text-pine underline-offset-2 hover:underline"
         >
           stock alerts
         </Link>{' '}
@@ -166,7 +163,7 @@ export function NotificationsSection({
       </p>
 
       {saving ? (
-        <p className="text-warm-500 mt-2 inline-flex items-center gap-1 font-body text-xs">
+        <p className="mt-2 inline-flex items-center gap-1 font-body text-xs text-ink-muted">
           <Loader2 size={12} className="animate-spin" aria-hidden />
           Saving…
         </p>

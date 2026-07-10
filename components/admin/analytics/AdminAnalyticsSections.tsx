@@ -17,7 +17,7 @@ function AnalyticsSectionError({ message }: { message: string }) {
   return (
     <div
       role="alert"
-      className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 font-body text-sm text-red-800"
+      className="rounded-card border border-danger-border bg-danger-surface px-5 py-4 font-body text-sm text-danger-solid"
     >
       {message}
     </div>

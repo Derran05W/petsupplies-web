@@ -24,11 +24,11 @@ export function AdminNavLinks() {
             <li key={link.href}>
               <span
                 aria-disabled="true"
-                className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 font-body text-sm text-warm-400"
+                className="flex cursor-not-allowed items-center gap-3 rounded-pill px-3 py-2.5 font-body text-micro uppercase text-ink-faint"
               >
                 <Icon size={16} aria-hidden />
                 <span className="flex-1">{link.label}</span>
-                <span className="rounded-full bg-warm-100 px-2 py-0.5 font-body text-[10px] font-medium uppercase tracking-[0.06em] text-warm-600">
+                <span className="rounded-tag border border-line bg-panel px-1.5 py-0.5 font-body text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-muted">
                   Soon
                 </span>
               </span>
@@ -42,10 +42,10 @@ export function AdminNavLinks() {
               href={link.href}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 font-body text-sm transition-colors',
+                'flex items-center gap-3 rounded-pill px-3 py-2.5 font-body text-micro uppercase transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
                 active
-                  ? 'bg-warm-100 text-warm-900'
-                  : 'text-warm-600 hover:bg-warm-100 hover:text-warm-900',
+                  ? 'bg-ink text-paper'
+                  : 'text-ink-muted hover:bg-panel hover:text-ink',
               )}
             >
               <Icon size={16} aria-hidden />

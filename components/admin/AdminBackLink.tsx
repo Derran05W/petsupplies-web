@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AdminBackLinkProps {
@@ -14,11 +13,13 @@ export function AdminBackLink({ className }: AdminBackLinkProps) {
     <Link
       href="/"
       className={cn(
-        'text-warm-700 inline-flex items-center gap-2 font-body text-sm font-medium transition-colors hover:text-warm-900',
+        'inline-flex items-center gap-2 font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
         className,
       )}
     >
-      <ArrowLeft size={16} aria-hidden className="text-warm-500 shrink-0" />
+      <span aria-hidden className="shrink-0">
+        ←
+      </span>
       Back
     </Link>
   );

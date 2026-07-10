@@ -18,7 +18,7 @@ export function AdminSettingsNav() {
   return (
     <nav
       aria-label="Settings sections"
-      className="mb-8 flex flex-wrap gap-2 border-b border-warm-200 pb-4"
+      className="mb-8 flex flex-wrap gap-2 border-b border-line pb-4"
     >
       {SETTINGS_TABS.map((tab) => {
         const active = tab.exact
@@ -30,10 +30,8 @@ export function AdminSettingsNav() {
             href={tab.href}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'rounded-lg px-4 py-2 font-body text-sm transition-colors',
-              active
-                ? 'bg-brand-50 font-medium text-brand-700'
-                : 'text-warm-600 hover:bg-warm-100 hover:text-warm-900',
+              'rounded-pill px-4 py-2 font-body text-micro uppercase transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
+              active ? 'bg-ink text-paper' : 'text-ink-muted hover:text-ink',
             )}
           >
             {tab.label}

@@ -12,10 +12,9 @@ import {
 import { cn } from '@/lib/utils';
 
 const inputBase =
-  'w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2.5 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
-const inputError = 'border-red-400 focus:ring-red-400';
-const labelBase =
-  'mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600';
+  'w-full rounded-tile border border-line bg-paper px-3 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none';
+const inputError = 'border-danger-solid focus:border-danger-solid';
+const labelBase = 'mb-1.5 block font-body text-micro uppercase text-ink';
 
 const SPECIES_LABEL: Record<(typeof PET_SPECIES)[number], string> = {
   dog: 'Dog',
@@ -80,13 +79,13 @@ export function PetProfileForm({
     <form
       onSubmit={submit}
       noValidate
-      className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6"
+      className="flex flex-col gap-5 rounded-card border border-line bg-paper p-5 md:p-6"
     >
       {submitError && (
         <div
           role="alert"
           aria-live="assertive"
-          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 font-body text-sm text-red-700"
+          className="rounded-tile border border-danger-border bg-danger-surface px-3 py-2 font-body text-sm text-danger-solid"
         >
           {submitError}
         </div>
@@ -109,7 +108,7 @@ export function PetProfileForm({
           <p
             id={`${fieldId('name')}-error`}
             role="alert"
-            className="mt-1 font-body text-xs text-red-600"
+            className="mt-1 font-body text-xs text-danger-solid"
           >
             {errors.name.message}
           </p>
@@ -137,7 +136,7 @@ export function PetProfileForm({
           <p
             id={`${fieldId('species')}-error`}
             role="alert"
-            className="mt-1 font-body text-xs text-red-600"
+            className="mt-1 font-body text-xs text-danger-solid"
           >
             {errors.species.message}
           </p>
@@ -147,7 +146,7 @@ export function PetProfileForm({
       <div>
         <label htmlFor={fieldId('breed')} className={labelBase}>
           Breed{' '}
-          <span className="font-normal normal-case tracking-normal text-warm-400">
+          <span className="font-normal normal-case tracking-normal text-ink-faint">
             (optional)
           </span>
         </label>
@@ -163,7 +162,7 @@ export function PetProfileForm({
           <p
             id={`${fieldId('breed')}-error`}
             role="alert"
-            className="mt-1 font-body text-xs text-red-600"
+            className="mt-1 font-body text-xs text-danger-solid"
           >
             {errors.breed.message}
           </p>
@@ -173,7 +172,7 @@ export function PetProfileForm({
       <div>
         <label htmlFor={fieldId('birthDate')} className={labelBase}>
           Birthday{' '}
-          <span className="font-normal normal-case tracking-normal text-warm-400">
+          <span className="font-normal normal-case tracking-normal text-ink-faint">
             (optional)
           </span>
         </label>
@@ -188,7 +187,7 @@ export function PetProfileForm({
           <p
             id={`${fieldId('birthDate')}-error`}
             role="alert"
-            className="mt-1 font-body text-xs text-red-600"
+            className="mt-1 font-body text-xs text-danger-solid"
           >
             {errors.birthDate.message}
           </p>
@@ -199,7 +198,7 @@ export function PetProfileForm({
         <div>
           <label htmlFor={fieldId('weightInput')} className={labelBase}>
             Weight{' '}
-            <span className="font-normal normal-case tracking-normal text-warm-400">
+            <span className="font-normal normal-case tracking-normal text-ink-faint">
               (optional)
             </span>
           </label>
@@ -216,7 +215,7 @@ export function PetProfileForm({
             <p
               id={`${fieldId('weightInput')}-error`}
               role="alert"
-              className="mt-1 font-body text-xs text-red-600"
+              className="mt-1 font-body text-xs text-danger-solid"
             >
               {errors.weightInput.message}
             </p>
@@ -224,13 +223,13 @@ export function PetProfileForm({
         </div>
         <fieldset className="flex flex-col gap-2">
           <legend className={labelBase}>Unit</legend>
-          <div className="flex flex-wrap gap-4 font-body text-sm text-warm-900">
+          <div className="flex flex-wrap gap-4 font-body text-sm text-ink">
             <label className="flex items-center gap-2">
               <input
                 type="radio"
                 value="kg"
                 {...register('weightUnit')}
-                className="size-4 border-warm-300 text-brand-400 focus:ring-brand-400"
+                className="size-4 border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
               />
               kg
             </label>
@@ -239,7 +238,7 @@ export function PetProfileForm({
                 type="radio"
                 value="lb"
                 {...register('weightUnit')}
-                className="size-4 border-warm-300 text-brand-400 focus:ring-brand-400"
+                className="size-4 border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
               />
               lb
             </label>
@@ -250,7 +249,7 @@ export function PetProfileForm({
       <div>
         <label htmlFor={fieldId('dietaryNotes')} className={labelBase}>
           Dietary notes{' '}
-          <span className="font-normal normal-case tracking-normal text-warm-400">
+          <span className="font-normal normal-case tracking-normal text-ink-faint">
             (optional)
           </span>
         </label>
@@ -269,7 +268,7 @@ export function PetProfileForm({
           <p
             id={`${fieldId('dietaryNotes')}-error`}
             role="alert"
-            className="mt-1 font-body text-xs text-red-600"
+            className="mt-1 font-body text-xs text-danger-solid"
           >
             {errors.dietaryNotes.message}
           </p>
@@ -279,7 +278,7 @@ export function PetProfileForm({
       <div>
         <label htmlFor={fieldId('profilePhotoUrl')} className={labelBase}>
           Photo URL{' '}
-          <span className="font-normal normal-case tracking-normal text-warm-400">
+          <span className="font-normal normal-case tracking-normal text-ink-faint">
             (optional)
           </span>
         </label>
@@ -299,7 +298,7 @@ export function PetProfileForm({
           <p
             id={`${fieldId('profilePhotoUrl')}-error`}
             role="alert"
-            className="mt-1 font-body text-xs text-red-600"
+            className="mt-1 font-body text-xs text-danger-solid"
           >
             {errors.profilePhotoUrl.message}
           </p>
@@ -310,14 +309,14 @@ export function PetProfileForm({
         <button
           type="button"
           onClick={onCancel}
-          className="inline-flex items-center justify-center rounded-lg border border-warm-300 bg-transparent px-5 py-2.5 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
+          className="inline-flex cursor-pointer items-center justify-center rounded-pill border border-ink bg-transparent px-6 py-2.5 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={busy}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
         >
           {busy && <Loader2 size={14} aria-hidden className="animate-spin" />}
           {submitLabel}

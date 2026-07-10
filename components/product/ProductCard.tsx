@@ -2,6 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { CATEGORY_LABEL, PET_TYPE_LABEL, type Product } from '@/types/product';
 import { formatPrice } from '@/lib/utils/format';
+import { TONE_CLASSES } from '@/components/ui/tones';
+import { cn } from '@/lib/utils';
 import { RatingStars } from '@/components/product/reviews/RatingStars';
 import { WishlistButton } from '@/components/wishlist/WishlistButton';
 
@@ -30,40 +32,45 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group flex flex-col rounded-xl border border-warm-200 bg-surface-card p-3 transition-all duration-200 hover:border-warm-300 hover:shadow-sm"
+      className="group relative block no-underline"
     >
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-warm-100">
+      <div
+        className={cn(
+          'relative aspect-square overflow-hidden rounded-tile',
+          TONE_CLASSES.amber,
+        )}
+      >
         <WishlistButton product={product} variant="overlay" />
         <Image
           src={imageUrl}
           alt={imageAlt}
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          className="object-cover transition-transform duration-slow ease-soft group-hover:scale-[1.06] motion-reduce:transform-none"
         />
         {!product.inStock ? (
-          <span className="bg-warm-900/85 absolute left-3 top-3 rounded-md px-2 py-1 font-body text-xs font-medium text-warm-50">
+          <span className="absolute left-3 top-3 rounded-tag bg-[color-mix(in_srgb,var(--paper)_90%,transparent)] px-2 py-1 font-body text-micro uppercase text-ink-muted">
             Out of stock
           </span>
         ) : isOnSale ? (
-          <span className="absolute left-3 top-3 rounded-md bg-brand-400 px-2 py-1 font-body text-xs font-medium text-white">
+          <span className="border-amber/40 absolute left-3 top-3 rounded-tag border bg-tile-amber px-2 py-1 font-body text-micro uppercase text-tile-amber-ink">
             Sale
           </span>
         ) : null}
       </div>
-      <div className="mt-4 flex flex-col gap-2 px-1 pb-1">
+      <div className="mt-4 flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="rounded-md bg-brand-50 px-2.5 py-1 font-body text-xs font-medium text-brand-600">
+          <div className="flex items-center gap-2 font-body text-micro uppercase">
+            <span className="text-pine">
               {CATEGORY_LABEL[product.category]}
             </span>
-            <span className="font-body text-xs text-warm-400">
+            <span className="text-ink-faint">
               {PET_TYPE_LABEL[product.petType]}
             </span>
           </div>
           {product.rating ? (
             <span
-              className="inline-flex items-center gap-1 font-body text-xs text-warm-600"
+              className="inline-flex items-center gap-1 font-body text-xs text-ink-muted"
               aria-label={`Rated ${product.rating.avg.toFixed(1)} out of 5 stars, ${product.rating.count} reviews`}
             >
               <RatingStars
@@ -73,17 +80,15 @@ export function ProductCard({ product }: ProductCardProps) {
                 announce={false}
               />
               {product.rating.avg.toFixed(1)}
-              <span className="text-warm-400">({product.rating.count})</span>
+              <span className="text-ink-faint">({product.rating.count})</span>
             </span>
           ) : null}
         </div>
-        <h3 className="font-display text-lg leading-snug tracking-[-0.02em] text-warm-900">
-          {product.name}
-        </h3>
-        <p className="mt-auto flex items-baseline gap-2 font-body text-sm font-medium text-warm-900">
+        <h3 className="font-display text-title text-ink">{product.name}</h3>
+        <p className="mt-auto flex items-baseline gap-2 font-body text-sm font-semibold text-ink">
           <span>{formatPrice(product.priceCents)}</span>
           {isOnSale ? (
-            <span className="font-normal text-warm-400 line-through">
+            <span className="font-normal text-ink-faint line-through">
               {formatPrice(product.compareAtPriceCents!)}
             </span>
           ) : null}

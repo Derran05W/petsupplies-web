@@ -53,8 +53,8 @@ export default function ProductDetailPage({
       <Suspense fallback={<ProductDetailSkeleton />}>
         <ProductDetailSection slug={params.slug} />
       </Suspense>
-      <div className="px-6 pb-20 md:px-8 lg:px-12">
-        <div className="mx-auto max-w-7xl">
+      <div className="bg-paper px-gutter pb-24 text-ink">
+        <div className="mx-auto max-w-wrap">
           <Suspense fallback={<ReviewSkeleton />} key={reviewsSuspenseKey}>
             <ReviewsSection
               slug={params.slug}

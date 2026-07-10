@@ -25,28 +25,25 @@ export function ProductDetail({
     product.compareAtPriceCents > product.priceCents;
 
   return (
-    <article className="px-6 pb-16 pt-8 md:px-8 md:pt-12 lg:px-12">
-      <div className="mx-auto max-w-7xl">
+    <article className="bg-paper px-gutter pb-16 pt-8 text-ink md:pt-12">
+      <div className="mx-auto max-w-wrap">
         <nav
           aria-label="Breadcrumb"
-          className="mb-6 font-body text-sm text-warm-600"
+          className="mb-6 font-body text-micro uppercase text-ink-muted"
         >
           <ol className="flex items-center gap-2">
             <li>
               <Link
                 href="/products"
-                className="transition-colors hover:text-warm-900"
+                className="transition-colors duration-fast hover:text-ink"
               >
                 Shop
               </Link>
             </li>
-            <li aria-hidden className="text-warm-300">
+            <li aria-hidden className="text-ink-faint">
               /
             </li>
-            <li
-              aria-current="page"
-              className="truncate font-medium text-warm-900"
-            >
+            <li aria-current="page" className="truncate text-ink">
               {product.name}
             </li>
           </ol>
@@ -58,16 +55,16 @@ export function ProductDetail({
           </div>
 
           <div className="flex flex-col gap-5">
-            <div className="flex items-center gap-2">
-              <span className="rounded-md bg-brand-50 px-2.5 py-1 font-body text-xs font-medium text-brand-600">
+            <div className="flex items-center gap-3 font-body text-kicker uppercase">
+              <span className="text-pine">
                 {CATEGORY_LABEL[product.category]}
               </span>
-              <span className="font-body text-xs text-warm-400">
+              <span className="text-ink-faint">
                 {PET_TYPE_LABEL[product.petType]}
               </span>
             </div>
 
-            <h1 className="font-display text-4xl leading-tight tracking-[-0.02em] text-warm-900 md:text-5xl">
+            <h1 className="font-display text-display text-ink">
               {product.name}
             </h1>
 
@@ -76,7 +73,7 @@ export function ProductDetail({
                 href="#reviews"
                 role="img"
                 aria-label={`Rated ${product.rating.avg.toFixed(1)} out of 5 stars based on ${product.rating.count} reviews — jump to customer reviews`}
-                className="inline-flex w-fit items-center gap-1.5 rounded-md bg-warm-100 px-2.5 py-1.5 font-body text-sm text-warm-900 transition-colors hover:bg-warm-200"
+                className="inline-flex w-fit items-center gap-1.5 font-body text-sm text-ink opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
               >
                 <RatingStars
                   variant="aggregate"
@@ -87,7 +84,7 @@ export function ProductDetail({
                 <span className="font-medium">
                   {product.rating.avg.toFixed(1)}
                 </span>
-                <span className="text-warm-600">
+                <span className="text-ink-muted">
                   ({product.rating.count}{' '}
                   {product.rating.count === 1 ? 'review' : 'reviews'})
                 </span>
@@ -95,31 +92,34 @@ export function ProductDetail({
             ) : null}
 
             <p className="flex items-baseline gap-3">
-              <span className="font-display text-3xl tracking-[-0.02em] text-warm-900">
+              <span className="font-display text-3xl tracking-[-0.02em] text-ink">
                 {formatPrice(product.priceCents)}
               </span>
               {isOnSale ? (
-                <span className="font-body text-lg text-warm-400 line-through">
+                <span className="font-body text-lg text-ink-faint line-through">
                   {formatPrice(product.compareAtPriceCents!)}
                 </span>
               ) : null}
             </p>
 
-            <p className="font-body text-base leading-relaxed text-warm-600">
+            <p className="font-body text-lede leading-body text-ink-secondary">
               {product.description}
             </p>
 
             {product.subscription?.enabled && product.inStock ? (
               <SubscribeAndSavePanel product={product} />
             ) : product.subscription?.enabled && !product.inStock ? (
-              <div className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6">
+              <div className="flex flex-col gap-5 rounded-card border border-line bg-panel p-5 md:p-6">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-50 px-2.5 py-1 font-body text-xs font-medium text-brand-700">
+                  <span className="border-pine/40 inline-flex items-center gap-1.5 rounded-tag border bg-tile-sage px-2 py-0.5 font-body text-micro uppercase text-tile-sage-ink">
                     Subscribe &amp; Save — save{' '}
                     {product.subscription.discountPercent}%
                   </span>
                 </div>
-                <p className="font-body text-sm text-warm-600" role="status">
+                <p
+                  className="font-body text-sm text-ink-secondary"
+                  role="status"
+                >
                   This item is out of stock. Turn on alerts below—you can
                   subscribe once it&apos;s available again.
                 </p>
@@ -136,8 +136,8 @@ export function ProductDetail({
 
             <WishlistButton product={product} variant="inline" />
 
-            <p className="inline-flex items-center gap-2 font-body text-xs text-warm-600">
-              <Truck size={14} aria-hidden className="text-brand-600" />
+            <p className="inline-flex items-center gap-2 font-body text-xs text-ink-muted">
+              <Truck size={14} aria-hidden className="text-pine" />
               {formatFreeShippingLabel(freeShippingThresholdCents)}
             </p>
 

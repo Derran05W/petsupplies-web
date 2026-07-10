@@ -76,19 +76,17 @@ export function AddressCard({
   }
 
   return (
-    <article className="flex h-full flex-col gap-4 rounded-2xl border border-warm-200 bg-surface-card p-5">
+    <article className="flex h-full flex-col gap-4 rounded-card border border-line bg-paper p-5">
       <header className="flex items-start justify-between gap-3">
-        <p className="font-body text-sm font-medium text-warm-900">
-          {address.fullName}
-        </p>
+        <p className="font-body text-title text-ink">{address.fullName}</p>
         {address.isDefault && (
-          <span className="inline-flex items-center gap-1 rounded-md bg-brand-50 px-2 py-1 font-body text-[11px] font-medium uppercase tracking-[0.06em] text-brand-600">
+          <span className="border-pine/40 inline-flex items-center gap-1 rounded-tag border bg-tile-sage px-2 py-0.5 font-body text-micro uppercase text-tile-sage-ink">
             <Star size={10} aria-hidden />
             Default
           </span>
         )}
       </header>
-      <address className="font-body text-sm not-italic leading-relaxed text-warm-600">
+      <address className="font-body text-sm not-italic leading-body text-ink-muted">
         {address.line1}
         {address.line2 ? (
           <>
@@ -101,12 +99,12 @@ export function AddressCard({
         <br />
         {address.country}
       </address>
-      <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-warm-200 pt-4">
+      <div className="mt-auto flex flex-wrap items-center gap-4 border-t border-line pt-4">
         <button
           type="button"
           onClick={() => setEditing(true)}
           disabled={disabled}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-warm-300 bg-transparent px-3 py-1.5 font-body text-xs text-warm-900 transition-colors hover:bg-warm-100 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Pencil size={12} aria-hidden />
           Edit
@@ -116,7 +114,7 @@ export function AddressCard({
             type="button"
             onClick={() => onSetDefault(address.id)}
             disabled={disabled}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-warm-300 bg-transparent px-3 py-1.5 font-body text-xs text-warm-900 transition-colors hover:bg-warm-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Star size={12} aria-hidden />
             Set as default
@@ -126,7 +124,7 @@ export function AddressCard({
           type="button"
           onClick={() => onDelete(address.id)}
           disabled={disabled}
-          className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-body text-xs text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="ml-auto inline-flex items-center gap-1.5 font-body text-micro uppercase text-danger-solid opacity-90 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-danger-solid disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Trash2 size={12} aria-hidden />
           Delete

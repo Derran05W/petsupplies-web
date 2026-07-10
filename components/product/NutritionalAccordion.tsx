@@ -1,62 +1,65 @@
-import { ChevronDown } from 'lucide-react';
 import { type NutritionalInfo } from '@/types/product';
 
 interface NutritionalAccordionProps {
   info: NutritionalInfo;
 }
 
+/** Shared summary-row treatment: hairline row, title label, text +/−. */
+function AccordionMarker() {
+  return (
+    <span
+      aria-hidden
+      className="font-body text-lg text-ink-muted transition-transform duration-base ease-soft group-open:rotate-45 motion-reduce:transform-none"
+    >
+      +
+    </span>
+  );
+}
+
 /**
  * Server-rendered `<details>`/`<summary>` accordion — no client JS.
  * Renders ingredients, a guaranteed-analysis table, and feeding
- * guidelines.
+ * guidelines as hairline-separated rows.
  */
 export function NutritionalAccordion({ info }: NutritionalAccordionProps) {
   return (
     <section
       aria-labelledby="nutrition-heading"
-      className="mt-12 border-t border-warm-200 pt-8"
+      className="mt-12 border-t border-line pt-8"
     >
       <h2
         id="nutrition-heading"
-        className="mb-4 font-display text-2xl tracking-[-0.02em] text-warm-900"
+        className="mb-4 font-display text-2xl tracking-[-0.01em] text-ink"
       >
         Nutritional info
       </h2>
-      <div className="flex flex-col gap-3">
-        <details className="group rounded-xl border border-warm-200 bg-surface-card">
-          <summary className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 font-display text-lg tracking-[-0.02em] text-warm-900 [&::-webkit-details-marker]:hidden">
+      <div className="flex flex-col border-b border-line">
+        <details className="group border-t border-line">
+          <summary className="flex cursor-pointer items-center justify-between gap-4 py-4 font-display text-lg tracking-[-0.01em] text-ink [&::-webkit-details-marker]:hidden">
             Ingredients
-            <ChevronDown
-              size={18}
-              aria-hidden
-              className="text-warm-600 transition-transform duration-200 group-open:rotate-180"
-            />
+            <AccordionMarker />
           </summary>
-          <div className="border-t border-warm-200 px-5 py-4 font-body text-sm leading-relaxed text-warm-600">
+          <div className="pb-5 font-body text-sm leading-body text-ink-secondary">
             {info.ingredients}
           </div>
         </details>
 
-        <details className="group rounded-xl border border-warm-200 bg-surface-card">
-          <summary className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 font-display text-lg tracking-[-0.02em] text-warm-900 [&::-webkit-details-marker]:hidden">
+        <details className="group border-t border-line">
+          <summary className="flex cursor-pointer items-center justify-between gap-4 py-4 font-display text-lg tracking-[-0.01em] text-ink [&::-webkit-details-marker]:hidden">
             Guaranteed analysis
-            <ChevronDown
-              size={18}
-              aria-hidden
-              className="text-warm-600 transition-transform duration-200 group-open:rotate-180"
-            />
+            <AccordionMarker />
           </summary>
-          <div className="border-t border-warm-200 px-5 py-4">
+          <div className="pb-5">
             <dl className="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
               {info.guaranteedAnalysis.map((row) => (
                 <div
                   key={row.nutrient}
-                  className="flex items-center justify-between border-b border-warm-100 py-2 last:border-b-0"
+                  className="flex items-center justify-between border-b border-line py-2 last:border-b-0"
                 >
-                  <dt className="font-body text-sm text-warm-600">
+                  <dt className="font-body text-sm text-ink-muted">
                     {row.nutrient}
                   </dt>
-                  <dd className="font-body text-sm font-medium text-warm-900">
+                  <dd className="font-display text-sm text-ink">
                     {row.percentage}
                   </dd>
                 </div>
@@ -65,16 +68,12 @@ export function NutritionalAccordion({ info }: NutritionalAccordionProps) {
           </div>
         </details>
 
-        <details className="group rounded-xl border border-warm-200 bg-surface-card">
-          <summary className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 font-display text-lg tracking-[-0.02em] text-warm-900 [&::-webkit-details-marker]:hidden">
+        <details className="group border-t border-line">
+          <summary className="flex cursor-pointer items-center justify-between gap-4 py-4 font-display text-lg tracking-[-0.01em] text-ink [&::-webkit-details-marker]:hidden">
             Feeding guidelines
-            <ChevronDown
-              size={18}
-              aria-hidden
-              className="text-warm-600 transition-transform duration-200 group-open:rotate-180"
-            />
+            <AccordionMarker />
           </summary>
-          <div className="border-t border-warm-200 px-5 py-4 font-body text-sm leading-relaxed text-warm-600">
+          <div className="pb-5 font-body text-sm leading-body text-ink-secondary">
             {info.feedingGuidelines}
           </div>
         </details>

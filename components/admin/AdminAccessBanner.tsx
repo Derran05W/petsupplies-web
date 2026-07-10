@@ -25,15 +25,15 @@ export async function AdminAccessBanner() {
   return (
     <div
       role="alert"
-      className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 font-body text-sm text-amber-950"
+      className="mb-6 rounded-card border border-l-2 border-line border-l-amber bg-panel px-5 py-4 font-body text-sm text-ink"
     >
       <p className="font-medium">{copy.title}</p>
-      <p className="mt-1 text-amber-900">{copy.body}</p>
+      <p className="mt-1 text-ink-secondary">{copy.body}</p>
       {status === 'forbidden' ? (
-        <p className="mt-2 text-amber-800">
+        <p className="mt-2 text-ink-muted">
           <Link
             href="/admin"
-            className="underline underline-offset-2 hover:text-amber-950"
+            className="underline underline-offset-2 transition-colors duration-fast hover:text-ink"
           >
             Retry after setup
           </Link>

@@ -16,10 +16,10 @@ export function ReviewsSignInCta({ slug }: ReviewsSignInCtaProps) {
   const next = `/products/${slug}#reviews`;
 
   return (
-    <p className="mt-4 font-body text-sm text-warm-600">
+    <p className="mt-4 font-body text-sm text-ink-secondary">
       <Link
         href={`/login?redirect=${encodeURIComponent(next)}`}
-        className="font-medium text-brand-600 underline-offset-2 hover:text-brand-700 hover:underline"
+        className="font-medium text-pine underline-offset-2 hover:underline"
       >
         Sign in
       </Link>{' '}

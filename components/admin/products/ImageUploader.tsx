@@ -142,16 +142,14 @@ export function ImageUploader({
           }
         }}
         className={cn(
-          'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed bg-surface-card px-6 py-10 text-center transition-colors',
-          dragOver
-            ? 'border-brand-400 bg-brand-50'
-            : 'border-warm-300 hover:border-warm-400',
+          'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-card border border-dashed bg-panel px-6 py-10 text-center transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
+          dragOver ? 'border-pine' : 'border-line hover:border-ink',
           disabled && 'cursor-not-allowed opacity-60',
         )}
       >
         <span
           aria-hidden
-          className="inline-flex size-10 items-center justify-center rounded-full bg-brand-50 text-brand-600"
+          className="inline-flex size-10 items-center justify-center rounded-full bg-paper text-pine"
         >
           {busyCount > 0 ? (
             <Loader2 size={18} className="animate-spin" />
@@ -159,12 +157,12 @@ export function ImageUploader({
             <UploadCloud size={18} />
           )}
         </span>
-        <p className="font-body text-sm font-medium text-warm-900">
+        <p className="font-body text-sm font-medium text-ink-muted">
           {busyCount > 0
             ? `Uploading ${busyCount} ${busyCount === 1 ? 'image' : 'images'}…`
             : 'Drag and drop images, or click to choose'}
         </p>
-        <p id={helpId} className="font-body text-xs text-warm-600">
+        <p id={helpId} className="font-body text-xs text-ink-muted">
           PNG, JPG, or WebP up to 5 MB each.
         </p>
         <input
@@ -183,7 +181,7 @@ export function ImageUploader({
       {error && (
         <p
           role="alert"
-          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 font-body text-xs text-red-700"
+          className="rounded-tile border border-danger-border bg-danger-surface px-3 py-2 font-body text-xs text-danger-solid"
         >
           {error}
         </p>
@@ -194,9 +192,9 @@ export function ImageUploader({
           {value.map((image, index) => (
             <li
               key={image.id}
-              className="flex flex-col gap-2 rounded-xl border border-warm-200 bg-surface-card p-2"
+              className="flex flex-col gap-2 rounded-tile border border-line bg-paper p-2"
             >
-              <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-warm-100">
+              <div className="relative aspect-square w-full overflow-hidden rounded-tile bg-panel">
                 <Image
                   src={image.url}
                   alt={image.alt}
@@ -206,7 +204,7 @@ export function ImageUploader({
                   unoptimized={image.url.startsWith('data:')}
                 />
                 {index === 0 && (
-                  <span className="absolute left-2 top-2 inline-flex items-center rounded-md bg-brand-50 px-2 py-0.5 font-body text-[10px] font-medium uppercase tracking-[0.06em] text-brand-700">
+                  <span className="absolute left-2 top-2 inline-flex items-center rounded-tag bg-ink px-2 py-0.5 font-body text-[10px] font-medium uppercase tracking-[0.06em] text-paper">
                     Primary
                   </span>
                 )}
@@ -216,7 +214,7 @@ export function ImageUploader({
                 value={image.alt}
                 onChange={(event) => handleAlt(image.id, event.target.value)}
                 placeholder="Alt text (required)"
-                className="w-full rounded-md border border-warm-300 bg-surface-card px-2 py-1 font-body text-xs text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400"
+                className="w-full rounded-tile border border-line bg-paper px-2 py-1 font-body text-xs text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none"
               />
               <div className="flex items-center justify-between gap-1">
                 <div className="flex items-center gap-1">
@@ -225,7 +223,7 @@ export function ImageUploader({
                     onClick={() => handleMove(image.id, -1)}
                     disabled={index === 0 || disabled}
                     aria-label={`Move ${image.alt || 'image'} up`}
-                    className="inline-flex size-7 items-center justify-center rounded-md border border-warm-300 bg-surface-card text-warm-600 transition-colors hover:bg-warm-100 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex size-7 items-center justify-center rounded-tile border border-line bg-paper text-ink-muted transition-colors duration-fast hover:border-ink hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <ArrowUp size={12} aria-hidden />
                   </button>
@@ -234,7 +232,7 @@ export function ImageUploader({
                     onClick={() => handleMove(image.id, 1)}
                     disabled={index === value.length - 1 || disabled}
                     aria-label={`Move ${image.alt || 'image'} down`}
-                    className="inline-flex size-7 items-center justify-center rounded-md border border-warm-300 bg-surface-card text-warm-600 transition-colors hover:bg-warm-100 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex size-7 items-center justify-center rounded-tile border border-line bg-paper text-ink-muted transition-colors duration-fast hover:border-ink hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <ArrowDown size={12} aria-hidden />
                   </button>
@@ -244,7 +242,7 @@ export function ImageUploader({
                   onClick={() => handleRemove(image.id)}
                   disabled={disabled}
                   aria-label={`Remove ${image.alt || 'image'}`}
-                  className="inline-flex size-7 items-center justify-center rounded-md text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex size-7 items-center justify-center rounded-tile text-danger-solid transition-colors duration-fast hover:bg-danger-surface disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Trash2 size={12} aria-hidden />
                 </button>

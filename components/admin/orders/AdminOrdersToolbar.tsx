@@ -52,10 +52,10 @@ export function AdminOrdersToolbar() {
             onClick={() => handleClick(pill.value)}
             aria-pressed={active}
             className={cn(
-              'inline-flex items-center rounded-full px-3 py-1.5 font-body text-xs font-medium transition-colors',
+              'inline-flex items-center rounded-pill border px-3 py-1.5 font-body text-micro uppercase transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
               active
-                ? 'bg-warm-900 text-warm-50'
-                : 'border border-warm-300 bg-surface-card text-warm-900 hover:bg-warm-100',
+                ? 'border-ink bg-ink text-paper'
+                : 'border-line bg-transparent text-ink-secondary hover:border-ink',
             )}
           >
             {pill.label}

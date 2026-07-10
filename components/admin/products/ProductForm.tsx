@@ -29,10 +29,9 @@ import { ImageUploader } from './ImageUploader';
 import { AiDescriptionBtn } from './AiDescriptionBtn';
 
 const inputBase =
-  'w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2.5 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
-const inputError = 'border-red-400 focus:ring-red-400';
-const labelBase =
-  'mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600';
+  'w-full rounded-tile border border-line bg-paper px-3 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none';
+const inputError = 'border-danger-solid focus:border-danger-solid';
+const labelBase = 'mb-1.5 block font-body text-micro uppercase text-ink';
 
 interface ProductFormProps {
   initialProduct: AdminProduct | null;
@@ -197,15 +196,15 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
           <div
             role="alert"
             aria-live="assertive"
-            className="rounded-md border border-red-200 bg-red-50 px-4 py-3 font-body text-sm text-red-700"
+            className="rounded-tile border border-danger-border bg-danger-surface px-4 py-3 font-body text-sm text-danger-solid"
           >
             {submitError}
           </div>
         )}
 
         {/* Basics */}
-        <fieldset className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6">
-          <legend className="px-2 font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
+        <fieldset className="flex flex-col gap-5 rounded-card border border-line bg-paper p-5 md:p-6">
+          <legend className="px-2 font-body text-kicker uppercase text-pine">
             Basics
           </legend>
 
@@ -237,7 +236,7 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
               {...fieldErrorProps(fieldId('slug'), errors.slug)}
               className={cn(inputBase, errors.slug && inputError)}
             />
-            <p className="mt-1 font-body text-xs text-warm-600">
+            <p className="mt-1 font-body text-xs text-ink-muted">
               Lowercase letters, numbers, and dashes only.
             </p>
           </div>
@@ -260,19 +259,19 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
             </select>
           </div>
 
-          <label className="flex items-center gap-2 font-body text-sm text-warm-900">
+          <label className="flex items-center gap-2 font-body text-sm text-ink">
             <input
               type="checkbox"
               {...register('isPublished')}
-              className="size-4 rounded border-warm-300 text-brand-400 focus:ring-2 focus:ring-brand-400"
+              className="size-4 rounded-sm border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
             />
             Active — visible on the storefront
           </label>
         </fieldset>
 
         {/* Pricing & Stock */}
-        <fieldset className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6">
-          <legend className="px-2 font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
+        <fieldset className="flex flex-col gap-5 rounded-card border border-line bg-paper p-5 md:p-6">
+          <legend className="px-2 font-body text-kicker uppercase text-pine">
             Pricing & stock
           </legend>
 
@@ -309,8 +308,8 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
         </fieldset>
 
         {/* Images */}
-        <fieldset className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6">
-          <legend className="px-2 font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
+        <fieldset className="flex flex-col gap-5 rounded-card border border-line bg-paper p-5 md:p-6">
+          <legend className="px-2 font-body text-kicker uppercase text-pine">
             Images
           </legend>
           <Controller
@@ -328,8 +327,8 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
         </fieldset>
 
         {/* Description + AI */}
-        <fieldset className="flex flex-col gap-3 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6">
-          <legend className="px-2 font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
+        <fieldset className="flex flex-col gap-3 rounded-card border border-line bg-paper p-5 md:p-6">
+          <legend className="px-2 font-body text-kicker uppercase text-pine">
             Description
           </legend>
           {(() => {
@@ -372,8 +371,8 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
         </fieldset>
 
         {/* Tags */}
-        <fieldset className="flex flex-col gap-3 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6">
-          <legend className="px-2 font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
+        <fieldset className="flex flex-col gap-3 rounded-card border border-line bg-paper p-5 md:p-6">
+          <legend className="px-2 font-body text-kicker uppercase text-pine">
             Tags
           </legend>
           <input
@@ -382,7 +381,7 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
             className={inputBase}
             placeholder="grain-free, salmon, omega-3"
           />
-          <p className="font-body text-xs text-warm-600">
+          <p className="font-body text-xs text-ink-muted">
             Comma-separated. Used for search and related-product suggestions.
           </p>
         </fieldset>
@@ -391,14 +390,14 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
           <button
             type="button"
             onClick={() => router.push('/admin/products')}
-            className="inline-flex items-center justify-center rounded-lg border border-warm-300 bg-transparent px-5 py-2.5 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
+            className="inline-flex cursor-pointer items-center justify-center rounded-pill border border-ink bg-transparent px-6 py-2.5 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={busy}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy && <Loader2 size={14} aria-hidden className="animate-spin" />}
             {isEdit ? 'Save changes' : 'Create product'}
@@ -407,11 +406,11 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
       </form>
 
       {isEdit && initialProduct && (
-        <section className="mt-10 rounded-2xl border border-red-200 bg-red-50/50 p-5 md:p-6">
-          <h2 className="font-display text-lg tracking-[-0.02em] text-warm-900">
+        <section className="mt-10 rounded-card border border-danger-border bg-danger-surface p-5 md:p-6">
+          <h2 className="font-display text-xl tracking-[-0.01em] text-ink">
             Delete product
           </h2>
-          <p className="mt-1 font-body text-sm text-warm-600">
+          <p className="mt-1 font-body text-sm text-ink-secondary">
             Permanently removes the product from the catalogue. This cannot be
             undone.
           </p>
@@ -419,7 +418,7 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
             type="button"
             onClick={() => setPendingDelete(true)}
             disabled={busy}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-red-300 bg-surface-card px-4 py-2 font-body text-sm font-medium text-red-700 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-pill border border-danger-solid bg-transparent px-5 py-2 font-body text-micro uppercase text-danger-solid transition-all duration-base ease-soft hover:bg-danger-solid hover:text-danger-on-solid focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-danger-solid disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Trash2 size={14} aria-hidden />
             Delete product

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2, Plus, X } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import { adminApiErrorMessage } from '@/lib/api/admin/error-messages';
 import {
   discountCreateSchema,
@@ -29,9 +29,10 @@ import {
 } from '@/components/admin/settings/admin-settings-form-styles';
 import { cn } from '@/lib/utils';
 import { formatPrice } from '@/lib/utils/format';
+import { NAV_LINK_CLASSES } from '@/components/ui';
 
 const selectBase =
-  'w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2.5 font-body text-sm text-warm-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
+  'w-full rounded-tile border border-line bg-paper px-3 py-2.5 font-body text-sm text-ink focus:border-ink focus:outline-none';
 
 type ActiveFilter = 'all' | 'active' | 'inactive';
 
@@ -40,8 +41,10 @@ function StatusBadge({ discount }: { discount: AdminDiscount }) {
   return (
     <span
       className={cn(
-        'inline-flex rounded-full px-2.5 py-0.5 font-body text-xs font-medium',
-        inactive ? 'bg-warm-100 text-warm-600' : 'bg-brand-50 text-brand-700',
+        'inline-flex rounded-tag border px-2 py-0.5 font-body text-micro uppercase',
+        inactive
+          ? 'border-line bg-panel text-ink-muted'
+          : 'border-pine/40 bg-tile-sage text-tile-sage-ink',
       )}
     >
       {inactive ? 'Inactive' : 'Active'}
@@ -223,7 +226,7 @@ function DiscountFormFields({
             autoComplete="off"
             required
           />
-          <p className="text-warm-500 mt-1.5 font-body text-xs">
+          <p className="mt-1.5 font-body text-xs text-ink-muted">
             3–32 characters: letters, numbers, underscores, dashes. Stored
             uppercase.
           </p>
@@ -231,10 +234,10 @@ function DiscountFormFields({
       ) : (
         <div>
           <span className={settingsLabelBase}>Code</span>
-          <p className="font-body text-sm font-medium text-warm-900">
+          <p className="font-body text-sm font-medium text-ink">
             {discount?.code}
           </p>
-          <p className="text-warm-500 mt-1 font-body text-xs">
+          <p className="mt-1 font-body text-xs text-ink-muted">
             {formatDiscountTypeLabel(discount!.type)} — type and code cannot be
             changed after creation.
           </p>
@@ -275,7 +278,7 @@ function DiscountFormFields({
             required
           />
           {type === 'FIXED' ? (
-            <p className="text-warm-500 mt-1.5 font-body text-xs">
+            <p className="mt-1.5 font-body text-xs text-ink-muted">
               Enter cents (e.g. 500 for {formatPrice(500)} off).
             </p>
           ) : null}
@@ -288,7 +291,7 @@ function DiscountFormFields({
             Minimum cart (optional)
           </label>
           <div className="relative">
-            <span className="text-warm-500 pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm text-ink-faint">
               $
             </span>
             <input
@@ -348,18 +351,18 @@ function DiscountFormFields({
         </div>
       </div>
 
-      <label className="text-warm-800 flex cursor-pointer items-center gap-2 font-body text-sm">
+      <label className="flex cursor-pointer items-center gap-2 font-body text-sm text-ink">
         <input
           type="checkbox"
           checked={active}
           onChange={(e) => setActive(e.target.checked)}
-          className="size-4 rounded border-warm-300 text-brand-400 focus:ring-brand-400"
+          className="size-4 rounded-sm border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
         />
         Active on storefront
       </label>
 
       {error ? (
-        <p className="font-body text-sm text-red-700" role="alert">
+        <p className="font-body text-sm text-danger-solid" role="alert">
           {error}
         </p>
       ) : null}
@@ -368,7 +371,7 @@ function DiscountFormFields({
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
         >
           {pending ? (
             <Loader2 size={14} className="animate-spin" aria-hidden />
@@ -378,7 +381,7 @@ function DiscountFormFields({
         <button
           type="button"
           onClick={onCancel}
-          className="text-warm-700 rounded-lg border border-warm-300 px-5 py-2.5 font-body text-sm transition-colors hover:bg-warm-100"
+          className="inline-flex cursor-pointer items-center rounded-pill border border-ink bg-transparent px-6 py-2.5 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
         >
           Cancel
         </button>
@@ -426,7 +429,7 @@ function DiscountDrawer({
       <button
         type="button"
         aria-label="Close discount panel"
-        className="bg-surface-overlay fixed inset-0 z-40"
+        className="fixed inset-0 z-40 bg-scrim"
         onClick={onClose}
       />
       <div
@@ -434,12 +437,12 @@ function DiscountDrawer({
         role="dialog"
         aria-modal="true"
         aria-labelledby="discount-drawer-title"
-        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-warm-200 bg-surface-drawer shadow-xl"
+        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-line bg-paper text-ink shadow-lifted"
       >
-        <div className="flex items-center justify-between border-b border-warm-200 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-line px-6 py-4">
           <h2
             id="discount-drawer-title"
-            className="font-display text-xl tracking-[-0.02em] text-warm-900"
+            className="font-display text-2xl tracking-[-0.01em] text-ink"
           >
             {mode === 'create' ? 'New discount' : `Edit ${discount?.code}`}
           </h2>
@@ -447,10 +450,13 @@ function DiscountDrawer({
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-warm-600 transition-colors hover:bg-warm-100 hover:text-warm-900"
+            className={cn(
+              NAV_LINK_CLASSES,
+              'shrink-0 font-body text-label uppercase text-ink',
+            )}
             aria-label="Close"
           >
-            <X size={18} aria-hidden />
+            Close
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-6">
@@ -461,16 +467,19 @@ function DiscountDrawer({
             onSaved={onClose}
           />
           {mode === 'edit' && discount?.active ? (
-            <div className="mt-8 border-t border-warm-200 pt-6">
-              <h3 className="font-body text-sm font-medium text-warm-900">
+            <div className="mt-8 border-t border-line pt-6">
+              <h3 className="font-body text-label uppercase text-ink">
                 Deactivate
               </h3>
-              <p className="mt-1 font-body text-xs text-warm-600">
+              <p className="mt-1 font-body text-xs text-ink-muted">
                 Soft-deletes the code — redemption history is kept. Customers
                 can no longer apply it.
               </p>
               {deleteError ? (
-                <p className="mt-2 font-body text-sm text-red-700" role="alert">
+                <p
+                  className="mt-2 font-body text-sm text-danger-solid"
+                  role="alert"
+                >
                   {deleteError}
                 </p>
               ) : null}
@@ -486,7 +495,7 @@ function DiscountDrawer({
                     setDeleteError(adminApiErrorMessage(err));
                   }
                 }}
-                className="mt-3 rounded-lg border border-danger-border bg-danger-surface px-4 py-2 font-body text-sm text-danger-solid transition-colors hover:bg-red-100 disabled:opacity-60"
+                className="mt-3 inline-flex cursor-pointer items-center rounded-pill border border-danger-solid bg-transparent px-5 py-2 font-body text-micro uppercase text-danger-solid transition-all duration-base ease-soft hover:bg-danger-solid hover:text-danger-on-solid focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-danger-solid disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {deleteMutation.isPending ? 'Deactivating…' : 'Deactivate code'}
               </button>
@@ -546,10 +555,10 @@ export function AdminDiscountsManager() {
                 })
               }
               className={cn(
-                'rounded-lg px-3 py-1.5 font-body text-sm capitalize transition-colors',
+                'rounded-pill border px-3 py-1.5 font-body text-micro uppercase transition-colors duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
                 activeFilter === filter
-                  ? 'bg-brand-50 font-medium text-brand-700'
-                  : 'text-warm-600 hover:bg-warm-100',
+                  ? 'border-ink bg-ink text-paper'
+                  : 'border-line bg-transparent text-ink-secondary hover:border-ink',
               )}
             >
               {filter}
@@ -559,7 +568,7 @@ export function AdminDiscountsManager() {
         <button
           type="button"
           onClick={() => setParams({ drawer: 'create', selected: null })}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-pill border border-ink bg-ink px-5 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
         >
           <Plus size={14} aria-hidden />
           New discount
@@ -567,24 +576,24 @@ export function AdminDiscountsManager() {
       </div>
 
       {isPending ? (
-        <p className="font-body text-sm text-warm-600" aria-busy="true">
+        <p className="font-body text-sm text-ink-muted" aria-busy="true">
           Loading discounts…
         </p>
       ) : error ? (
-        <p className="font-body text-sm text-red-700" role="alert">
+        <p className="font-body text-sm text-danger-solid" role="alert">
           {adminApiErrorMessage(error)}
         </p>
       ) : !data || data.data.length === 0 ? (
-        <p className="font-body text-sm text-warm-600">
+        <p className="font-body text-sm text-ink-muted">
           No discount codes yet. Create one to offer promotions at checkout.
         </p>
       ) : (
-        <div className="max-w-full overflow-hidden rounded-2xl border border-warm-200 bg-surface-card">
+        <div className="max-w-full overflow-hidden rounded-card border border-line bg-paper">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left">
               <caption className="sr-only">Admin discount codes</caption>
-              <thead className="border-b border-warm-200 bg-warm-50">
-                <tr className="font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
+              <thead className="border-b border-line">
+                <tr className="font-body text-micro uppercase text-ink-muted">
                   <th scope="col" className="px-4 py-3">
                     Code
                   </th>
@@ -606,15 +615,15 @@ export function AdminDiscountsManager() {
                 {data.data.map((discount) => (
                   <tr
                     key={discount.id}
-                    className="text-warm-800 border-b border-warm-100 font-body text-sm last:border-0"
+                    className="border-b border-line font-body text-sm text-ink-secondary transition-colors duration-fast last:border-0 hover:bg-panel"
                   >
-                    <td className="px-4 py-3 font-medium text-warm-900">
+                    <td className="px-4 py-3 font-medium text-ink">
                       {discount.code}
                     </td>
                     <td className="px-4 py-3">
                       {formatDiscountValue(discount.type, discount.value)}
                       {discount.minCartCents ? (
-                        <span className="text-warm-500 mt-0.5 block text-xs">
+                        <span className="mt-0.5 block text-xs text-ink-faint">
                           Min {formatPrice(discount.minCartCents)}
                         </span>
                       ) : null}
@@ -637,7 +646,7 @@ export function AdminDiscountsManager() {
                             selected: discount.id,
                           })
                         }
-                        className="font-body text-sm text-brand-600 hover:text-brand-700"
+                        className="font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
                       >
                         Edit
                       </button>
@@ -651,7 +660,7 @@ export function AdminDiscountsManager() {
       )}
 
       {data && data.totalPages > 1 ? (
-        <div className="mt-6 flex items-center justify-between font-body text-sm text-warm-600">
+        <div className="mt-6 flex items-center justify-between font-body text-sm text-ink-muted">
           <span>
             Page {data.page} of {data.totalPages} ({data.total} total)
           </span>
@@ -660,7 +669,7 @@ export function AdminDiscountsManager() {
               type="button"
               disabled={page <= 1}
               onClick={() => setParams({ page: String(page - 1) })}
-              className="rounded-lg border border-warm-300 px-3 py-1.5 disabled:opacity-50"
+              className="rounded-pill border border-line px-4 py-1.5 font-body text-micro uppercase text-ink-secondary transition-colors duration-fast hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
             >
               Previous
             </button>
@@ -668,7 +677,7 @@ export function AdminDiscountsManager() {
               type="button"
               disabled={page >= data.totalPages}
               onClick={() => setParams({ page: String(page + 1) })}
-              className="rounded-lg border border-warm-300 px-3 py-1.5 disabled:opacity-50"
+              className="rounded-pill border border-line px-4 py-1.5 font-body text-micro uppercase text-ink-secondary transition-colors duration-fast hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
             >
               Next
             </button>

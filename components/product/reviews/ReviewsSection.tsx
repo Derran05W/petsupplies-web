@@ -15,7 +15,7 @@ import { ReviewsUnavailable } from './ReviewsUnavailable';
 
 function ReviewsToolbarFallback() {
   return (
-    <div className="h-10 max-w-full animate-pulse rounded-lg bg-warm-100 sm:max-w-md" />
+    <div className="h-10 max-w-full animate-pulse rounded-tile bg-panel sm:max-w-md" />
   );
 }
 
@@ -63,13 +63,13 @@ export async function ReviewsSection({
     <section
       id="reviews"
       aria-labelledby="reviews-heading"
-      className="mt-16 scroll-mt-24 border-t border-warm-200 pt-12"
+      className="mt-16 scroll-mt-24 border-t border-line pt-12"
     >
-      <div className="mx-auto max-w-7xl">
-        <h2
-          id="reviews-heading"
-          className="font-display text-3xl tracking-[-0.02em] text-warm-900"
-        >
+      <div className="mx-auto max-w-wrap">
+        <p className="mb-4 font-body text-kicker uppercase text-pine">
+          Reviews
+        </p>
+        <h2 id="reviews-heading" className="font-display text-display text-ink">
           Customer reviews
         </h2>
 

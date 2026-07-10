@@ -33,8 +33,8 @@ const trackingFormSchema = z.object({
 type TrackingFormInput = z.infer<typeof trackingFormSchema>;
 
 const inputBase =
-  'w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
-const inputError = 'border-red-400 focus:ring-red-400';
+  'w-full rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none';
+const inputError = 'border-danger-solid focus:border-danger-solid';
 
 const NETWORK_ERROR_MESSAGE =
   "Couldn't reach the server. Try again or check back shortly.";
@@ -107,14 +107,14 @@ export function OrderTrackingForm({ order }: OrderTrackingFormProps) {
     <form
       onSubmit={submit}
       noValidate
-      className="flex flex-col gap-3 rounded-xl border border-warm-200 bg-surface-card p-4"
+      className="flex flex-col gap-3 rounded-card border border-line bg-paper p-4"
     >
-      <h3 className="font-body text-sm font-medium text-warm-900">Tracking</h3>
+      <h3 className="font-body text-label uppercase text-ink">Tracking</h3>
 
       {submitError && (
         <p
           role="alert"
-          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 font-body text-xs text-red-700"
+          className="rounded-tile border border-danger-border bg-danger-surface px-3 py-2 font-body text-xs text-danger-solid"
         >
           {submitError}
         </p>
@@ -123,7 +123,7 @@ export function OrderTrackingForm({ order }: OrderTrackingFormProps) {
         <p
           role="status"
           aria-live="polite"
-          className="rounded-md border border-brand-200 bg-brand-50 px-3 py-2 font-body text-xs text-brand-700"
+          className="border-pine/40 rounded-tile border bg-tile-sage px-3 py-2 font-body text-xs text-tile-sage-ink"
         >
           {success}
         </p>
@@ -132,7 +132,7 @@ export function OrderTrackingForm({ order }: OrderTrackingFormProps) {
       <div>
         <label
           htmlFor={`tracking-number-${order.id}`}
-          className="mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600"
+          className="mb-1.5 block font-body text-micro uppercase text-ink"
         >
           Tracking number
         </label>
@@ -151,7 +151,7 @@ export function OrderTrackingForm({ order }: OrderTrackingFormProps) {
           <p
             id={`tracking-number-${order.id}-error`}
             role="alert"
-            className="mt-1 font-body text-xs text-red-600"
+            className="mt-1 font-body text-xs text-danger-solid"
           >
             {errors.trackingNumber.message}
           </p>
@@ -161,10 +161,10 @@ export function OrderTrackingForm({ order }: OrderTrackingFormProps) {
       <div>
         <label
           htmlFor={`tracking-url-${order.id}`}
-          className="mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600"
+          className="mb-1.5 block font-body text-micro uppercase text-ink"
         >
           Tracking URL{' '}
-          <span className="font-normal normal-case tracking-normal text-warm-400">
+          <span className="font-normal normal-case tracking-normal text-ink-faint">
             (optional)
           </span>
         </label>
@@ -180,7 +180,7 @@ export function OrderTrackingForm({ order }: OrderTrackingFormProps) {
           <p
             id={`tracking-url-${order.id}-error`}
             role="alert"
-            className="mt-1 font-body text-xs text-red-600"
+            className="mt-1 font-body text-xs text-danger-solid"
           >
             {errors.trackingUrl.message}
           </p>
@@ -192,8 +192,8 @@ export function OrderTrackingForm({ order }: OrderTrackingFormProps) {
           type="submit"
           disabled={!isDirty || mutation.isPending}
           className={cn(
-            'inline-flex items-center justify-center gap-2 rounded-lg bg-brand-400 px-4 py-2 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500',
-            'disabled:cursor-not-allowed disabled:opacity-60',
+            'inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-5 py-2 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
+            'disabled:cursor-not-allowed disabled:opacity-50',
           )}
         >
           {mutation.isPending && (

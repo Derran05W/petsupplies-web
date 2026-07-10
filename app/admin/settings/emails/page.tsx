@@ -16,7 +16,7 @@ export default function AdminEmailTemplatesSettingsPage() {
         heading="Email templates"
         description="Edit subjects and body copy for transactional emails sent by the API."
       />
-      <section className="rounded-xl border border-warm-200 bg-surface-card p-6 md:p-8">
+      <section className="rounded-card border border-line bg-paper p-6 md:p-8">
         <EmailTemplatesList />
       </section>
     </>

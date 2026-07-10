@@ -41,7 +41,7 @@ export function SitePageEditor({ slug }: SitePageEditorProps) {
 
   if (isPending) {
     return (
-      <p className="font-body text-sm text-warm-600" aria-busy="true">
+      <p className="font-body text-sm text-ink-muted" aria-busy="true">
         Loading page…
       </p>
     );
@@ -49,7 +49,7 @@ export function SitePageEditor({ slug }: SitePageEditorProps) {
 
   if (loadError) {
     return (
-      <p className="font-body text-sm text-red-700" role="alert">
+      <p className="font-body text-sm text-danger-solid" role="alert">
         {adminApiErrorMessage(loadError)}
       </p>
     );
@@ -57,9 +57,12 @@ export function SitePageEditor({ slug }: SitePageEditorProps) {
 
   if (!page) {
     return (
-      <p className="font-body text-sm text-warm-600">
+      <p className="font-body text-sm text-ink-secondary">
         Unknown page slug.{' '}
-        <Link href="/admin/settings/pages" className="text-brand-600 underline">
+        <Link
+          href="/admin/settings/pages"
+          className="text-ink underline transition-opacity duration-fast hover:opacity-70"
+        >
           Back to pages
         </Link>
       </p>
@@ -99,8 +102,8 @@ export function SitePageEditor({ slug }: SitePageEditorProps) {
         <div className="flex flex-col gap-5">
           <div>
             <span className={settingsLabelBase}>Slug</span>
-            <p className="text-warm-800 font-mono text-sm">/{slug}</p>
-            <p className="text-warm-500 mt-1 font-body text-xs">
+            <p className="font-mono text-sm text-ink-secondary">/{slug}</p>
+            <p className="mt-1 font-body text-xs text-ink-faint">
               {staticPageLabel(slug)} — route is fixed; only content is
               editable.
             </p>
@@ -132,23 +135,23 @@ export function SitePageEditor({ slug }: SitePageEditorProps) {
             />
           </div>
 
-          <label className="text-warm-800 flex cursor-pointer items-center gap-2 font-body text-sm">
+          <label className="flex cursor-pointer items-center gap-2 font-body text-sm text-ink">
             <input
               type="checkbox"
               checked={isPublished}
               onChange={(e) => setIsPublished(e.target.checked)}
-              className="size-4 rounded border-warm-300 text-brand-400 focus:ring-brand-400"
+              className="size-4 rounded-sm border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
             />
             Published on storefront
           </label>
 
           {submitError ? (
-            <p className="font-body text-sm text-red-700" role="alert">
+            <p className="font-body text-sm text-danger-solid" role="alert">
               {submitError}
             </p>
           ) : null}
           {success ? (
-            <p className="font-body text-sm text-brand-700" role="status">
+            <p className="font-body text-sm text-pine" role="status">
               {success}
             </p>
           ) : null}
@@ -157,7 +160,7 @@ export function SitePageEditor({ slug }: SitePageEditorProps) {
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="inline-flex items-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
             >
               {mutation.isPending ? (
                 <Loader2 size={14} className="animate-spin" aria-hidden />
@@ -169,14 +172,14 @@ export function SitePageEditor({ slug }: SitePageEditorProps) {
 
         <div>
           <h3 className={settingsLabelBase}>Preview</h3>
-          <div className="rounded-xl border border-warm-200 bg-warm-50 p-6">
-            <h2 className="mb-4 font-display text-2xl tracking-[-0.02em] text-warm-900">
+          <div className="rounded-card border border-line bg-panel p-6">
+            <h2 className="mb-4 font-display text-2xl tracking-[-0.01em] text-ink">
               {title.trim() || 'Untitled'}
             </h2>
             {bodyMarkdown.trim().length > 0 ? (
               <MarkdownContent markdown={bodyMarkdown} />
             ) : (
-              <p className="text-warm-500 font-body text-sm italic">
+              <p className="font-body text-sm italic text-ink-muted">
                 Nothing to preview yet.
               </p>
             )}

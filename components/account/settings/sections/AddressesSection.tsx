@@ -1,42 +1,40 @@
 import Link from 'next/link';
-import { ChevronRight, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 
 export function AddressesSection() {
   return (
     <section
       id="addresses"
       aria-labelledby="addresses-heading"
-      className="scroll-mt-24 rounded-2xl border border-warm-200 bg-surface-card p-6 md:p-8"
+      className="scroll-mt-24 rounded-card border border-line bg-paper p-6 md:p-8"
     >
       <h2
         id="addresses-heading"
-        className="mb-1 font-display text-2xl tracking-[-0.02em] text-warm-900"
+        className="mb-1 font-display text-2xl tracking-[-0.01em] text-ink"
       >
         Addresses
       </h2>
-      <p className="mb-6 font-body text-sm text-warm-600">
+      <p className="mb-6 font-body text-sm text-ink-secondary">
         Shipping addresses used at checkout and for Subscribe & Save.
       </p>
       <Link
         href="/account/addresses"
-        className="bg-warm-50/40 flex items-center justify-between gap-4 rounded-xl border border-warm-200 px-4 py-4 transition-colors hover:border-warm-300"
+        className="flex items-center justify-between gap-4 rounded-tile border border-line bg-panel px-4 py-4 transition-colors duration-fast hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
       >
         <span className="flex items-center gap-3">
           <span
             aria-hidden
-            className="inline-flex size-10 items-center justify-center rounded-full bg-surface-card text-brand-600 shadow-sm"
+            className="inline-flex size-10 items-center justify-center rounded-tile bg-paper text-pine"
           >
             <MapPin size={18} />
           </span>
-          <span className="font-body text-sm font-medium text-warm-900">
+          <span className="font-body text-sm font-medium text-ink">
             Manage address book
           </span>
         </span>
-        <ChevronRight
-          size={18}
-          className="shrink-0 text-warm-400"
-          aria-hidden
-        />
+        <span aria-hidden className="shrink-0 font-body text-ink-muted">
+          →
+        </span>
       </Link>
     </section>
   );

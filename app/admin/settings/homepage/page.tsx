@@ -19,11 +19,11 @@ export default function AdminHomepageSettingsPage() {
         description="Hero, category strip, brand values, and the curated product grid on the storefront."
       />
 
-      <section className="rounded-xl border border-warm-200 bg-surface-card p-6 md:p-8">
-        <h2 className="font-display text-2xl tracking-[-0.02em] text-warm-900">
+      <section className="rounded-card border border-line bg-paper p-6 md:p-8">
+        <h2 className="font-display text-2xl tracking-[-0.01em] text-ink">
           Hero & brand values
         </h2>
-        <p className="mt-1 max-w-2xl font-body text-sm text-warm-600">
+        <p className="mt-1 max-w-2xl font-body text-sm leading-body text-ink-secondary">
           Headline copy, calls-to-action, hero image, and the trust strip below
           featured products.
         </p>
@@ -32,11 +32,11 @@ export default function AdminHomepageSettingsPage() {
         </div>
       </section>
 
-      <section className="mt-8 rounded-xl border border-warm-200 bg-surface-card p-6 md:p-8">
+      <section className="mt-8 rounded-card border border-line bg-paper p-6 md:p-8">
         <CategoryStripEditor />
       </section>
 
-      <section className="mt-8 rounded-xl border border-warm-200 bg-surface-card p-6 md:p-8">
+      <section className="mt-8 rounded-card border border-line bg-paper p-6 md:p-8">
         <FeaturedProductsEditor />
       </section>
     </>

@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 export function AdminBannerPlaceholder() {
   return (
     <div
-      className="mb-6 inline-flex h-8 w-24 animate-pulse rounded-md bg-warm-100"
+      className="mb-6 inline-flex h-8 w-24 animate-pulse rounded-card bg-panel"
       aria-hidden
     />
   );
@@ -20,11 +20,11 @@ export function AdminPageHeaderSkeleton({
       aria-hidden
     >
       <div className="flex flex-col gap-2">
-        <div className="h-9 w-48 animate-pulse rounded bg-warm-100 md:w-64" />
-        <div className="h-4 w-full max-w-xl animate-pulse rounded bg-warm-100" />
+        <div className="h-9 w-48 animate-pulse rounded bg-panel md:w-64" />
+        <div className="h-4 w-full max-w-xl animate-pulse rounded bg-panel" />
       </div>
       {withAction && (
-        <div className="h-10 w-36 shrink-0 animate-pulse rounded-lg bg-warm-100" />
+        <div className="h-10 w-36 shrink-0 animate-pulse rounded-pill bg-panel" />
       )}
     </header>
   );
@@ -52,24 +52,20 @@ export function AdminTableSkeleton({
 }: AdminTableSkeletonProps) {
   return (
     <div
-      className="relative max-w-full overflow-hidden rounded-2xl border border-warm-200 bg-surface-card"
+      className="relative max-w-full overflow-hidden rounded-card border border-line bg-paper"
       role="status"
       aria-busy="true"
       aria-label="Loading table"
     >
-      <div className="bg-surface-card/40 pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-        <Loader2
-          size={28}
-          className="animate-spin text-brand-500"
-          aria-hidden
-        />
+      <div className="bg-paper/40 pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+        <Loader2 size={28} className="animate-spin text-pine" aria-hidden />
         <span className="sr-only">Loading</span>
       </div>
       <div className="overflow-x-auto opacity-60">
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">{caption}</caption>
-          <thead className="border-b border-warm-200 bg-warm-50">
-            <tr className="font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600">
+          <thead className="border-b border-line">
+            <tr className="font-body text-micro uppercase text-ink-muted">
               {columns.map((label, i) => (
                 <th
                   key={label}
@@ -90,7 +86,7 @@ export function AdminTableSkeleton({
           </thead>
           <tbody>
             {Array.from({ length: rows }, (_, row) => (
-              <tr key={row} className="border-b border-warm-100 last:border-0">
+              <tr key={row} className="border-b border-line last:border-0">
                 {columns.map((_, col) => (
                   <td
                     key={col}
@@ -103,7 +99,7 @@ export function AdminTableSkeleton({
                       .join(' ')}
                   >
                     <div
-                      className={`h-4 animate-pulse rounded bg-warm-100 ${
+                      className={`h-4 animate-pulse rounded bg-panel ${
                         col === 0 ? 'w-32' : 'w-20'
                       }`}
                     />
@@ -121,16 +117,16 @@ export function AdminTableSkeleton({
 export function AdminCustomerHeaderSkeleton() {
   return (
     <header
-      className="rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6"
+      className="rounded-card border border-line bg-paper p-5 md:p-6"
       aria-busy="true"
       role="status"
     >
-      <div className="h-3 w-20 animate-pulse rounded bg-warm-100" />
-      <div className="mt-3 h-8 w-64 animate-pulse rounded bg-warm-100" />
-      <div className="mt-2 h-4 w-48 animate-pulse rounded bg-warm-100" />
+      <div className="h-3 w-20 animate-pulse rounded bg-panel" />
+      <div className="mt-3 h-8 w-64 animate-pulse rounded bg-panel" />
+      <div className="mt-2 h-4 w-48 animate-pulse rounded bg-panel" />
       <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
-          <div key={i} className="h-12 animate-pulse rounded bg-warm-100" />
+          <div key={i} className="h-12 animate-pulse rounded bg-panel" />
         ))}
       </div>
     </header>
@@ -140,18 +136,18 @@ export function AdminCustomerHeaderSkeleton() {
 export function AdminFormSkeleton() {
   return (
     <div
-      className="flex flex-col gap-6 rounded-2xl border border-warm-200 bg-surface-card p-6"
+      className="flex flex-col gap-6 rounded-card border border-line bg-paper p-6"
       role="status"
       aria-busy="true"
       aria-label="Loading form"
     >
       <div className="flex items-center justify-center py-8">
-        <Loader2 size={28} className="animate-spin text-brand-500" />
+        <Loader2 size={28} className="animate-spin text-pine" />
       </div>
       {Array.from({ length: 6 }, (_, i) => (
         <div key={i} className="flex flex-col gap-2">
-          <div className="h-3 w-24 animate-pulse rounded bg-warm-100" />
-          <div className="h-10 w-full animate-pulse rounded-lg bg-warm-100" />
+          <div className="h-3 w-24 animate-pulse rounded bg-panel" />
+          <div className="h-10 w-full animate-pulse rounded-tile bg-panel" />
         </div>
       ))}
     </div>

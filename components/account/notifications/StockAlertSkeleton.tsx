@@ -5,13 +5,13 @@ export function StockAlertSkeleton() {
       {Array.from({ length: 3 }).map((_, i) => (
         <div
           key={`skeleton-${String(i)}`}
-          className="flex animate-pulse flex-col rounded-xl border border-warm-200 bg-surface-card p-4"
+          className="flex animate-pulse flex-col rounded-card border border-line bg-paper p-4"
           aria-hidden
         >
-          <div className="mb-3 aspect-square rounded-lg bg-warm-100" />
-          <div className="h-5 w-3/4 rounded bg-warm-100" />
-          <div className="mt-3 h-4 w-1/4 rounded bg-warm-100" />
-          <div className="mt-4 h-10 w-full rounded-lg bg-warm-100" />
+          <div className="mb-3 aspect-square rounded-tile bg-panel" />
+          <div className="h-5 w-3/4 rounded-tile bg-panel" />
+          <div className="mt-3 h-4 w-1/4 rounded-tile bg-panel" />
+          <div className="mt-4 h-10 w-full rounded-pill bg-panel" />
         </div>
       ))}
     </div>

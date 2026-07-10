@@ -9,10 +9,9 @@ import { SUPPORTED_COUNTRIES } from '@/lib/checkout/schemas';
 import { cn } from '@/lib/utils';
 
 const inputBase =
-  'w-full rounded-lg border border-warm-300 bg-surface-card px-3 py-2.5 font-body text-sm text-warm-900 placeholder:text-warm-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-400';
-const inputError = 'border-red-400 focus:ring-red-400';
-const labelBase =
-  'mb-1.5 block font-body text-xs font-medium uppercase tracking-[0.08em] text-warm-600';
+  'w-full rounded-tile border border-line bg-paper px-3 py-2.5 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none';
+const inputError = 'border-danger-solid focus:border-danger-solid';
+const labelBase = 'mb-1.5 block font-body text-micro uppercase text-ink';
 
 function fieldErrorProps(name: string, error: FieldError | undefined) {
   if (!error) return { 'aria-invalid': false as const };
@@ -39,8 +38,8 @@ interface AddressFormProps {
 }
 
 /**
- * Shared form chrome for both "Add" and "Edit" address flows. Mirrors
- * the Phase 2 / Phase 6 input chrome (`border-warm-300`, focus ring,
+ * Shared form chrome for both "Add" and "Edit" address flows. Uses the
+ * boutique input chrome (`border-line`, ink focus border,
  * `aria-invalid` + `aria-describedby` per WAI-ARIA Authoring Practices).
  *
  * Field IDs are namespaced via `useId()` so multiple `<AddressForm />`s
@@ -85,13 +84,13 @@ export function AddressForm({
     <form
       onSubmit={submit}
       noValidate
-      className="flex flex-col gap-5 rounded-2xl border border-warm-200 bg-surface-card p-5 md:p-6"
+      className="flex flex-col gap-5 rounded-card border border-line bg-paper p-5 md:p-6"
     >
       {submitError && (
         <div
           role="alert"
           aria-live="assertive"
-          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 font-body text-sm text-red-700"
+          className="rounded-tile border border-danger-border bg-danger-surface px-3 py-2 font-body text-sm text-danger-solid"
         >
           {submitError}
         </div>
@@ -114,7 +113,7 @@ export function AddressForm({
           <p
             id={`${fieldId('fullName')}-error`}
             role="alert"
-            className="mt-1 font-body text-xs text-red-600"
+            className="mt-1 font-body text-xs text-danger-solid"
           >
             {errors.fullName.message}
           </p>
@@ -138,7 +137,7 @@ export function AddressForm({
           <p
             id={`${fieldId('line1')}-error`}
             role="alert"
-            className="mt-1 font-body text-xs text-red-600"
+            className="mt-1 font-body text-xs text-danger-solid"
           >
             {errors.line1.message}
           </p>
@@ -148,7 +147,7 @@ export function AddressForm({
       <div>
         <label htmlFor={fieldId('line2')} className={labelBase}>
           Address line 2{' '}
-          <span className="font-normal normal-case tracking-normal text-warm-400">
+          <span className="font-normal normal-case tracking-normal text-ink-faint">
             (optional)
           </span>
         </label>
@@ -165,7 +164,7 @@ export function AddressForm({
           <p
             id={`${fieldId('line2')}-error`}
             role="alert"
-            className="mt-1 font-body text-xs text-red-600"
+            className="mt-1 font-body text-xs text-danger-solid"
           >
             {errors.line2.message}
           </p>
@@ -190,7 +189,7 @@ export function AddressForm({
             <p
               id={`${fieldId('city')}-error`}
               role="alert"
-              className="mt-1 font-body text-xs text-red-600"
+              className="mt-1 font-body text-xs text-danger-solid"
             >
               {errors.city.message}
             </p>
@@ -213,7 +212,7 @@ export function AddressForm({
             <p
               id={`${fieldId('state')}-error`}
               role="alert"
-              className="mt-1 font-body text-xs text-red-600"
+              className="mt-1 font-body text-xs text-danger-solid"
             >
               {errors.state.message}
             </p>
@@ -239,7 +238,7 @@ export function AddressForm({
             <p
               id={`${fieldId('postalCode')}-error`}
               role="alert"
-              className="mt-1 font-body text-xs text-red-600"
+              className="mt-1 font-body text-xs text-danger-solid"
             >
               {errors.postalCode.message}
             </p>
@@ -266,7 +265,7 @@ export function AddressForm({
             <p
               id={`${fieldId('country')}-error`}
               role="alert"
-              className="mt-1 font-body text-xs text-red-600"
+              className="mt-1 font-body text-xs text-danger-solid"
             >
               {errors.country.message}
             </p>
@@ -275,11 +274,11 @@ export function AddressForm({
       </div>
 
       {showDefaultToggle && (
-        <label className="flex items-center gap-2 font-body text-sm text-warm-900">
+        <label className="flex items-center gap-2 font-body text-sm text-ink">
           <input
             type="checkbox"
             {...register('isDefault')}
-            className="size-4 rounded border-warm-300 text-brand-400 focus:ring-2 focus:ring-brand-400"
+            className="size-4 rounded-sm border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
           />
           Use this as my default address
         </label>
@@ -289,14 +288,14 @@ export function AddressForm({
         <button
           type="button"
           onClick={onCancel}
-          className="inline-flex items-center justify-center rounded-lg border border-warm-300 bg-transparent px-5 py-2.5 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
+          className="inline-flex cursor-pointer items-center justify-center rounded-pill border border-ink bg-transparent px-6 py-2.5 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={busy}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-6 py-2.5 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50"
         >
           {busy && <Loader2 size={14} aria-hidden className="animate-spin" />}
           {submitLabel}

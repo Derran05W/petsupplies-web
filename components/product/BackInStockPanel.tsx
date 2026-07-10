@@ -105,7 +105,7 @@ export function BackInStockPanel({ product }: BackInStockPanelProps) {
   if (authLoading) {
     body = (
       <span
-        className="inline-flex items-center gap-2 font-body text-sm text-warm-600"
+        className="inline-flex items-center gap-2 font-body text-sm text-ink-muted"
         aria-busy="true"
       >
         <Loader2 className="size-4 animate-spin" aria-hidden />
@@ -117,10 +117,7 @@ export function BackInStockPanel({ product }: BackInStockPanelProps) {
       <button
         type="button"
         onClick={redirectToLogin}
-        className={cn(
-          'inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-body text-sm font-medium text-white transition-colors sm:w-auto',
-          'bg-brand-400 hover:bg-brand-500',
-        )}
+        className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-transparent px-5 py-2 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine sm:w-auto"
       >
         Notify me when back
       </button>
@@ -128,21 +125,21 @@ export function BackInStockPanel({ product }: BackInStockPanelProps) {
   } else if (isAlerted) {
     body = (
       <div className="flex flex-col gap-2">
-        <p className="text-warm-800 font-body text-sm" role="status">
+        <p className="font-body text-sm text-ink-secondary" role="status">
           We&apos;ll email you when this is back.
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-4">
           <button
             type="button"
             onClick={() => setConfirmCancelOpen(true)}
             disabled={deleteMutation.isPending}
-            className="text-warm-700 font-body text-sm font-medium underline-offset-4 hover:text-warm-900 hover:underline disabled:opacity-60"
+            className="font-body text-micro uppercase text-ink opacity-75 transition-opacity duration-fast hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancel alert
           </button>
           <Link
             href="/account/notifications"
-            className="font-body text-sm font-medium text-brand-600 underline-offset-4 hover:text-brand-700 hover:underline"
+            className="font-body text-micro uppercase text-pine transition-opacity duration-fast hover:opacity-70"
           >
             Manage alerts
           </Link>
@@ -157,10 +154,10 @@ export function BackInStockPanel({ product }: BackInStockPanelProps) {
         aria-busy={createMutation.isPending}
         onClick={() => void handleNotify()}
         className={cn(
-          'inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-body text-sm font-medium transition-colors sm:w-auto',
+          'inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-transparent px-5 py-2 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine sm:w-auto',
           createMutation.isPending
-            ? 'cursor-wait bg-brand-500 text-white opacity-90'
-            : 'bg-brand-400 text-white hover:bg-brand-500',
+            ? 'cursor-wait opacity-80 hover:bg-transparent hover:text-ink'
+            : '',
         )}
       >
         {createMutation.isPending ? (
@@ -176,21 +173,19 @@ export function BackInStockPanel({ product }: BackInStockPanelProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-warm-200 bg-warm-50 p-4">
+    <div className="flex flex-col gap-3 rounded-card border border-line bg-panel p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <p className="font-body text-sm font-medium text-warm-900">
-          Out of stock
-        </p>
+        <p className="font-body text-micro uppercase text-ink">Out of stock</p>
       </div>
 
-      <p className="font-body text-sm text-warm-600">
+      <p className="font-body text-sm text-ink-secondary">
         Get an email when this item is available again.
       </p>
 
       {localError ? (
         <div
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 font-body text-sm text-red-800"
+          className="rounded-tile border border-danger-border bg-danger-surface px-3 py-2 font-body text-sm text-danger-solid"
         >
           <p>{localError}</p>
           {hintRefresh ? (

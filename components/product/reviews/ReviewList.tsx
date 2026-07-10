@@ -13,7 +13,7 @@ export function ReviewList({ reviews }: ReviewListProps) {
   const viewerUserId = user?.id;
 
   return (
-    <ul className="flex flex-col gap-5">
+    <ul className="flex flex-col border-b border-line">
       {reviews.map((review) => (
         <li key={review.id}>
           <ReviewCard

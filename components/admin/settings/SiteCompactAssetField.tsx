@@ -56,7 +56,7 @@ export function SiteCompactAssetField({
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
         {previewSrc ? (
-          <span className="relative size-10 shrink-0 overflow-hidden rounded-md bg-warm-100">
+          <span className="relative size-10 shrink-0 overflow-hidden rounded-tile border border-line bg-panel">
             <Image
               src={previewSrc}
               alt=""
@@ -79,7 +79,7 @@ export function SiteCompactAssetField({
           type="button"
           disabled={disabled || busy}
           onClick={() => inputRef.current?.click()}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-warm-300 px-3 py-2 font-body text-xs text-warm-900 hover:bg-warm-100 disabled:opacity-60"
+          className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-pill border border-ink bg-transparent px-3 py-2 font-body text-micro uppercase text-ink transition-all duration-base ease-soft hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-ink"
         >
           {busy ? (
             <Loader2 size={12} className="animate-spin" aria-hidden />
@@ -101,7 +101,7 @@ export function SiteCompactAssetField({
         />
       </div>
       {error ? (
-        <p className="font-body text-xs text-red-700" role="alert">
+        <p className="font-body text-xs text-danger-solid" role="alert">
           {error}
         </p>
       ) : null}

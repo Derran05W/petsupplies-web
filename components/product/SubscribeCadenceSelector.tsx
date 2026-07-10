@@ -22,7 +22,7 @@ export function SubscribeCadenceSelector({
 }: SubscribeCadenceSelectorProps) {
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="text-warm-800 font-body text-sm font-medium">
+      <legend className="font-body text-micro uppercase text-ink">
         Delivery cadence
       </legend>
       <div
@@ -36,17 +36,17 @@ export function SubscribeCadenceSelector({
             <label
               key={interval}
               className={cn(
-                'flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 font-body text-sm transition-colors',
+                'flex cursor-pointer items-center gap-3 rounded-tile border px-3 py-2.5 font-body text-sm transition-colors duration-fast',
                 selected
-                  ? 'border-brand-400 bg-brand-50 text-warm-900'
-                  : 'text-warm-700 border-warm-200 bg-surface-card hover:border-warm-300',
+                  ? 'border-pine bg-paper text-ink'
+                  : 'border-line bg-paper text-ink-secondary hover:border-ink',
                 disabled ? 'cursor-not-allowed opacity-60' : '',
               )}
             >
               <input
                 type="radio"
                 name="subscribe-interval"
-                className="size-4 border-warm-300 text-brand-500 focus:ring-brand-400"
+                className="size-4 border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
                 checked={selected}
                 disabled={disabled}
                 onChange={() => onChange(interval)}
