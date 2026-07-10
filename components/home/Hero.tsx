@@ -1,29 +1,25 @@
 import Image from 'next/image';
-import Link from 'next/link';
-import { Truck } from 'lucide-react';
 import { fetchSiteSettings } from '@/lib/api/site/settings';
-import { getFreeShippingThresholdCents } from '@/lib/config/shipping';
 import { SITE_SETTINGS_FALLBACK } from '@/lib/site/fallbacks';
-import { formatFreeShippingLabel } from '@/lib/site/shipping-copy';
+import { buildHeroHeadline } from '@/lib/site/hero-headline';
+import { Button, PetIcon, type PetIconName } from '@/components/ui';
+import { TONE_CLASSES, type TileTone } from '@/components/ui/tones';
+import { cn } from '@/lib/utils';
 
-/**
- * 1×1 warm-100 (#F7F3EC) JPEG, base64-encoded. Used as `blurDataURL`
- * so the hero slot still paints in brand colors before the real image
- * loads — and remains tasteful if the underlying file is missing.
- */
-const HERO_BLUR =
-  'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AKpgB//Z';
+/** Tonal tile dropped into each headline row — dog/amber then cat/slate, like the mockup. */
+const ROW_TILES: { tone: TileTone; icon: PetIconName }[] = [
+  { tone: 'amber', icon: 'dog' },
+  { tone: 'slate', icon: 'cat' },
+  { tone: 'sage', icon: 'yarn' },
+  { tone: 'clay', icon: 'bowl' },
+];
 
-function splitTagline(tagline: string): { lead: string; accent: string } {
-  const trimmed = tagline.trimEnd();
-  const match = trimmed.match(/^(.*?)(\S+)([.!?]?)$/);
-  if (!match) return { lead: '', accent: trimmed };
-  const [, lead, lastWord, terminator] = match;
-  return {
-    lead: lead ?? '',
-    accent: `${lastWord ?? ''}${terminator ?? ''}`,
-  };
-}
+/** Mockup load-in rhythm: words 100ms apart, rows offset 150ms, tiles pop mid-row. */
+const WORD_BASE_MS = 200;
+const WORD_STEP_MS = 100;
+const ROW_OFFSET_MS = 150;
+const TILE_BASE_MS = 450;
+const TILE_ROW_STEP_MS = 400;
 
 function resolveHeroImageUrl(url: string | undefined): string {
   if (!url || url.trim().length === 0) {
@@ -32,73 +28,159 @@ function resolveHeroImageUrl(url: string | undefined): string {
   return url.trim();
 }
 
+/**
+ * Boutique hero (mockup `.hero`): centered kicker, the admin-entered
+ * headline interleaved with tonal pet tiles, subhead, and pill CTAs — all
+ * fading up on load. The admin's hero image fills the last row's tile
+ * (the mockup's media slot); the other tiles keep their line-art icons.
+ */
 export async function Hero() {
-  const [settings, thresholdCents] = await Promise.all([
-    fetchSiteSettings(),
-    getFreeShippingThresholdCents(),
-  ]);
+  const settings = await fetchSiteSettings();
 
-  const { lead, accent } = splitTagline(settings.heroHeadline);
+  const rows = buildHeroHeadline(settings.heroHeadline);
   const heroImageUrl = resolveHeroImageUrl(settings.heroImageUrl);
   const isRemote = heroImageUrl.startsWith('http');
 
-  return (
-    <section className="px-6 py-16 md:px-8 lg:px-12">
-      <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-2 lg:gap-16">
-        <div className="order-1 flex flex-col gap-6 lg:order-1">
-          <p className="font-body text-xs font-medium uppercase tracking-[0.08em] text-brand-600">
-            {settings.heroEyebrow}
-          </p>
-          <h1 className="text-balance font-display text-5xl leading-[1.04] tracking-[-0.03em] text-warm-900 md:text-6xl lg:text-7xl">
-            {lead}
-            <em className="italic text-brand-400">{accent}</em>
-          </h1>
-          <p className="max-w-md font-body text-base leading-relaxed text-warm-600 md:text-lg">
-            {settings.heroSubhead}
-          </p>
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Link
-              href={settings.heroPrimaryCtaHref}
-              className="inline-flex items-center justify-center rounded-lg bg-brand-400 px-5 py-2.5 font-body text-sm font-medium text-white transition-colors hover:bg-brand-500"
-            >
-              {settings.heroPrimaryCtaLabel}
-            </Link>
-            <Link
-              href={settings.heroSecondaryCtaHref}
-              className="inline-flex items-center justify-center rounded-lg border border-warm-300 bg-transparent px-5 py-2.5 font-body text-sm text-warm-900 transition-colors hover:bg-warm-100"
-            >
-              {settings.heroSecondaryCtaLabel}
-            </Link>
-          </div>
-        </div>
+  const totalWords = rows.reduce((sum, row) => sum + row.words.length, 0);
+  const lastWordDelay =
+    WORD_BASE_MS +
+    Math.max(0, totalWords - 1) * WORD_STEP_MS +
+    Math.max(0, rows.length - 1) * ROW_OFFSET_MS;
 
-        <div className="order-2 lg:order-2">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-warm-100">
-            <Image
-              src={heroImageUrl}
-              alt="A happy pet enjoying a fresh meal at home"
-              fill
-              priority
-              placeholder="blur"
-              blurDataURL={HERO_BLUR}
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className="object-cover"
-              unoptimized={isRemote}
-            />
-            <div className="bg-surface-card/95 absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 shadow-sm backdrop-blur-sm">
+  let wordIndex = 0;
+
+  return (
+    <section className="px-gutter pb-[10vh] pt-[9vh] text-center">
+      <p className="animate-fade-up mb-10 font-body text-kicker uppercase text-pine [animation-delay:100ms]">
+        {settings.heroEyebrow}
+      </p>
+
+      <h1 className="font-display text-display-xl text-ink [&_em]:font-medium [&_em]:italic">
+        {rows.map((row, rowIndex) => {
+          const tile = ROW_TILES[rowIndex % ROW_TILES.length] ?? ROW_TILES[0]!;
+          const isMediaTile = rowIndex === rows.length - 1;
+          const tileDelay = TILE_BASE_MS + rowIndex * TILE_ROW_STEP_MS;
+
+          const parts: React.ReactNode[] = [];
+          row.words.forEach((word, indexInRow) => {
+            if (indexInRow === row.tileBeforeIndex) {
+              parts.push(
+                <HeadlineTile
+                  key={`tile-${rowIndex}`}
+                  tone={tile.tone}
+                  icon={tile.icon}
+                  delayMs={tileDelay}
+                  imageUrl={isMediaTile ? heroImageUrl : undefined}
+                  imageUnoptimized={isRemote}
+                />,
+              );
+            }
+            const delay =
+              WORD_BASE_MS +
+              wordIndex * WORD_STEP_MS +
+              rowIndex * ROW_OFFSET_MS;
+            wordIndex += 1;
+            parts.push(
               <span
-                aria-hidden
-                className="inline-flex size-7 items-center justify-center rounded-md bg-brand-50 text-brand-600"
+                key={`word-${rowIndex}-${indexInRow}`}
+                className="animate-fade-up inline-block"
+                style={{ animationDelay: `${delay}ms` }}
               >
-                <Truck size={14} />
-              </span>
-              <span className="font-body text-sm text-warm-900">
-                {formatFreeShippingLabel(thresholdCents)}
-              </span>
-            </div>
-          </div>
-        </div>
+                {word.em ? <em>{word.text}</em> : word.text}
+              </span>,
+            );
+          });
+          if (row.tileBeforeIndex >= row.words.length) {
+            parts.push(
+              <HeadlineTile
+                key={`tile-${rowIndex}`}
+                tone={tile.tone}
+                icon={tile.icon}
+                delayMs={tileDelay}
+                imageUrl={isMediaTile ? heroImageUrl : undefined}
+                imageUnoptimized={isRemote}
+              />,
+            );
+          }
+
+          return (
+            <span
+              key={rowIndex}
+              className="flex flex-wrap items-center justify-center gap-x-[0.35em]"
+            >
+              {parts}
+            </span>
+          );
+        })}
+      </h1>
+
+      <p
+        className="animate-fade-up mx-auto mt-10 max-w-[52ch] font-body text-lede text-ink-secondary"
+        style={{ animationDelay: `${lastWordDelay + 500}ms` }}
+      >
+        {settings.heroSubhead}
+      </p>
+
+      <div
+        className="animate-fade-up mt-9 flex flex-wrap items-center justify-center gap-4"
+        style={{ animationDelay: `${lastWordDelay + 650}ms` }}
+      >
+        <Button href={settings.heroPrimaryCtaHref}>
+          {settings.heroPrimaryCtaLabel}
+        </Button>
+        <Button variant="ghost" href={settings.heroSecondaryCtaHref}>
+          {settings.heroSecondaryCtaLabel}
+        </Button>
       </div>
     </section>
+  );
+}
+
+/**
+ * `.hl-tile` — sized off the headline's em box so it scales with the
+ * clamp. Entry animation and hover transform live on separate elements:
+ * the entry animation's `forwards` fill pins `transform` on its element,
+ * so a hover transform there would never apply.
+ */
+function HeadlineTile({
+  tone,
+  icon,
+  delayMs,
+  imageUrl,
+  imageUnoptimized,
+}: {
+  tone: TileTone;
+  icon: PetIconName;
+  delayMs: number;
+  imageUrl?: string;
+  imageUnoptimized?: boolean;
+}) {
+  return (
+    <span
+      aria-hidden
+      className="inline-block aspect-[1.5] h-[0.92em] flex-none transition-transform duration-base ease-soft hover:rotate-2 hover:scale-[1.14] motion-reduce:transform-none"
+    >
+      <span
+        className={cn(
+          'animate-tile-in relative flex h-full w-full items-center justify-center overflow-hidden rounded-[0.16em]',
+          TONE_CLASSES[tone],
+        )}
+        style={{ animationDelay: `${delayMs}ms` }}
+      >
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt=""
+            fill
+            priority
+            sizes="160px"
+            className="object-cover"
+            unoptimized={imageUnoptimized}
+          />
+        ) : (
+          <PetIcon name={icon} className="h-[58%] w-[58%]" />
+        )}
+      </span>
+    </span>
   );
 }

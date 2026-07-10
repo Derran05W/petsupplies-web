@@ -3,7 +3,8 @@
  *
  * Catches a regression that breaks the entire shop layout group.
  * Asserts:
- *   - the Fraunces hero heading renders (split-tagline output).
+ *   - the Fraunces hero heading renders (interleaved headline rows built
+ *     from the admin heroHeadline setting).
  *   - the featured products grid renders with at least one card.
  *   - the navbar's primary actions are present (logo link + Cart).
  */
@@ -15,16 +16,16 @@ test.describe('homepage', () => {
   }) => {
     await page.goto('/');
 
-    // Hero heading — Fraunces h1 with the italic accent on the last word.
+    // Hero heading — Fraunces h1; the seeded headline ends in "love."
     const heading = page.getByRole('heading', { level: 1 });
     await expect(heading).toBeVisible();
     await expect(heading).toContainText('love');
 
-    // Featured products section — uses the "Customer favourites" eyebrow.
+    // Featured products section — boutique heading from home-content.
     await expect(
       page.getByRole('heading', {
         level: 2,
-        name: /Everyday meals, thoughtfully made/,
+        name: /The current obsessions/,
       }),
     ).toBeVisible();
 

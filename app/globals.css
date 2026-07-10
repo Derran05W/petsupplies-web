@@ -221,6 +221,30 @@ html[data-theme='tropical'] {
     animation: marquee-x 30s linear infinite;
   }
 
+  /* mockup hero load-in (`fadeUp` / `tileIn`) — stagger with
+     `animation-delay`; elements start hidden, so reduced-motion must
+     reveal them instead of just stopping the animation */
+  .animate-fade-up {
+    opacity: 0;
+    transform: translateY(0.5em);
+    animation: fade-up 0.9s var(--ease-soft) forwards;
+  }
+
+  .animate-tile-in {
+    opacity: 0;
+    transform: scale(0.6) rotate(-6deg);
+    animation: tile-in 0.9s var(--ease-soft) forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-up,
+    .animate-tile-in {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   .animate-cart-bounce {
     animation: cart-bounce 600ms cubic-bezier(0.22, 1, 0.36, 1) 1;
     transform-origin: center;
@@ -230,6 +254,20 @@ html[data-theme='tropical'] {
 @keyframes marquee-x {
   to {
     transform: translateX(-50%);
+  }
+}
+
+@keyframes fade-up {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tile-in {
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
   }
 }
 

@@ -5,6 +5,7 @@
  */
 export { Button } from './Button';
 export { CategoryRow } from './CategoryRow';
+export { emphasize } from './emphasize';
 export { Marquee } from './Marquee';
 export { Nav, TopBar, type NavLinkItem } from './Nav';
 export { PetIcon, type PetIconName } from './PetIcon';

@@ -11,6 +11,8 @@ interface SectionHeaderProps {
   align?: 'left' | 'center';
   /** Dark-band variant (film band): amber kicker, paper heading. */
   dark?: boolean;
+  /** id for the `<h2>` — lets sections point `aria-labelledby` at it. */
+  headingId?: string;
   className?: string;
 }
 
@@ -19,6 +21,7 @@ export function SectionHeader({
   children,
   align = 'left',
   dark = false,
+  headingId,
   className,
 }: SectionHeaderProps) {
   return (
@@ -32,6 +35,7 @@ export function SectionHeader({
         {kicker}
       </span>
       <h2
+        id={headingId}
         className={cn(
           'max-w-[22ch] font-display text-display [&_em]:font-medium [&_em]:italic',
           dark ? 'text-paper' : 'text-ink',
