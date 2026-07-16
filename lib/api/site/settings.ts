@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import { ApiError, apiFetch } from '@/lib/api/client';
+import { isE2eSiteChromeFixtureEnabled } from '@/lib/api/e2e/site-chrome-fixture';
 import { SITE_SETTINGS_FALLBACK } from '@/lib/site/fallbacks';
 import type { SiteSettingsPublic } from '@/types/site';
 
@@ -12,6 +13,9 @@ const REVALIDATE_SECONDS = 300;
  */
 export const fetchSiteSettings = cache(
   async (): Promise<SiteSettingsPublic> => {
+    if (isE2eSiteChromeFixtureEnabled()) {
+      return SITE_SETTINGS_FALLBACK;
+    }
     try {
       return await apiFetch<SiteSettingsPublic>('/site/settings', {
         next: {

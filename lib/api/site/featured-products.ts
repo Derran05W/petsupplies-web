@@ -1,6 +1,8 @@
 import { cache } from 'react';
 import type { Product } from '@/types/product';
 import { ApiError, apiFetch } from '@/lib/api/client';
+import { listE2eCatalogProducts } from '@/lib/api/e2e/catalog-fixture';
+import { isE2eSiteChromeFixtureEnabled } from '@/lib/api/e2e/site-chrome-fixture';
 import { mapCatalogProduct } from '@/lib/api/product-mapper';
 
 export const SITE_FEATURED_CACHE_TAG = 'site-featured';
@@ -25,6 +27,10 @@ function extractFeaturedProductRows(raw: unknown): unknown[] {
 }
 
 export const fetchFeaturedProducts = cache(async (): Promise<Product[]> => {
+  /** Fixture products (not `[]`) so the homepage smoke can assert real cards. */
+  if (isE2eSiteChromeFixtureEnabled()) {
+    return listE2eCatalogProducts();
+  }
   try {
     const raw = await apiFetch<unknown>('/site/featured-products', {
       next: {

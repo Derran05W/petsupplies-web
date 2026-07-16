@@ -47,6 +47,10 @@ export default defineConfig({
             process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001',
           /** SSR catalogue fixture — Playwright cannot intercept Next server fetch. */
           E2E_CATALOG_FIXTURE: '1',
+          /** SSR site chrome (settings/nav/strip/featured) pinned to the static
+           * fallbacks — otherwise specs inherit whatever a local API or a stale
+           * `.next/cache/fetch-cache` entry last answered. */
+          E2E_SITE_CHROME_FIXTURE: '1',
           /** SSR reviews fixture — Playwright cannot intercept Next server fetch. */
           E2E_REVIEWS_FIXTURE: '1',
           /** Force one staging slug OOS on SSR for back-in-stock notify UI. */
