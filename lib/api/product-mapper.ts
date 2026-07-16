@@ -71,8 +71,11 @@ function mapApiImage(
  * catalogue uses exactly such URLs. Dropping unservable entries lets every
  * surface render its designed no-photo fallback (tonal tile + line-art
  * icon) instead of a broken-image glyph.
+ *
+ * Exported so the order-line mapper (order-mapper.ts) filters identically —
+ * order item images come from the same seeded product rows.
  */
-function isServableImageUrl(url: string): boolean {
+export function isServableImageUrl(url: string): boolean {
   const path = (url.split('?')[0] ?? url).toLowerCase();
   if (path.length === 0) return false;
   if (path.endsWith('.svg')) return false;

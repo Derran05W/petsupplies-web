@@ -12,6 +12,8 @@ interface ConfirmDialogProps {
   cancelLabel?: string;
   destructive?: boolean;
   busy?: boolean;
+  /** Disable the confirm button (e.g. required inline fields are empty). */
+  confirmDisabled?: boolean;
   onConfirm: () => void;
   onClose: () => void;
   /** Optional body between description and action buttons (forms, etc.). */
@@ -31,6 +33,7 @@ export function ConfirmDialog({
   cancelLabel = 'Cancel',
   destructive = false,
   busy = false,
+  confirmDisabled = false,
   onConfirm,
   onClose,
   children,
@@ -133,7 +136,7 @@ export function ConfirmDialog({
             <button
               type="button"
               onClick={onConfirm}
-              disabled={busy}
+              disabled={busy || confirmDisabled}
               className={
                 destructive
                   ? 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-danger-solid bg-danger-solid px-6 py-2.5 font-body text-micro uppercase text-danger-on-solid transition-all duration-base ease-soft hover:border-danger-solid-hover hover:bg-danger-solid-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-danger-solid disabled:cursor-not-allowed disabled:opacity-50'

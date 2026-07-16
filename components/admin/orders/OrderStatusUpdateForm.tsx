@@ -2,25 +2,25 @@
 
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import type { AdminOrderSummary } from '@/types/admin';
+import type { AdminOrderSummary, AdminOrderUpdateInput } from '@/types/admin';
 import type { OrderStatus } from '@/types/order';
 import { ApiError } from '@/lib/api/client';
 import { useUpdateAdminOrderMutation } from '@/hooks/useAdminOrders';
+import {
+  settingsInputBase,
+  settingsLabelBase,
+} from '@/components/admin/settings/admin-settings-form-styles';
 import { cn } from '@/lib/utils';
 
 interface OrderStatusUpdateFormProps {
   order: AdminOrderSummary;
 }
 
-const STATUS_OPTIONS: OrderStatus[] = [
-  'pending',
-  'paid',
-  'fulfilled',
-  'shipped',
-  'delivered',
-  'cancelled',
-  'refunded',
-];
+/**
+ * The backend `updateStatusSchema` enum only accepts these three transitions;
+ * `pending`/`paid`/`delivered`/`refunded` are not writable via this endpoint.
+ */
+const UPDATABLE_STATUSES: OrderStatus[] = ['shipped', 'fulfilled', 'cancelled'];
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
   pending: 'Pending',
@@ -50,29 +50,44 @@ function errorMessageFor(err: unknown): string {
 export function OrderStatusUpdateForm({ order }: OrderStatusUpdateFormProps) {
   const mutation = useUpdateAdminOrderMutation();
   const [status, setStatus] = useState<OrderStatus>(order.status);
+  const [trackingNumber, setTrackingNumber] = useState(
+    order.trackingNumber ?? '',
+  );
+  const [carrier, setCarrier] = useState(order.carrier ?? '');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     setStatus(order.status);
-  }, [order.status]);
+    setTrackingNumber(order.trackingNumber ?? '');
+    setCarrier(order.carrier ?? '');
+  }, [order.status, order.trackingNumber, order.carrier]);
 
+  const currentIsUpdatable = UPDATABLE_STATUSES.includes(order.status);
   const dirty = status !== order.status;
-  const wantsShippedWithoutTracking =
-    status === 'shipped' && !order.trackingNumber;
+  // Backend superRefine: SHIPPED requires BOTH tracking number and carrier.
+  const shippingNeedsTracking =
+    status === 'shipped' &&
+    (trackingNumber.trim().length === 0 || carrier.trim().length === 0);
+  const canSubmit = dirty && !shippingNeedsTracking;
 
   return (
     <form
       onSubmit={async (event) => {
         event.preventDefault();
-        if (!dirty) return;
+        if (!canSubmit) return;
         setError(null);
         setSuccess(null);
         try {
-          await mutation.mutateAsync({
-            id: order.id,
-            input: { status },
-          });
+          const input: AdminOrderUpdateInput =
+            status === 'shipped'
+              ? {
+                  status,
+                  trackingNumber: trackingNumber.trim(),
+                  carrier: carrier.trim(),
+                }
+              : { status };
+          await mutation.mutateAsync({ id: order.id, input });
           setSuccess(`Status updated to ${STATUS_LABEL[status]}.`);
         } catch (err) {
           setError(errorMessageFor(err));
@@ -117,7 +132,12 @@ export function OrderStatusUpdateForm({ order }: OrderStatusUpdateFormProps) {
           }}
           className="flex-1 rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink focus:border-ink focus:outline-none"
         >
-          {STATUS_OPTIONS.map((option) => (
+          {!currentIsUpdatable && (
+            <option value={order.status} disabled>
+              {STATUS_LABEL[order.status]} (current)
+            </option>
+          )}
+          {UPDATABLE_STATUSES.map((option) => (
             <option key={option} value={option}>
               {STATUS_LABEL[option]}
             </option>
@@ -125,21 +145,53 @@ export function OrderStatusUpdateForm({ order }: OrderStatusUpdateFormProps) {
         </select>
       </div>
 
-      {wantsShippedWithoutTracking && dirty && (
-        <p
-          role="status"
-          aria-live="polite"
-          className="border-amber/40 rounded-tile border bg-tile-amber px-3 py-2 font-body text-xs text-tile-amber-ink"
-        >
-          Marking shipped without a tracking number — customers will see a
-          “tracking will appear once available” message until you add one below.
-        </p>
+      {status === 'shipped' && (
+        <div className="flex flex-col gap-3 rounded-tile border border-line bg-panel p-3">
+          <div>
+            <label
+              htmlFor={`ship-tracking-${order.id}`}
+              className={settingsLabelBase}
+            >
+              Tracking number
+            </label>
+            <input
+              id={`ship-tracking-${order.id}`}
+              type="text"
+              value={trackingNumber}
+              onChange={(event) => setTrackingNumber(event.target.value)}
+              placeholder="1Z999AA10123456784"
+              required
+              className={settingsInputBase}
+            />
+          </div>
+          <div>
+            <label
+              htmlFor={`ship-carrier-${order.id}`}
+              className={settingsLabelBase}
+            >
+              Carrier
+            </label>
+            <input
+              id={`ship-carrier-${order.id}`}
+              type="text"
+              value={carrier}
+              onChange={(event) => setCarrier(event.target.value)}
+              placeholder="UPS"
+              required
+              className={settingsInputBase}
+            />
+          </div>
+          <p className="font-body text-xs text-ink-secondary">
+            Marking shipped emails the customer their tracking details, so both
+            fields are required.
+          </p>
+        </div>
       )}
 
       <div className="flex justify-end">
         <button
           type="submit"
-          disabled={!dirty || mutation.isPending}
+          disabled={!canSubmit || mutation.isPending}
           className={cn(
             'inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-ink bg-ink px-5 py-2 font-body text-micro uppercase text-paper transition-all duration-base ease-soft hover:border-pine hover:bg-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-pine',
             'disabled:cursor-not-allowed disabled:opacity-50',

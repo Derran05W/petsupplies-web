@@ -97,4 +97,17 @@ describe('lib/api/admin/fulfillment', () => {
       { orderId: 'b', message: 'Invalid transition' },
     ]);
   });
+
+  it('POST bulk-ship rejects (without hitting the network) when carrier is missing', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    // Backend `bulkShipSchema` requires a non-empty trackingNumber AND carrier.
+    await expect(
+      adminBulkShip({ orderIds: ['a'], trackingNumber: 'T1' }),
+    ).rejects.toThrow(/carrier/i);
+    await expect(
+      adminBulkShip({ orderIds: ['a'], carrier: 'ups' }),
+    ).rejects.toThrow(/tracking number/i);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
 });

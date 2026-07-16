@@ -14,6 +14,12 @@ import {
   mapApiOrderListResponse,
   type ApiOrderListResponse,
 } from '../order-mapper';
+import {
+  INTERVAL_WIRE_TO_APP,
+  STATUS_WIRE_TO_APP,
+  type ApiSubscriptionInterval,
+  type ApiSubscriptionStatus,
+} from '../subscriptions';
 
 export interface AdminApiOptions {
   accessToken?: string;
@@ -79,7 +85,11 @@ export async function adminListCustomers(
   q.set('page', String(page));
   // Backend `listQuerySchema` uses `limit`; it filters by `email` (not `search`).
   q.set('limit', String(pageSize));
-  if (search?.trim()) q.set('email', search.trim());
+  // The backend rejects `email` searches shorter than 2 characters with a 400,
+  // so only send the filter when it will be accepted — a shorter or empty query
+  // yields the unfiltered list instead of an error.
+  const email = search?.trim() ?? '';
+  if (email.length >= 2) q.set('email', email);
   const raw = await apiFetch<ApiAdminCustomerListResponse>(
     `/admin/customers?${q}`,
     {
@@ -125,27 +135,71 @@ export async function adminGetCustomerOrders(
   return mapApiOrderListResponse(raw);
 }
 
+/**
+ * Raw admin subscription row from
+ * `adminCustomerService.listCustomerSubscriptions`. Unlike the storefront
+ * `SubscriptionPublic`, the admin select carries NO nested product relation —
+ * only `productId`. Prisma-shaped: UPPERCASE enums and `nextDeliveryAt` rather
+ * than the app's `currentPeriodEnd`.
+ */
+interface ApiAdminSubscriptionRow {
+  id: string;
+  productId: string;
+  petId: string | null;
+  quantity: number;
+  interval: ApiSubscriptionInterval;
+  status: ApiSubscriptionStatus;
+  discountPercent: number;
+  nextDeliveryAt: string;
+  createdAt: string;
+}
+
+/**
+ * Map an admin subscription wire row → the app `Subscription`. The admin select
+ * has no product relation, so product name / slug / image / unit price are
+ * unknown: name and image are left empty (the list UI renders a `productId`
+ * fallback for the name and a placeholder image) and the price is 0 (the UI
+ * omits it when unavailable). Enums are lowercased via the shared subscription
+ * maps; `nextDeliveryAt` becomes `currentPeriodEnd`.
+ */
+function mapAdminSubscriptionRow(row: ApiAdminSubscriptionRow): Subscription {
+  return {
+    id: row.id,
+    productId: row.productId,
+    productSlug: '',
+    productName: '',
+    productImageUrl: '',
+    quantity: row.quantity,
+    interval: INTERVAL_WIRE_TO_APP[row.interval],
+    unitPriceCents: 0,
+    status: STATUS_WIRE_TO_APP[row.status],
+    cancelAtPeriodEnd: false,
+    currentPeriodEnd: row.nextDeliveryAt,
+    petId: row.petId,
+    createdAt: row.createdAt,
+  };
+}
+
 function normaliseSubscriptions(
   body: unknown,
 ): AdminCustomerSubscriptionsResponse {
-  if (Array.isArray(body)) return body as Subscription[];
-  if (
-    body &&
-    typeof body === 'object' &&
-    'items' in body &&
-    Array.isArray((body as { items: unknown }).items)
-  ) {
-    return (body as { items: Subscription[] }).items;
+  let rows: unknown[] = [];
+  if (Array.isArray(body)) {
+    rows = body;
+  } else if (body && typeof body === 'object') {
+    // Backend returns the standard `{ data: [...] }` envelope; `items` /
+    // `subscriptions` are tolerated for older or fixture payload shapes.
+    for (const key of ['data', 'items', 'subscriptions'] as const) {
+      const value = (body as Record<string, unknown>)[key];
+      if (Array.isArray(value)) {
+        rows = value;
+        break;
+      }
+    }
   }
-  if (
-    body &&
-    typeof body === 'object' &&
-    'subscriptions' in body &&
-    Array.isArray((body as { subscriptions: unknown }).subscriptions)
-  ) {
-    return (body as { subscriptions: Subscription[] }).subscriptions;
-  }
-  return [];
+  return rows.map((row) =>
+    mapAdminSubscriptionRow(row as ApiAdminSubscriptionRow),
+  );
 }
 
 export async function adminGetCustomerSubscriptions(

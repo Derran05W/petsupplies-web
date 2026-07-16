@@ -5,6 +5,7 @@ import type {
   ShippingAddress,
 } from '@/types/order';
 import type { OrderListResponse } from '@/types/account';
+import { isServableImageUrl } from './product-mapper';
 
 /**
  * Wire → app mappers for the customer order endpoints, mirroring the
@@ -49,8 +50,9 @@ export interface ApiOrderItem {
 
 /**
  * Raw order row from `orderService.listUserOrders`. The list select carries
- * no shipping address and various discount/subscription fields the app
- * ignores (intentionally not modelled here).
+ * no shipping address. We model the discount amount/code (rendered on the
+ * receipt) but still omit `discountType`/`discountValue` and the
+ * subscription fields the app ignores.
  */
 export interface ApiOrderListItem {
   id: string;
@@ -59,6 +61,10 @@ export interface ApiOrderListItem {
   subtotalCents: number;
   shippingCents: number;
   taxCents: number;
+  /** Discount total in cents; defaults to 0 on the wire when none applied. */
+  discountCents: number;
+  /** Discount code the customer entered, or null when none was used. */
+  discountCode: string | null;
   trackingNumber: string | null;
   carrier: string | null;
   createdAt: string;
@@ -94,12 +100,16 @@ const STATUS_MAP: Record<ApiOrderStatus, OrderStatus> = {
 };
 
 function mapApiOrderLine(item: ApiOrderItem): OrderLine {
+  const { imageUrl } = item.product;
   return {
     id: item.id,
     productId: item.product.id,
     slug: item.product.slug,
     name: item.product.name,
-    imageUrl: item.product.imageUrl ?? '',
+    // Drop optimizer-unservable URLs (placehold.co / SVG) to '' so the line
+    // renders its FALLBACK_IMAGE, matching how product-mapper.ts filters the
+    // same seeded URLs elsewhere.
+    imageUrl: imageUrl && isServableImageUrl(imageUrl) ? imageUrl : '',
     quantity: item.quantity,
     unitPriceCents: item.priceCents,
     lineTotalCents: item.priceCents * item.quantity,
@@ -145,6 +155,15 @@ function mapCommon(
     currency: DEFAULT_ORDER_CURRENCY,
     createdAt: order.createdAt,
     ...(order.trackingNumber ? { trackingNumber: order.trackingNumber } : {}),
+    // Surface the applied discount so the receipt's Subtotal/Shipping/Tax rows
+    // sum to Total. `discountCents` is 0 on the wire when none applied, so gate
+    // on > 0; `discountCode` is null unless a code was entered.
+    ...(order.discountCents > 0
+      ? {
+          discountCents: order.discountCents,
+          ...(order.discountCode ? { discountCode: order.discountCode } : {}),
+        }
+      : {}),
     // `email` and `checkoutSessionId` are intentionally omitted: the user order
     // wire carries neither (email lives on the User relation; stripeSessionId
     // isn't selected). Both are optional on OrderSummary.

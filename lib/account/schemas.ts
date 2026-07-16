@@ -11,6 +11,17 @@ import { shippingAddressSchema } from '@/lib/checkout/schemas';
  * validators.
  */
 export const addressInputSchema = shippingAddressSchema.extend({
+  // The app maps `fullName` onto the backend's `label` column, which is
+  // `z.string().trim().max(50)` (petsupplies-api addresses.ts). Cap the client
+  // field at 50 too — trimming first, exactly like the backend — so the form
+  // never accepts a name the server will reject. (shippingAddressSchema's
+  // 120-char limit is fine for the checkout guest form, which has no backend
+  // label constraint.)
+  fullName: z
+    .string()
+    .trim()
+    .min(1, 'Full name is required')
+    .max(50, 'Full name must be 50 characters or fewer'),
   // Backend `/users/me/addresses` validator only accepts Canada.
   country: z.enum(['CA'], { message: 'Select a country' }),
   isDefault: z.boolean().optional(),

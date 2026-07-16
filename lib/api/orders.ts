@@ -61,14 +61,17 @@ export async function getOrderById(
 /**
  * GET `/orders/:id/shared?token=` — signed email links with no session.
  *
- * BACKEND GAP: this endpoint does not exist yet (all `/orders/*` routes are
- * behind bearer-auth middleware; there is no public shared route). Until the
- * backend ships it, the request 404s / 401s and this returns `null`, which the
- * email landing page renders as `notFound()` — a graceful, non-crashing
- * degrade rather than an infinite spinner. See `backendGaps` in the workflow.
+ * BACKEND GAP: this endpoint does not exist yet. Every `/orders/*` route is
+ * behind bearer-auth middleware that runs BEFORE routing (`router.use('*',
+ * auth)`), so a token-only, session-less request to this not-yet-public route
+ * answers 401/403 (auth rejects it before the router can 404). A genuinely
+ * missing order answers 404. For this public email landing page all three mean
+ * the same thing — "there is no order to show here" — so we map them to `null`,
+ * which the page renders as `notFound()`: a graceful, non-crashing degrade
+ * rather than an unhandled `ApiError` / raw error screen.
  *
- * Returns `null` on HTTP 404 (missing/not-found). Other failures (network,
- * validation, 401) propagate as `ApiError` for the caller to branch on.
+ * Returns `null` on HTTP 401, 403, or 404. Other failures (network, 5xx,
+ * validation) propagate as `ApiError` for the caller to branch on.
  */
 export async function getSharedOrder(
   orderId: string,
@@ -81,7 +84,12 @@ export async function getSharedOrder(
     );
     return mapApiOrder(raw);
   } catch (err) {
-    if (err instanceof ApiError && err.status === 404) return null;
+    if (
+      err instanceof ApiError &&
+      (err.status === 404 || err.status === 401 || err.status === 403)
+    ) {
+      return null;
+    }
     throw err;
   }
 }

@@ -71,7 +71,9 @@ function buildProductJsonLd(product: Product): Record<string, unknown> {
       .map((image) => image.url),
     offers: {
       '@type': 'Offer',
-      priceCurrency: 'USD',
+      // Store ships to Canada only; every price is CAD. schema.org consumers
+      // read this literally, so it must match the on-page `$` amounts.
+      priceCurrency: 'CAD',
       price: (product.priceCents / 100).toFixed(2),
       availability: product.inStock
         ? 'https://schema.org/InStock'

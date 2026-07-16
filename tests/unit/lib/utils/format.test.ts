@@ -11,8 +11,14 @@ import { describe, expect, it } from 'vitest';
 import { formatDate, formatPrice, formatStockBadge } from '@/lib/utils/format';
 
 describe('formatPrice', () => {
-  it('formats USD cents into a currency string', () => {
+  it('defaults to CAD and renders the narrow `$` symbol, not `CA$`', () => {
     expect(formatPrice(1299)).toBe('$12.99');
+    expect(formatPrice(1299)).not.toContain('CA$');
+  });
+
+  it('renders an explicit `cad` identically to the default', () => {
+    expect(formatPrice(1299, 'cad')).toBe('$12.99');
+    expect(formatPrice(1299, 'cad')).toBe(formatPrice(1299));
   });
 
   it('respects the currency override', () => {

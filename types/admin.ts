@@ -58,16 +58,34 @@ export interface AdminOrderListResponse {
   totalPages: number;
 }
 
+/**
+ * Payload for `PATCH /admin/orders/:id/status`. `status` is app-lowercase
+ * (mapped to the UPPERCASE wire enum by `adminUpdateOrder`); the backend only
+ * accepts cancelled/shipped/fulfilled. `trackingNumber` + `carrier` are
+ * required together when `status` is `shipped` (backend superRefine).
+ */
 export interface AdminOrderUpdateInput {
-  status?: OrderStatus;
-  trackingNumber?: string | null;
-  trackingUrl?: string | null;
+  status: OrderStatus;
+  trackingNumber?: string;
+  carrier?: string;
 }
 
 export interface AdminOrderTrackingInput {
   trackingNumber?: string | null;
   trackingUrl?: string | null;
   carrier?: string | null;
+}
+
+/**
+ * `PATCH /admin/orders/:id/tracking` echoes only the mutable columns (no line
+ * items / totals / address), so the mutation merges these onto the cached row
+ * rather than replacing it.
+ */
+export interface AdminOrderTrackingResult {
+  id: string;
+  status: OrderStatus;
+  trackingNumber?: string;
+  carrier?: string;
 }
 
 export interface DashboardStats {
