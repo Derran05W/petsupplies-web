@@ -14,6 +14,7 @@ function makeProduct(slug: string): Product {
     description: '',
     priceCents: 1000,
     category: 'food',
+    categories: ['food'],
     petType: 'dog',
     images: [],
     inStock: true,

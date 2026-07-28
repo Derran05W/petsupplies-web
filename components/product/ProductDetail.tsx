@@ -10,6 +10,7 @@ import { BackInStockPanel } from './BackInStockPanel';
 import { NutritionalAccordion } from './NutritionalAccordion';
 import { RatingStars } from '@/components/product/reviews/RatingStars';
 import { WishlistButton } from '@/components/wishlist/WishlistButton';
+import { RewardProgress } from '@/components/cart/RewardProgress';
 
 interface ProductDetailProps {
   product: Product;
@@ -57,7 +58,12 @@ export function ProductDetail({
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3 font-body text-kicker uppercase">
               <span className="text-pine">
-                {CATEGORY_LABEL[product.category]}
+                {(product.categories.length > 0
+                  ? product.categories
+                  : [product.category]
+                )
+                  .map((c) => CATEGORY_LABEL[c])
+                  .join(' · ')}
               </span>
               <span className="text-ink-faint">
                 {PET_TYPE_LABEL[product.petType]}
@@ -106,6 +112,17 @@ export function ProductDetail({
               {product.description}
             </p>
 
+            {product.ingredients ? (
+              <div className="flex flex-col gap-1.5">
+                <h2 className="font-body text-kicker uppercase text-pine">
+                  Ingredients
+                </h2>
+                <p className="font-body text-sm leading-body text-ink-secondary">
+                  {product.ingredients}
+                </p>
+              </div>
+            ) : null}
+
             {product.subscription?.enabled && product.inStock ? (
               <SubscribeAndSavePanel product={product} />
             ) : product.subscription?.enabled && !product.inStock ? (
@@ -127,11 +144,21 @@ export function ProductDetail({
               </div>
             ) : !product.inStock ? (
               <>
-                <QuantitySelector product={product} />
+                <QuantitySelector
+                  product={product}
+                  preAction={
+                    <RewardProgress className="rounded-card border border-line bg-panel p-4" />
+                  }
+                />
                 <BackInStockPanel product={product} />
               </>
             ) : (
-              <QuantitySelector product={product} />
+              <QuantitySelector
+                product={product}
+                preAction={
+                  <RewardProgress className="rounded-card border border-line bg-panel p-4" />
+                }
+              />
             )}
 
             <WishlistButton product={product} variant="inline" />

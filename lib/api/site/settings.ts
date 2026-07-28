@@ -8,6 +8,22 @@ export const SITE_SETTINGS_CACHE_TAG = 'site-settings';
 const REVALIDATE_SECONDS = 300;
 
 /**
+ * Tolerate an older API deployment that predates `rewardTiers`: coerce a
+ * missing/invalid wire field to an empty array (feature hidden) and keep the
+ * ascending-by-threshold ordering the storefront relies on.
+ */
+function normalizeSiteSettings(
+  settings: SiteSettingsPublic,
+): SiteSettingsPublic {
+  const rewardTiers = Array.isArray(settings.rewardTiers)
+    ? [...settings.rewardTiers].sort(
+        (a, b) => a.thresholdCents - b.thresholdCents,
+      )
+    : [];
+  return { ...settings, rewardTiers };
+}
+
+/**
  * Storefront read — ISR with on-demand revalidation via
  * `POST /api/internal/revalidate`.
  */
@@ -17,12 +33,13 @@ export const fetchSiteSettings = cache(
       return SITE_SETTINGS_FALLBACK;
     }
     try {
-      return await apiFetch<SiteSettingsPublic>('/site/settings', {
+      const settings = await apiFetch<SiteSettingsPublic>('/site/settings', {
         next: {
           revalidate: REVALIDATE_SECONDS,
           tags: [SITE_SETTINGS_CACHE_TAG],
         },
       });
+      return normalizeSiteSettings(settings);
     } catch (err) {
       // Chrome data must never take the page down: any API failure —
       // network, 5xx, or a dead deployment answering 404 — falls back to
@@ -39,8 +56,9 @@ export const fetchSiteSettings = cache(
 export async function fetchSiteSettingsForAdmin(
   accessToken?: string,
 ): Promise<SiteSettingsPublic> {
-  return apiFetch<SiteSettingsPublic>('/site/settings', {
+  const settings = await apiFetch<SiteSettingsPublic>('/site/settings', {
     cache: 'no-store',
     ...(accessToken ? { accessToken } : {}),
   });
+  return normalizeSiteSettings(settings);
 }

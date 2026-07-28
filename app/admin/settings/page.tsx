@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/account/PageHeader';
 import { AdminBanner } from '@/components/admin/AdminBanner';
 import { SiteSettingsBrandForm } from '@/components/admin/settings/SiteSettingsBrandForm';
 import { SiteSettingsShippingForm } from '@/components/admin/settings/SiteSettingsShippingForm';
+import { SiteSettingsRewardsForm } from '@/components/admin/settings/SiteSettingsRewardsForm';
 
 export const metadata: Metadata = {
   title: `Admin · Settings · ${brand.name}`,
@@ -41,6 +42,19 @@ export default function AdminSettingsPage() {
         </p>
         <div className="mt-6">
           <SiteSettingsShippingForm />
+        </div>
+      </section>
+
+      <section className="mt-8 rounded-card border border-line bg-paper p-6 md:p-8">
+        <h2 className="font-display text-2xl tracking-[-0.01em] text-ink">
+          Gift rewards
+        </h2>
+        <p className="mt-1 max-w-2xl font-body text-sm leading-body text-ink-secondary">
+          Spend milestones that unlock free gifts, shown as a progress bar on
+          product pages and in the cart.
+        </p>
+        <div className="mt-6">
+          <SiteSettingsRewardsForm />
         </div>
       </section>
     </>

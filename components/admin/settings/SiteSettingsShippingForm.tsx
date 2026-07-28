@@ -88,12 +88,14 @@ export function SiteSettingsShippingForm() {
         );
 
         if (freeShippingThresholdCents === null || flatShippingCents === null) {
-          setSubmitError('Enter valid dollar amounts (0 or greater).');
+          setSubmitError('Enter valid CAD amounts (0 or greater).');
           return;
         }
 
         if (freeShippingThresholdCents <= 0) {
-          setSubmitError('Free-shipping threshold must be greater than $0.');
+          setSubmitError(
+            'Free-shipping threshold must be greater than $0 CAD.',
+          );
           return;
         }
 
@@ -111,7 +113,7 @@ export function SiteSettingsShippingForm() {
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="free-shipping-threshold" className={labelBase}>
-            Free shipping threshold
+            Free shipping threshold (CAD)
           </label>
           <div className="relative">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm text-ink-faint">
@@ -134,7 +136,7 @@ export function SiteSettingsShippingForm() {
 
         <div>
           <label htmlFor="flat-shipping-rate" className={labelBase}>
-            Flat shipping rate
+            Flat shipping rate (CAD)
           </label>
           <div className="relative">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm text-ink-faint">
@@ -151,7 +153,7 @@ export function SiteSettingsShippingForm() {
           </div>
           <p className="mt-1.5 font-body text-xs text-ink-faint">
             Charged when the cart is below the free-shipping threshold. Use $0
-            for free shipping on every order.
+            CAD for free shipping on every order.
           </p>
         </div>
       </div>

@@ -13,6 +13,8 @@ export interface AdminProduct {
   description: string;
   priceCents: number;
   category: AdminProductCategory;
+  categories: AdminProductCategory[];
+  ingredients?: string;
   images: ProductImage[];
   inStock: boolean;
   stockCount: number;
@@ -30,6 +32,8 @@ export interface AdminProductInput {
   description: string;
   priceCents: number;
   category: AdminProductCategory;
+  categories: AdminProductCategory[];
+  ingredients?: string;
   images: ProductImage[];
   stockCount: number;
   tags: string[];

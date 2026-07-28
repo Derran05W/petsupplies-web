@@ -49,9 +49,10 @@ const PRODUCT_LISTING_KEYS = [
   'page',
 ] as const;
 
-function normalizeCategoryQueryParam(
-  raw: string,
-): Pick<ProductFilters, 'category' | 'petType'> {
+function normalizeCategoryQueryParam(raw: string): {
+  category?: Category;
+  petType?: PetType;
+} {
   const lower = raw.toLowerCase();
   if ((VALID_CATEGORIES as readonly string[]).includes(lower)) {
     return { category: lower as Category };
@@ -149,9 +150,23 @@ export function parseProductFilters(
   ) {
     filters.petType = petTypeParam as PetType;
   } else if (categoryParam) {
-    const fromCategory = normalizeCategoryQueryParam(categoryParam);
-    if (fromCategory.petType) filters.petType = fromCategory.petType;
-    if (fromCategory.category) filters.category = fromCategory.category;
+    // Category is a comma-separated multi-select list. Each token is
+    // normalized independently; a token that resolves to a pet type (legacy
+    // nav links like `?category=CAT`) still sets `petType`.
+    const categories: Category[] = [];
+    for (const token of categoryParam.split(',')) {
+      const trimmed = token.trim();
+      if (trimmed.length === 0) continue;
+      const fromCategory = normalizeCategoryQueryParam(trimmed);
+      if (
+        fromCategory.category &&
+        !categories.includes(fromCategory.category)
+      ) {
+        categories.push(fromCategory.category);
+      }
+      if (fromCategory.petType) filters.petType = fromCategory.petType;
+    }
+    if (categories.length > 0) filters.categories = categories;
   }
 
   if (sort && (VALID_SORTS as readonly string[]).includes(sort)) {
@@ -181,7 +196,9 @@ export function buildProductListingSearchParams(
   const params = new URLSearchParams();
 
   if (filters.petType) params.set('petType', filters.petType);
-  if (filters.category) params.set('category', filters.category);
+  if (filters.categories && filters.categories.length > 0) {
+    params.set('category', filters.categories.join(','));
+  }
   if (filters.search) params.set('search', filters.search);
   if (filters.sort && filters.sort !== 'relevance') {
     params.set('sort', filters.sort);
@@ -229,7 +246,7 @@ export function legacyProductListingRedirectPath(
  */
 export function activeFilterCount(filters: ProductFilters): number {
   let n = 0;
-  if (filters.category) n += 1;
+  if (filters.categories && filters.categories.length > 0) n += 1;
   if (filters.petType) n += 1;
   if (typeof filters.minPriceCents === 'number') n += 1;
   if (typeof filters.maxPriceCents === 'number') n += 1;

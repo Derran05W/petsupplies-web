@@ -42,7 +42,10 @@ interface FormShape {
   slug: string;
   description: string;
   priceDollars: string;
-  category: AdminProductCategory | '';
+  categories: AdminProductCategory[];
+  /** UI-only toggle that reveals the ingredients textarea. */
+  hasIngredients: boolean;
+  ingredients: string;
   stockCount: string;
   tagsRaw: string;
   images: ProductImage[];
@@ -58,7 +61,9 @@ function fromAdminProduct(product: AdminProduct | null): FormShape {
       product && product.priceCents > 0
         ? (product.priceCents / 100).toFixed(2)
         : '',
-    category: product?.category ?? '',
+    categories: product?.categories ?? (product ? [product.category] : []),
+    hasIngredients: Boolean(product?.ingredients),
+    ingredients: product?.ingredients ?? '',
     stockCount: product ? String(product.stockCount) : '0',
     tagsRaw: product?.tags.join(', ') ?? '',
     images: product?.images ?? [],
@@ -81,7 +86,11 @@ function toApiInput(values: FormShape): ProductInput {
     slug: values.slug.trim(),
     description: values.description.trim(),
     priceCents,
-    category: values.category as AdminProductCategory,
+    category: (values.categories[0] ?? '') as AdminProductCategory,
+    categories: values.categories,
+    ingredients: values.hasIngredients
+      ? values.ingredients.trim() || undefined
+      : undefined,
     images: values.images,
     stockCount,
     tags,
@@ -120,8 +129,10 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
     });
   const { errors } = useFormState({ control });
 
-  const watchedCategory = watch('category');
+  const watchedCategories = watch('categories');
   const watchedName = watch('name');
+  const watchedHasIngredients = watch('hasIngredients');
+  const primaryCategory = watchedCategories?.[0];
 
   // Auto-focus the description textarea when the AI shortcut links here
   // with `?focus=description`.
@@ -174,9 +185,9 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
     if (!initialProduct) return;
     setSubmitError(undefined);
     try {
-      await deleteMutation.mutateAsync(initialProduct.id);
+      const { deleted } = await deleteMutation.mutateAsync(initialProduct.id);
       setPendingDelete(false);
-      router.push('/admin/products');
+      router.push(`/admin/products?deleted=${deleted}`);
       router.refresh();
     } catch (err) {
       setSubmitError(productFormErrorMessage(err));
@@ -241,23 +252,29 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
             </p>
           </div>
 
-          <div>
-            <label htmlFor={fieldId('category')} className={labelBase}>
-              Category
-            </label>
-            <select
-              id={fieldId('category')}
-              {...register('category')}
-              className={cn(inputBase, errors.category && inputError)}
-            >
-              <option value="">Select category</option>
+          <fieldset>
+            <legend className={labelBase}>Categories</legend>
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
               {ADMIN_PRODUCT_CATEGORIES.map((value) => (
-                <option key={value} value={value}>
+                <label
+                  key={value}
+                  className="flex items-center gap-2 font-body text-sm text-ink"
+                >
+                  <input
+                    type="checkbox"
+                    value={value}
+                    {...register('categories')}
+                    className="size-4 rounded-sm border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
+                  />
                   {ADMIN_PRODUCT_CATEGORY_LABEL[value]}
-                </option>
+                </label>
               ))}
-            </select>
-          </div>
+            </div>
+            <p className="mt-1.5 font-body text-xs text-ink-muted">
+              Choose one or more. The first selected is the product&apos;s
+              primary category.
+            </p>
+          </fieldset>
 
           <label className="flex items-center gap-2 font-body text-sm text-ink">
             <input
@@ -278,7 +295,7 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor={fieldId('price')} className={labelBase}>
-                Price (USD)
+                Price (CAD)
               </label>
               <input
                 id={fieldId('price')}
@@ -349,11 +366,7 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
           })()}
           <AiDescriptionBtn
             name={watchedName}
-            category={
-              watchedCategory === ''
-                ? undefined
-                : (watchedCategory as AdminProductCategory)
-            }
+            category={primaryCategory ?? undefined}
             onStart={() => {
               aiAccumulator.current = '';
               setValue('description', '', { shouldDirty: true });
@@ -368,6 +381,30 @@ export function ProductForm({ initialProduct }: ProductFormProps) {
               aiAccumulator.current = '';
             }}
           />
+        </fieldset>
+
+        {/* Ingredients (optional) */}
+        <fieldset className="flex flex-col gap-3 rounded-card border border-line bg-paper p-5 md:p-6">
+          <legend className="px-2 font-body text-kicker uppercase text-pine">
+            Ingredients
+          </legend>
+          <label className="flex items-center gap-2 font-body text-sm text-ink">
+            <input
+              type="checkbox"
+              {...register('hasIngredients')}
+              className="size-4 rounded-sm border-line accent-pine focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
+            />
+            Add Ingredients
+          </label>
+          {watchedHasIngredients ? (
+            <textarea
+              id={fieldId('ingredients')}
+              rows={6}
+              {...register('ingredients')}
+              className={cn(inputBase, 'min-h-24 resize-y')}
+              placeholder="List the ingredients, separated by commas…"
+            />
+          ) : null}
         </fieldset>
 
         {/* Tags */}

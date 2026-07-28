@@ -6,6 +6,8 @@ import type { CartTotals, CartViewLine } from '@/types/cart';
 import { useCartStore, type CartLine, type CartState } from '@/lib/store/cart';
 import { mapServerCartToViewLines } from '@/lib/cart/map-server-cart';
 import { useFreeShippingThresholdCents } from '@/components/providers/FreeShippingThresholdProvider';
+import { useRewardTiers } from '@/components/providers/RewardTiersProvider';
+import type { RewardTier } from '@/types/site';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useAddCartItemMutation,
@@ -265,6 +267,70 @@ export function useFreeShippingProgress(): FreeShippingProgress {
     progress,
     qualifies,
   };
+}
+
+export interface RewardsProgress {
+  /** Configured tiers, ascending by threshold. Empty ⇒ feature off. */
+  tiers: RewardTier[];
+  subtotalCents: number;
+  /** First tier not yet unlocked, or `null` once every tier is unlocked. */
+  nextTier: RewardTier | null;
+  /** Cents still needed to reach `nextTier` (0 when all unlocked). */
+  remainingToNextCents: number;
+  /** How many tiers the current subtotal has unlocked. */
+  unlockedCount: number;
+  /** Overall 0–1 fill across the whole track (subtotal vs. max threshold). */
+  progress: number;
+}
+
+/**
+ * Gift-reward milestone progress, mirroring `useFreeShippingProgress`. Reads
+ * SSR-seeded tiers from `RewardTiersProvider` and the live cart subtotal. When
+ * no tiers are configured the feature is off (`tiers: []`) and consumers render
+ * nothing. Like the free-shipping hook it computes purely from the subtotal, so
+ * it tolerates the pre-hydration guest subtotal of 0.
+ */
+export function useRewardsProgress(): RewardsProgress {
+  const subtotalCents = useCartSubtotalCents();
+  const configured = useRewardTiers();
+
+  return useMemo(() => {
+    const tiers = [...configured].sort(
+      (a, b) => a.thresholdCents - b.thresholdCents,
+    );
+
+    if (tiers.length === 0) {
+      return {
+        tiers,
+        subtotalCents,
+        nextTier: null,
+        remainingToNextCents: 0,
+        unlockedCount: 0,
+        progress: 0,
+      };
+    }
+
+    const unlockedCount = tiers.filter(
+      (tier) => subtotalCents >= tier.thresholdCents,
+    ).length;
+    const nextTier = tiers[unlockedCount] ?? null;
+    const remainingToNextCents = nextTier
+      ? Math.max(0, nextTier.thresholdCents - subtotalCents)
+      : 0;
+
+    const maxThreshold = tiers[tiers.length - 1]!.thresholdCents;
+    const progress =
+      maxThreshold <= 0 ? 1 : Math.min(1, subtotalCents / maxThreshold);
+
+    return {
+      tiers,
+      subtotalCents,
+      nextTier,
+      remainingToNextCents,
+      unlockedCount,
+      progress,
+    };
+  }, [configured, subtotalCents]);
 }
 
 export function useCartIsServerMode(): boolean {
