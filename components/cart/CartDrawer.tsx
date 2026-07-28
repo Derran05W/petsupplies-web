@@ -7,6 +7,7 @@ import { NAV_LINK_CLASSES } from '@/components/ui';
 import { DrawerPortal } from '@/components/layout/DrawerPortal';
 import { CartContents } from './CartContents';
 import { FreeShippingProgress } from './FreeShippingProgress';
+import { RewardProgress } from './RewardProgress';
 
 interface CartDrawerProps {
   open: boolean;
@@ -112,7 +113,10 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   {headerLabel}
                 </h2>
                 {hasHydrated && count > 0 ? (
-                  <FreeShippingProgress compact />
+                  <>
+                    <FreeShippingProgress compact />
+                    <RewardProgress compact />
+                  </>
                 ) : null}
               </div>
               <button

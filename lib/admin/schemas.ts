@@ -55,6 +55,11 @@ export const productSchema = z.object({
   category: z.enum(ADMIN_PRODUCT_CATEGORIES, {
     message: 'Select a category',
   }),
+  categories: z
+    .array(z.enum(ADMIN_PRODUCT_CATEGORIES))
+    .min(1, 'Select at least one category')
+    .max(8, 'Select up to 8 categories'),
+  ingredients: z.string().trim().max(5000).optional(),
   stockCount: z
     .number({ message: 'Enter a stock count' })
     .int('Stock must be a whole number')

@@ -13,6 +13,7 @@ const E2E_CATALOG: Product[] = [
     description: 'A festive treat for curious cats.',
     priceCents: 1299,
     category: 'treats',
+    categories: ['treats'],
     petType: 'cat',
     images: [
       {
@@ -34,6 +35,7 @@ const E2E_CATALOG: Product[] = [
     description: 'Protective booties for rainy walks.',
     priceCents: 2499,
     category: 'accessories',
+    categories: ['accessories'],
     petType: 'dog',
     images: [
       {

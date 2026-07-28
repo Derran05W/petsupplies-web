@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Hero } from '@/components/home/Hero';
 import { HomeMarquee } from '@/components/home/HomeMarquee';
 import { StoryBand } from '@/components/home/StoryBand';
@@ -7,6 +8,11 @@ import { FilmBand } from '@/components/home/FilmBand';
 import { CategoryRows } from '@/components/home/CategoryRows';
 import { MascotBand } from '@/components/home/MascotBand';
 import { FooterCta } from '@/components/home/FooterCta';
+
+/** Canonical lives per-page (the root layout deliberately sets none). */
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
 
 /**
  * Boutique homepage (design-references/aileens-boutique-mockup.html).

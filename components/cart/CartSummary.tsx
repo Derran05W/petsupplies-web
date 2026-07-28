@@ -4,6 +4,7 @@ import { useCartSubtotalCents, useCartTotals } from '@/hooks/useCart';
 import { formatPrice } from '@/lib/utils/format';
 import { Button } from '@/components/ui';
 import { FreeShippingProgress } from './FreeShippingProgress';
+import { RewardProgress } from './RewardProgress';
 import { DiscountCodeForm } from './DiscountCodeForm';
 
 interface CartSummaryProps {
@@ -62,6 +63,8 @@ export function CartSummary({ variant, onClose }: CartSummaryProps) {
       <DiscountCodeForm compact />
 
       <FreeShippingProgress />
+
+      <RewardProgress />
 
       <p className="font-body text-xs text-ink-muted">
         {totals

@@ -9,6 +9,7 @@ import {
 } from '@/hooks/useCart';
 import { formatPrice } from '@/lib/utils/format';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
+import { RewardProgress } from '@/components/cart/RewardProgress';
 import { DiscountCodeForm } from '@/components/cart/DiscountCodeForm';
 
 const FALLBACK_IMAGE = '/images/hero-placeholder.jpg';
@@ -118,6 +119,8 @@ export function CheckoutSummary({
         <DiscountCodeForm compact className="lg:hidden" />
 
         <FreeShippingProgress />
+
+        <RewardProgress />
 
         <p className="font-body text-xs text-ink-muted">
           Taxes calculated by Stripe at the next step.

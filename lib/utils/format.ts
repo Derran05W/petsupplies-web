@@ -1,13 +1,18 @@
 /**
  * Format a price expressed in the smallest currency unit (cents) into a
- * localized currency string. Defaults to USD because that's the launch
- * market — multi-currency arrives with backend Phase 6.
+ * localized currency string. Defaults to CAD — the store ships to Canada
+ * only and every Stripe amount is CAD, so this is the single source of
+ * truth for product, cart, receipt, order-history, and admin surfaces.
+ * `narrowSymbol` renders the plain `$` (e.g. `$24.99`) rather than the
+ * locale-disambiguated `CA$24.99`, so an amount reads identically whether
+ * or not the caller passes the currency explicitly.
  */
-export function formatPrice(cents: number, currency: string = 'usd'): string {
+export function formatPrice(cents: number, currency: string = 'cad'): string {
   const safeCents = Number.isFinite(cents) ? cents : 0;
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-CA', {
     style: 'currency',
     currency: currency.toUpperCase(),
+    currencyDisplay: 'narrowSymbol',
   }).format(safeCents / 100);
 }
 

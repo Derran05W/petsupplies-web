@@ -4,6 +4,11 @@ export type BrandValue = {
   icon?: string;
 };
 
+export type RewardTier = {
+  thresholdCents: number;
+  label: string;
+};
+
 export type SiteSettingsPublic = {
   freeShippingThresholdCents: number;
   flatShippingCents: number;
@@ -24,6 +29,7 @@ export type SiteSettingsPublic = {
   heroSecondaryCtaLabel: string;
   heroSecondaryCtaHref: string;
   brandValues: BrandValue[];
+  rewardTiers: RewardTier[];
 };
 
 export type NavLink = { label: string; href: string; position: number };

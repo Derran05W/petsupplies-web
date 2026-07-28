@@ -6,6 +6,8 @@ import type { AdminOrderSummary } from '@/types/admin';
 import { cn } from '@/lib/utils';
 import { NAV_LINK_CLASSES } from '@/components/ui';
 import { OrderSummaryCard } from '@/components/checkout/OrderSummaryCard';
+import { AdminFormSkeleton } from '@/components/admin/AdminLoadingSkeletons';
+import { useAdminOrderQuery } from '@/hooks/useAdminOrders';
 import { OrderStatusUpdateForm } from './OrderStatusUpdateForm';
 import { OrderTrackingForm } from './OrderTrackingForm';
 
@@ -13,10 +15,9 @@ interface OrderDetailDrawerProps {
   /** The currently-selected order's id (`?selected=`), or null when
    * the drawer is closed. */
   selectedId: string | null;
-  /** All orders on the current page so we can resolve the row without
-   * a re-fetch. The mutation hooks update this entry in the cache,
-   * but the drawer reads from the page-prop snapshot for the initial
-   * render to keep "open via URL" cheap. */
+  /** All orders on the current page. Used as the fallback row if the
+   * per-order detail fetch fails; otherwise the drawer renders the freshly
+   * fetched detail (which carries the `ship*` address the list rows omit). */
   orders: AdminOrderSummary[];
 }
 
@@ -32,6 +33,11 @@ interface OrderDetailDrawerProps {
  * URL is the source of truth for open/closed: `?selected=<orderId>`.
  * The "View" link in the table sets it; the close button / backdrop /
  * ESC removes it via `router.replace`.
+ *
+ * The admin LIST rows carry no `ship*` columns, so on open we fetch
+ * `GET /admin/orders/:id` (via `useAdminOrderQuery`) to fill the shipping
+ * address, showing a skeleton while it loads and falling back to the list
+ * row if the fetch fails.
  */
 export function OrderDetailDrawer({
   selectedId,
@@ -43,9 +49,7 @@ export function OrderDetailDrawer({
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
 
-  const order = selectedId
-    ? (orders.find((o) => o.id === selectedId) ?? null)
-    : null;
+  const detailQuery = useAdminOrderQuery(selectedId);
 
   const close = () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -57,7 +61,7 @@ export function OrderDetailDrawer({
   };
 
   useEffect(() => {
-    if (!order) return;
+    if (selectedId === null) return;
     previouslyFocused.current = document.activeElement as HTMLElement | null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -65,15 +69,15 @@ export function OrderDetailDrawer({
       document.body.style.overflow = previousOverflow;
       previouslyFocused.current?.focus();
     };
-  }, [order]);
+  }, [selectedId]);
 
   useEffect(() => {
-    if (!order) return;
+    if (selectedId === null) return;
     closeButtonRef.current?.focus();
-  }, [order]);
+  }, [selectedId]);
 
   useEffect(() => {
-    if (!order) return;
+    if (selectedId === null) return;
 
     function handleKey(event: KeyboardEvent) {
       if (event.key === 'Escape') {
@@ -105,9 +109,13 @@ export function OrderDetailDrawer({
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [order]);
+  }, [selectedId]);
 
-  if (!order) return null;
+  if (selectedId === null) return null;
+
+  const listRow = orders.find((o) => o.id === selectedId) ?? null;
+  // Detail wins; on error `data` is undefined and we fall back to the list row.
+  const order = detailQuery.data ?? listRow;
 
   return (
     <div className="fixed inset-0 z-50">
@@ -132,7 +140,7 @@ export function OrderDetailDrawer({
               id="admin-order-drawer-title"
               className="font-display text-2xl tracking-[-0.01em] text-ink"
             >
-              #{order.id.slice(-8)}
+              #{selectedId.slice(-8)}
             </h2>
           </div>
           <button
@@ -150,9 +158,19 @@ export function OrderDetailDrawer({
         </header>
 
         <div className="flex flex-col gap-4 p-5">
-          <OrderSummaryCard order={order} />
-          <OrderStatusUpdateForm order={order} />
-          <OrderTrackingForm order={order} />
+          {detailQuery.isLoading ? (
+            <AdminFormSkeleton />
+          ) : order ? (
+            <>
+              <OrderSummaryCard order={order} />
+              <OrderStatusUpdateForm order={order} />
+              <OrderTrackingForm order={order} />
+            </>
+          ) : (
+            <p role="alert" className="font-body text-sm text-danger-solid">
+              Couldn&apos;t load this order. Close and try again.
+            </p>
+          )}
         </div>
       </div>
     </div>

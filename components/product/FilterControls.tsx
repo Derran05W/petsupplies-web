@@ -45,8 +45,9 @@ const PRICE_INPUT_CLASSES =
  * bottom-sheet drawer. Reads current state from `useSearchParams`, pushes
  * updates with `router.replace` (no history entry per filter tweak).
  *
- * Pet type and category are single-value (matches the typed
- * `ProductFilters` interface). Clicking the active option clears it.
+ * Pet type is single-value; category is genuine multi-select (a product
+ * matches if it belongs to any checked category). Clicking an active pet
+ * type clears it; category checkboxes toggle independently.
  */
 export function FilterControls({
   onAfterChange,
@@ -64,7 +65,10 @@ export function FilterControls({
   );
 
   const currentPetType = filters.petType;
-  const currentCategory = filters.category;
+  const currentCategories = useMemo(
+    () => filters.categories ?? [],
+    [filters.categories],
+  );
   const currentMinPrice = searchParams.get('minPrice') ?? '';
   const currentMaxPrice = searchParams.get('maxPrice') ?? '';
 
@@ -95,10 +99,14 @@ export function FilterControls({
 
   const toggleCategory = (value: Category) => {
     replaceFilters((next) => {
-      if (next.category === value) {
-        delete next.category;
+      const current = next.categories ?? [];
+      const nextCategories = current.includes(value)
+        ? current.filter((c) => c !== value)
+        : [...current, value];
+      if (nextCategories.length > 0) {
+        next.categories = nextCategories;
       } else {
-        next.category = value;
+        delete next.categories;
       }
     });
   };
@@ -124,14 +132,14 @@ export function FilterControls({
     () =>
       Boolean(
         currentPetType ||
-        currentCategory ||
+        currentCategories.length > 0 ||
         currentMinPrice ||
         currentMaxPrice ||
         filters.search,
       ),
     [
       currentPetType,
-      currentCategory,
+      currentCategories,
       currentMinPrice,
       currentMaxPrice,
       filters.search,
@@ -186,7 +194,7 @@ export function FilterControls({
         </legend>
         <div className="flex flex-col gap-2.5 pt-2">
           {CATEGORIES.map((value) => {
-            const checked = currentCategory === value;
+            const checked = currentCategories.includes(value);
             return (
               <label
                 key={value}
@@ -210,7 +218,7 @@ export function FilterControls({
 
       <fieldset className="flex flex-col gap-3 border-t border-line pt-5">
         <legend className="float-left font-body text-kicker uppercase text-pine">
-          Price (USD)
+          Price (CAD)
         </legend>
         <div className="flex flex-col gap-2.5 pt-2">
           <label className="flex flex-col gap-1">

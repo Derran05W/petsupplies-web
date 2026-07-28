@@ -13,6 +13,7 @@ const FALLBACK_IMAGE = '/images/hero-placeholder.jpg';
  * receipt can render on Phase 11 email landing pages (`/email/orders/[id]`).
  */
 export function OrderReceiptBody({ order }: OrderReceiptBodyProps) {
+  const discountCents = order.discountCents ?? 0;
   return (
     <>
       <div className="mt-8 border-t border-line pt-6">
@@ -56,6 +57,16 @@ export function OrderReceiptBody({ order }: OrderReceiptBodyProps) {
             {formatPrice(order.subtotalCents, order.currency)}
           </span>
         </div>
+        {discountCents > 0 && (
+          <div className="flex items-center justify-between">
+            <span className="text-ink-muted">
+              Discount{order.discountCode ? ` (${order.discountCode})` : ''}
+            </span>
+            <span className="font-medium text-ink">
+              -{formatPrice(discountCents, order.currency)}
+            </span>
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <span className="text-ink-muted">Shipping</span>
           <span className="font-medium text-ink">

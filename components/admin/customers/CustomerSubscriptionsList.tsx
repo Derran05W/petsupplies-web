@@ -44,14 +44,16 @@ export function CustomerSubscriptionsList({
           </div>
           <div className="min-w-0 flex-1">
             <p className="font-body text-sm font-semibold text-ink">
-              {sub.productName}
+              {sub.productName || `Product ${sub.productId}`}
             </p>
             <p className="mt-1 font-body text-xs text-ink-muted">
               {SUBSCRIPTION_INTERVAL_LABEL[sub.interval]} · Qty {sub.quantity}
             </p>
             <p className="mt-1 font-body text-xs text-ink-muted">
-              {SUBSCRIPTION_STATUS_LABEL[sub.status]} ·{' '}
-              {formatPrice(sub.unitPriceCents, 'usd')} / shipment
+              {SUBSCRIPTION_STATUS_LABEL[sub.status]}
+              {sub.unitPriceCents > 0
+                ? ` · ${formatPrice(sub.unitPriceCents)} / shipment`
+                : ''}
             </p>
             <p className="mt-1 font-body text-xs text-ink-faint">
               Next / end: {formatDate(sub.currentPeriodEnd)}

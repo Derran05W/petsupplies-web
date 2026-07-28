@@ -95,15 +95,17 @@ function FulfillmentInner() {
   const onBulkConfirm = async () => {
     setSubmitError(null);
     const ids = [...selected];
-    if (ids.length === 0) return;
+    const tn = trackingNumber.trim();
+    const ca = carrier.trim();
+    // Backend requires both per item; the dialog's confirm is disabled until
+    // they're set, so this guard is defensive.
+    if (ids.length === 0 || !tn || !ca) return;
     try {
       const res = await bulkShip.mutateAsync({
         orderIds: ids,
-        ...(trackingNumber.trim()
-          ? { trackingNumber: trackingNumber.trim() }
-          : {}),
+        trackingNumber: tn,
+        carrier: ca,
         ...(trackingUrl.trim() ? { trackingUrl: trackingUrl.trim() } : {}),
-        ...(carrier.trim() ? { carrier: carrier.trim() } : {}),
       });
       mergeUpdatedOrdersIntoCaches(queryClient, res.updated);
       setLastFailed(res.failed.length > 0 ? res.failed : null);
@@ -289,6 +291,7 @@ function FulfillmentInner() {
         confirmLabel={busy ? 'Working…' : 'Confirm ship'}
         cancelLabel="Cancel"
         busy={busy}
+        confirmDisabled={!trackingNumber.trim() || !carrier.trim()}
         onClose={() => !busy && setDialogOpen(false)}
         onConfirm={onBulkConfirm}
       >
@@ -304,8 +307,9 @@ function FulfillmentInner() {
               id="bulk-tracking"
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
+              required
               className="w-full rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none"
-              placeholder="Optional — e.g. 1Z999…"
+              placeholder="1Z999AA10123456784"
             />
           </div>
           <div>
@@ -335,8 +339,9 @@ function FulfillmentInner() {
               id="bulk-carrier"
               value={carrier}
               onChange={(e) => setCarrier(e.target.value)}
+              required
               className="w-full rounded-tile border border-line bg-paper px-3 py-2 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none"
-              placeholder="Optional"
+              placeholder="UPS"
             />
           </div>
           {submitError && (

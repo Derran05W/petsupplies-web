@@ -2,10 +2,12 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
+import { Expand } from 'lucide-react';
 import { type ProductImage } from '@/types/product';
 import { cn } from '@/lib/utils';
 import { PetIcon } from '@/components/ui';
 import { TONE_CLASSES } from '@/components/ui/tones';
+import { ImageLightbox } from './ImageLightbox';
 
 interface ImageGalleryProps {
   productName: string;
@@ -27,19 +29,23 @@ export function ImageGallery({ productName, images }: ImageGalleryProps) {
   }, [images]);
 
   const [activeId, setActiveId] = useState<string | undefined>(ordered[0]?.id);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const active = ordered.find((image) => image.id === activeId) ?? ordered[0];
 
   return (
     <div className="flex flex-col gap-4">
-      <div
-        className={cn(
-          'group relative flex aspect-square items-center justify-center overflow-hidden rounded-tile',
-          TONE_CLASSES.amber,
-        )}
-        {...(active ? {} : { role: 'img', 'aria-label': productName })}
-      >
-        {active ? (
+      {active ? (
+        <button
+          type="button"
+          onClick={() => setLightboxOpen(true)}
+          aria-label={`${active.alt || productName} – view full size`}
+          aria-haspopup="dialog"
+          className={cn(
+            'group relative flex aspect-square items-center justify-center overflow-hidden rounded-tile focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine',
+            TONE_CLASSES.amber,
+          )}
+        >
           <Image
             src={active.url}
             alt={active.alt || productName}
@@ -48,13 +54,28 @@ export function ImageGallery({ productName, images }: ImageGalleryProps) {
             priority
             className="object-cover transition-transform duration-slow ease-soft group-hover:scale-[1.06] motion-reduce:transform-none"
           />
-        ) : (
+          <span
+            aria-hidden
+            className="bg-paper/90 pointer-events-none absolute bottom-3 right-3 inline-flex size-9 items-center justify-center rounded-pill border border-line text-ink opacity-0 shadow-lifted backdrop-blur-sm transition-opacity duration-base ease-soft group-hover:opacity-100 group-focus-visible:opacity-100"
+          >
+            <Expand size={16} />
+          </span>
+        </button>
+      ) : (
+        <div
+          className={cn(
+            'group relative flex aspect-square items-center justify-center overflow-hidden rounded-tile',
+            TONE_CLASSES.amber,
+          )}
+          role="img"
+          aria-label={productName}
+        >
           <PetIcon
             name="paw"
             className="h-[44%] w-[44%] transition-transform duration-slow ease-soft group-hover:-rotate-3 group-hover:scale-110 motion-reduce:transform-none"
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {ordered.length > 1 ? (
         <ul className="flex gap-3" role="list">
@@ -86,6 +107,13 @@ export function ImageGallery({ productName, images }: ImageGalleryProps) {
           })}
         </ul>
       ) : null}
+
+      <ImageLightbox
+        images={images}
+        initialId={active?.id}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </div>
   );
 }
