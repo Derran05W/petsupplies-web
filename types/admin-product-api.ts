@@ -48,6 +48,9 @@ export interface ApiAdminProduct {
   stock: number;
   active: boolean;
   category: AdminProductCategory;
+  /** Authoritative category list; `category` always equals `categories[0]`. */
+  categories: AdminProductCategory[];
+  ingredients: string | null;
   tags: string[];
   imageUrl: string | null;
   images: ApiAdminProductImage[];
@@ -77,6 +80,9 @@ export interface ApiAdminProductCreateBody {
   price: number;
   stock?: number;
   category: AdminProductCategory;
+  /** Min 1, max 8. When sending, also send `category = categories[0]` for back-compat. */
+  categories?: AdminProductCategory[];
+  ingredients?: string | null;
   active?: boolean;
   imageUrl?: string | null;
   tags?: string[];

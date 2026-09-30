@@ -14,6 +14,7 @@ const PRODUCT: Product = {
   description: 'Yum',
   priceCents: 5000,
   category: 'food',
+  categories: ['food'],
   petType: 'cat',
   images: [
     {

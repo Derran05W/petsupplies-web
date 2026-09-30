@@ -85,17 +85,30 @@ describe('normalizeAdminAnalyticsLowStock', () => {
 });
 
 describe('normalizeAdminAnalyticsDiscounts', () => {
-  it('maps redemptionsInRange to uses', () => {
+  it('maps the real DiscountStatRow shape to { uses, revenueImpactCents }', () => {
     const result = normalizeAdminAnalyticsDiscounts({
       data: [
         {
+          discountId: 'd1',
           code: 'SAVE10',
+          type: 'PERCENT',
+          usedCount: 12,
+          maxRedemptions: 100,
           redemptionsInRange: 4,
           revenueImpactCents: 500,
         },
       ],
     });
     expect(result.items[0]?.uses).toBe(4);
-    expect(result.items[0]?.discountCents).toBe(500);
+    expect(result.items[0]?.revenueImpactCents).toBe(500);
+    // The wire has no gross-revenue field; nothing should be fabricated.
+    expect(result.items[0]).not.toHaveProperty('revenueCents');
+  });
+
+  it('falls back to usedCount when redemptionsInRange is absent', () => {
+    const result = normalizeAdminAnalyticsDiscounts({
+      data: [{ code: 'X', usedCount: 7, revenueImpactCents: 0 }],
+    });
+    expect(result.items[0]?.uses).toBe(7);
   });
 });

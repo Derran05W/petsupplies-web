@@ -265,7 +265,7 @@ function DiscountFormFields({
       {type !== 'FREE_SHIPPING' ? (
         <div>
           <label htmlFor="discount-value" className={settingsLabelBase}>
-            {type === 'PERCENTAGE' ? 'Percent off' : 'Amount off (cents)'}
+            {type === 'PERCENTAGE' ? 'Percent off' : 'Amount off (CAD cents)'}
           </label>
           <input
             id="discount-value"
@@ -279,7 +279,7 @@ function DiscountFormFields({
           />
           {type === 'FIXED' ? (
             <p className="mt-1.5 font-body text-xs text-ink-muted">
-              Enter cents (e.g. 500 for {formatPrice(500)} off).
+              Enter CAD cents (e.g. 500 for {formatPrice(500)} off).
             </p>
           ) : null}
         </div>
@@ -288,7 +288,7 @@ function DiscountFormFields({
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="discount-min-cart" className={settingsLabelBase}>
-            Minimum cart (optional)
+            Minimum cart in CAD (optional)
           </label>
           <div className="relative">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-body text-sm text-ink-faint">

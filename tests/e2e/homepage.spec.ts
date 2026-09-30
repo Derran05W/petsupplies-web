@@ -21,12 +21,16 @@ test.describe('homepage', () => {
     await expect(heading).toBeVisible();
     await expect(heading).toContainText('love');
 
-    // Featured products section — boutique heading from home-content.
+    // Featured products section — boutique heading from home-content,
+    // grid populated from the e2e chrome fixture.
     await expect(
       page.getByRole('heading', {
         level: 2,
         name: /The current obsessions/,
       }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('heading', { level: 3, name: 'Cat cocktail' }),
     ).toBeVisible();
 
     // Navbar — logo + cart trigger always-on-screen. Scope to the

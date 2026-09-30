@@ -23,10 +23,20 @@ describe('parseProductFilters', () => {
 
   it('keeps storefront shelf categories', () => {
     expect(parseProductFilters({ category: 'treats' })).toEqual({
-      category: 'treats',
+      categories: ['treats'],
     });
     expect(parseProductFilters({ category: 'ACCESSORIES' })).toEqual({
-      category: 'accessories',
+      categories: ['accessories'],
+    });
+  });
+
+  it('parses a comma-separated multi-category list', () => {
+    expect(parseProductFilters({ category: 'treats,accessories' })).toEqual({
+      categories: ['treats', 'accessories'],
+    });
+    // Dedupes and ignores empty tokens.
+    expect(parseProductFilters({ category: 'food,,food' })).toEqual({
+      categories: ['food'],
     });
   });
 
@@ -66,5 +76,12 @@ describe('buildProductListingSearchParams', () => {
     expect(params.toString()).toBe(
       'petType=cat&search=cocktail&sort=newest&page=2',
     );
+  });
+
+  it('joins multiple categories into a comma-separated param', () => {
+    const params = buildProductListingSearchParams({
+      categories: ['food', 'treats'],
+    });
+    expect(params.get('category')).toBe('food,treats');
   });
 });

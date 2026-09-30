@@ -72,4 +72,22 @@ export interface OrderSummary {
   trackingNumber?: string;
   /** Optional URL to the carrier's tracking page. */
   trackingUrl?: string;
+  /**
+   * Discount applied to the order, in cents. Optional and present only when a
+   * discount reduced the total: the backend `discountCents` defaults to 0, so
+   * the mapper omits it otherwise. Receipts render a discount row when set.
+   */
+  discountCents?: number;
+  /**
+   * Human-facing discount code (e.g. `WELCOME10`) when the customer entered
+   * one. Optional: absent for automatic or no discounts.
+   */
+  discountCode?: string;
+  /**
+   * Shipping carrier (e.g. `UPS`, `Canada Post`), written by the backend
+   * alongside `trackingNumber` when the order ships. Optional: the
+   * customer-facing order selects don't surface it and pre-ship callers have
+   * none. Mapped from the wire `carrier` column by the admin order mappers.
+   */
+  carrier?: string;
 }

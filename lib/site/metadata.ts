@@ -23,16 +23,15 @@ export function buildRootMetadata(brand: Brand): Metadata {
       template: `%s · ${brand.name}`,
     },
     description: brand.description,
-    alternates: {
-      canonical: '/',
-    },
+    // No root-level alternates/og url: App Router inherits top-level metadata
+    // keys, so a canonical or og:url set here would claim every page that
+    // doesn't override it is the homepage. Pages own their canonical URLs.
     openGraph: {
       type: 'website',
       siteName: brand.name,
       locale: 'en_US',
       title: defaultTitle,
       description: brand.description,
-      url: '/',
     },
     twitter: {
       card: 'summary_large_image',

@@ -18,11 +18,16 @@ export function needsClientSideProductFilter(filters: ProductFilters): boolean {
 }
 
 export function hasShelfFilters(filters: ProductFilters): boolean {
-  return Boolean(filters.category || filters.petType);
+  return Boolean(
+    (filters.categories && filters.categories.length > 0) || filters.petType,
+  );
 }
 
 export function productSearchHaystack(product: Product): string {
-  return `${product.name} ${product.slug} ${product.description} ${product.tags.join(' ')} ${PET_TYPE_LABEL[product.petType]} ${CATEGORY_LABEL[product.category]}`.toLowerCase();
+  const categoryLabels = product.categories
+    .map((c) => CATEGORY_LABEL[c])
+    .join(' ');
+  return `${product.name} ${product.slug} ${product.description} ${product.tags.join(' ')} ${PET_TYPE_LABEL[product.petType]} ${categoryLabels}`.toLowerCase();
 }
 
 /**
@@ -45,7 +50,13 @@ export function productMatchesShelfFilters(
   product: Product,
   filters: ProductFilters,
 ): boolean {
-  if (filters.category && product.category !== filters.category) return false;
+  if (
+    filters.categories &&
+    filters.categories.length > 0 &&
+    !product.categories.some((c) => filters.categories!.includes(c))
+  ) {
+    return false;
+  }
   if (filters.petType && product.petType !== filters.petType) return false;
   return true;
 }

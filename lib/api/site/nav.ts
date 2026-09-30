@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import { ApiError, apiFetch } from '@/lib/api/client';
+import { isE2eSiteChromeFixtureEnabled } from '@/lib/api/e2e/site-chrome-fixture';
 import {
   SITE_NAV_FALLBACK,
   type SiteNavPublic,
@@ -25,6 +26,9 @@ function withSupportedLinks(nav: SiteNavPublic): SiteNavPublic {
 }
 
 export const fetchSiteNav = cache(async (): Promise<SiteNavPublic> => {
+  if (isE2eSiteChromeFixtureEnabled()) {
+    return SITE_NAV_FALLBACK;
+  }
   try {
     const nav = await apiFetch<SiteNavPublic>('/site/nav', {
       next: { revalidate: REVALIDATE_SECONDS, tags: [SITE_NAV_CACHE_TAG] },

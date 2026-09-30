@@ -208,7 +208,7 @@ export function SubscribeAndSavePanel({ product }: SubscribeAndSavePanelProps) {
                     setQty(Math.max(1, Math.min(max, next)));
                   }}
                   aria-label="Subscription quantity"
-                  className="h-10 w-12 border-x border-line bg-transparent text-center font-body text-sm text-ink focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-pine disabled:text-ink-faint disabled:opacity-60"
+                  className="h-10 w-12 border-x border-line bg-transparent text-center font-body text-sm text-ink [appearance:textfield] focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-pine disabled:text-ink-faint disabled:opacity-60 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
                 <button
                   type="button"

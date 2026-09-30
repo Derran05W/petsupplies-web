@@ -45,3 +45,6 @@ result
 # local IDE / agent planning artifacts
 .cursor/
 .planning/
+
+# raw media sources (optimized exports live in public/)
+/videos:images/

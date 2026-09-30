@@ -149,9 +149,12 @@ export function normalizeAdminAnalyticsDiscounts(
   const rows = rowsFromEnvelope<Record<string, unknown>>(raw);
   const items: AdminAnalyticsDiscountRow[] = rows.map((r) => ({
     code: String(r.code ?? ''),
-    uses: Number(r.uses ?? r.redemptionsInRange ?? r.usedCount ?? 0),
-    revenueCents: Number(r.revenueCents ?? 0),
-    discountCents: Number(r.discountCents ?? r.revenueImpactCents ?? 0),
+    // `redemptionsInRange` is scoped to the selected analytics range; fall back
+    // to the lifetime `usedCount` if only that is present.
+    uses: Number(r.redemptionsInRange ?? r.usedCount ?? 0),
+    // The only money figure on `DiscountStatRow` (discount given / revenue
+    // foregone). There is no gross-revenue field, so nothing is fabricated here.
+    revenueImpactCents: Number(r.revenueImpactCents ?? 0),
   }));
   return { items };
 }

@@ -49,6 +49,11 @@ export function mapApiProduct(product: ApiAdminProduct): AdminProduct {
     description: product.description,
     priceCents: product.price,
     category: product.category,
+    categories:
+      product.categories && product.categories.length > 0
+        ? product.categories
+        : [product.category],
+    ingredients: product.ingredients ?? undefined,
     images,
     inStock: product.stock > 0,
     stockCount: product.stock,
@@ -97,13 +102,20 @@ function isAbsoluteHttpUrl(value: string): boolean {
 }
 
 function scalarProductFields(input: AdminProductInput) {
+  const categories =
+    input.categories && input.categories.length > 0
+      ? input.categories
+      : [input.category];
   return {
     name: input.name,
     slug: input.slug,
     description: input.description,
     price: Math.trunc(input.priceCents),
     stock: Math.trunc(input.stockCount),
-    category: input.category,
+    // Send the authoritative list plus the primary for back-compat.
+    category: categories[0]!,
+    categories,
+    ingredients: input.ingredients?.trim() ? input.ingredients.trim() : null,
     active: input.isPublished,
     tags: input.tags,
   };

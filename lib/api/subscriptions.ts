@@ -17,8 +17,12 @@ export interface SubscriptionsApiOptions {
 /* enums, `nextDeliveryAt`, `{ data: [...] }` list envelope).                 */
 /* -------------------------------------------------------------------------- */
 
-type ApiSubscriptionInterval = 'WEEK_2' | 'WEEK_4' | 'WEEK_8' | 'WEEK_12';
-type ApiSubscriptionStatus = 'ACTIVE' | 'PAUSED' | 'CANCELLED';
+export type ApiSubscriptionInterval =
+  | 'WEEK_2'
+  | 'WEEK_4'
+  | 'WEEK_8'
+  | 'WEEK_12';
+export type ApiSubscriptionStatus = 'ACTIVE' | 'PAUSED' | 'CANCELLED';
 
 interface ApiSubscription {
   id: string;
@@ -45,7 +49,7 @@ interface ApiSubscription {
   updatedAt: string;
 }
 
-const INTERVAL_WIRE_TO_APP: Record<
+export const INTERVAL_WIRE_TO_APP: Record<
   ApiSubscriptionInterval,
   SubscriptionInterval
 > = {
@@ -65,7 +69,10 @@ const INTERVAL_APP_TO_WIRE: Record<
   '12_weeks': 'WEEK_12',
 };
 
-const STATUS_WIRE_TO_APP: Record<ApiSubscriptionStatus, SubscriptionStatus> = {
+export const STATUS_WIRE_TO_APP: Record<
+  ApiSubscriptionStatus,
+  SubscriptionStatus
+> = {
   ACTIVE: 'active',
   PAUSED: 'paused',
   CANCELLED: 'canceled',

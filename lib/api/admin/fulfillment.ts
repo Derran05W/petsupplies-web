@@ -164,14 +164,20 @@ export async function adminBulkShip(
   options: AdminApiOptions = {},
 ): Promise<AdminBulkShipResponse> {
   const { accessToken } = options;
-  // Backend `bulkShipSchema` expects `{ items: [{ orderId, trackingNumber,
-  // carrier }] }` — fan the flat request out per order. `trackingUrl` has no
+  // Backend `bulkShipSchema` REQUIRES a non-empty `trackingNumber` and
+  // `carrier` per item (min 1). The dialog enforces this; guard here so we
+  // never send empties that the backend would 400. `trackingUrl` has no
   // backend field and is dropped.
+  const trackingNumber = body.trackingNumber?.trim();
+  const carrier = body.carrier?.trim();
+  if (!trackingNumber || !carrier) {
+    throw new Error('Bulk ship requires a tracking number and carrier.');
+  }
   const payload = {
     items: body.orderIds.map((orderId) => ({
       orderId,
-      trackingNumber: body.trackingNumber ?? '',
-      carrier: body.carrier ?? '',
+      trackingNumber,
+      carrier,
     })),
   };
   const raw = await apiFetch<ApiBulkShipResponse>(

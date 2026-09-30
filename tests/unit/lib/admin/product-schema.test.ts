@@ -9,6 +9,7 @@ const baseInput: AdminProductInput = {
   description: 'Tasty',
   priceCents: 1299,
   category: 'DOG',
+  categories: ['DOG'],
   images: [
     {
       id: 'img-1',

@@ -9,6 +9,8 @@ import { Button } from '@/components/ui';
 
 interface QuantitySelectorProps {
   product: Product;
+  /** Rendered between the quantity stepper and the Add to cart button. */
+  preAction?: React.ReactNode;
 }
 
 const ADDED_FEEDBACK_MS = 1500;
@@ -25,7 +27,10 @@ const ADDED_FEEDBACK_MS = 1500;
  *     duplicate add when localStorage finally loads.
  *   - Successful add flips a 1.5s "Added!" confirmation on the button.
  */
-export function QuantitySelector({ product }: QuantitySelectorProps) {
+export function QuantitySelector({
+  product,
+  preAction,
+}: QuantitySelectorProps) {
   const { add } = useCartActions();
   const hasHydrated = useCartHasHydrated();
   const [quantity, setQuantity] = useState(1);
@@ -97,7 +102,7 @@ export function QuantitySelector({ product }: QuantitySelectorProps) {
             disabled={!inStock}
             onChange={(event) => handleChange(event.target.value)}
             aria-label="Quantity"
-            className="h-10 w-12 border-x border-line bg-transparent text-center font-body text-sm text-ink focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-pine disabled:bg-panel disabled:text-ink-faint"
+            className="h-10 w-12 border-x border-line bg-transparent text-center font-body text-sm text-ink [appearance:textfield] focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-pine disabled:bg-panel disabled:text-ink-faint [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           <button
             type="button"
@@ -120,6 +125,8 @@ export function QuantitySelector({ product }: QuantitySelectorProps) {
           </span>
         ) : null}
       </div>
+
+      {preAction}
 
       <Button
         onClick={handleAdd}

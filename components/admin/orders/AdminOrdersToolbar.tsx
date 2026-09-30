@@ -9,15 +9,16 @@ interface FilterPill {
   label: string;
 }
 
+// Exactly the app-lowercase forms of the backend `OrderStatus` enum
+// (PENDING|PAID|SHIPPED|FULFILLED|CANCELLED). `delivered`/`refunded` are not
+// Prisma statuses and would 400 the list query, so they are not offered.
 const PILLS: FilterPill[] = [
   { value: 'all', label: 'All' },
   { value: 'pending', label: 'Pending' },
   { value: 'paid', label: 'Paid' },
   { value: 'fulfilled', label: 'Fulfilled' },
   { value: 'shipped', label: 'Shipped' },
-  { value: 'delivered', label: 'Delivered' },
   { value: 'cancelled', label: 'Cancelled' },
-  { value: 'refunded', label: 'Refunded' },
 ];
 
 export function AdminOrdersToolbar() {

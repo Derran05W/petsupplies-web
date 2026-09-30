@@ -26,6 +26,8 @@ export interface ApiCatalogProduct {
   stock: number;
   active: boolean;
   category: string;
+  categories?: string[];
+  ingredients?: string | null;
   tags: string[];
   images?: ApiCatalogProductImage[];
   inStock?: boolean;
@@ -71,8 +73,11 @@ function mapApiImage(
  * catalogue uses exactly such URLs. Dropping unservable entries lets every
  * surface render its designed no-photo fallback (tonal tile + line-art
  * icon) instead of a broken-image glyph.
+ *
+ * Exported so the order-line mapper (order-mapper.ts) filters identically —
+ * order item images come from the same seeded product rows.
  */
-function isServableImageUrl(url: string): boolean {
+export function isServableImageUrl(url: string): boolean {
   const path = (url.split('?')[0] ?? url).toLowerCase();
   if (path.length === 0) return false;
   if (path.endsWith('.svg')) return false;
@@ -123,6 +128,22 @@ function mapStorefrontCategory(tags: string[], apiCategory: string): Category {
   if (joined.includes('accessor')) return 'accessories';
   if (joined.includes('health') || joined.includes('care')) return 'healthcare';
   return API_CATEGORY_TO_STOREFRONT[apiCategory.toUpperCase()] ?? 'food';
+}
+
+/**
+ * Map the wire `categories` array through the same tag+category inference to a
+ * deduped storefront `Category[]`. Falls back to the single inferred category
+ * when the wire array is missing/empty so the app tolerates an older API.
+ */
+function mapStorefrontCategories(
+  tags: string[],
+  apiCategory: string,
+  apiCategories: string[] | undefined,
+): Category[] {
+  const single = mapStorefrontCategory(tags, apiCategory);
+  if (!apiCategories || apiCategories.length === 0) return [single];
+  const mapped = apiCategories.map((c) => mapStorefrontCategory(tags, c));
+  return Array.from(new Set(mapped));
 }
 
 function isNormalizedProduct(raw: unknown): raw is Product {
@@ -182,13 +203,23 @@ export function mapCatalogProduct(raw: unknown): Product {
   const reviewCount = typeof p.reviewCount === 'number' ? p.reviewCount : 0;
   const avgRating = p.avgRating;
 
+  const categories = mapStorefrontCategories(
+    tags,
+    p.category ?? '',
+    p.categories,
+  );
+
   return {
     id: p.id,
     slug: p.slug,
     name: p.name,
     description: p.description,
     priceCents: coercePriceCents(p as unknown as Record<string, unknown>),
-    category: mapStorefrontCategory(tags, p.category ?? ''),
+    category: categories[0]!,
+    categories,
+    ...(typeof p.ingredients === 'string' && p.ingredients.trim().length > 0
+      ? { ingredients: p.ingredients }
+      : {}),
     petType: inferPetType(tags, p.category ?? ''),
     images,
     inStock,

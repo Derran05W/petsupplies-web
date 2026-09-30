@@ -59,19 +59,43 @@ function mapPet(raw: unknown): Pet {
   };
 }
 
-/** PetInput (lowercase species) → strict backend create/patch body. */
-function toPetBody(input: PetInput): Record<string, unknown> {
+/**
+ * PetInput (lowercase species) → strict backend create/patch body.
+ *
+ * The pet edit form always submits the COMPLETE profile, so on the UPDATE
+ * (PATCH) path an absent optional means the user cleared that field: we send an
+ * explicit `null` so the backend clears it (its optionals are `.nullable()`,
+ * and `birthDateSchema` / `weightGrams` accept `null` too). Empty strings are
+ * rejected by the backend's `min(1)`, but the schema layer already maps blank
+ * inputs to `undefined`, so a raw `''` never reaches here. On CREATE an absent
+ * optional is simply omitted, and a populated value (or an explicit `null`) is
+ * always sent as-is.
+ */
+function toPetBody(
+  input: PetInput,
+  mode: 'create' | 'update',
+): Record<string, unknown> {
   const body: Record<string, unknown> = {
     name: input.name,
     species: speciesToWire(input.species),
   };
-  if (input.breed !== undefined) body.breed = input.breed;
-  if (input.birthDate !== undefined) body.birthDate = input.birthDate;
-  if (input.weightGrams !== undefined) body.weightGrams = input.weightGrams;
-  if (input.dietaryNotes !== undefined) body.dietaryNotes = input.dietaryNotes;
-  if (input.profilePhotoUrl !== undefined) {
-    body.profilePhotoUrl = input.profilePhotoUrl;
-  }
+
+  const putOptional = (key: keyof PetInput, value: unknown): void => {
+    if (value !== undefined) {
+      body[key] = value;
+    } else if (mode === 'update') {
+      // Cleared on the edit form → clear it server-side.
+      body[key] = null;
+    }
+    // CREATE: absent optionals are omitted.
+  };
+
+  putOptional('breed', input.breed);
+  putOptional('birthDate', input.birthDate);
+  putOptional('weightGrams', input.weightGrams);
+  putOptional('dietaryNotes', input.dietaryNotes);
+  putOptional('profilePhotoUrl', input.profilePhotoUrl);
+
   return body;
 }
 
@@ -118,7 +142,7 @@ export async function createPet(
   options: PetsApiOptions = {},
 ): Promise<Pet> {
   const { accessToken } = options;
-  const body = JSON.stringify(toPetBody(input));
+  const body = JSON.stringify(toPetBody(input, 'create'));
   const raw = await apiFetch<unknown>(
     '/users/me/pets',
     accessToken
@@ -134,7 +158,7 @@ export async function updatePet(
   options: PetsApiOptions = {},
 ): Promise<Pet> {
   const { accessToken } = options;
-  const body = JSON.stringify(toPetBody(input));
+  const body = JSON.stringify(toPetBody(input, 'update'));
   const raw = await apiFetch<unknown>(
     `/users/me/pets/${encodeURIComponent(id)}`,
     accessToken

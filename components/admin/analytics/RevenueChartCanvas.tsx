@@ -75,7 +75,7 @@ export default function RevenueChartCanvas({
             tick={{ fontSize: 11, fill: 'var(--ink-muted)' }}
             tickLine={false}
             tickFormatter={(v) =>
-              new Intl.NumberFormat('en-US', {
+              new Intl.NumberFormat('en-CA', {
                 style: 'currency',
                 currency: currency.toUpperCase(),
                 maximumFractionDigits: 0,

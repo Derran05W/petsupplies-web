@@ -15,6 +15,7 @@ const TEST_CATALOGUE: Product[] = [
     description: 'Crunchy mini-bites perfect for dog training.',
     priceCents: 999,
     category: 'treats',
+    categories: ['treats'],
     petType: 'dog',
     images: [],
     inStock: true,
@@ -29,6 +30,7 @@ const TEST_CATALOGUE: Product[] = [
     description: 'Irresistible tuna-flavoured rewards for cats.',
     priceCents: 799,
     category: 'treats',
+    categories: ['treats'],
     petType: 'cat',
     images: [],
     inStock: true,
@@ -43,6 +45,7 @@ const TEST_CATALOGUE: Product[] = [
     description: 'Grain-free salmon kibble.',
     priceCents: 2999,
     category: 'food',
+    categories: ['food'],
     petType: 'dog',
     images: [],
     inStock: true,
@@ -59,6 +62,7 @@ const sampleProduct: Product = {
   description: 'Crunchy rewards for training sessions.',
   priceCents: 1200,
   category: 'treats',
+  categories: ['treats'],
   petType: 'dog',
   images: [],
   inStock: true,
@@ -68,9 +72,10 @@ const sampleProduct: Product = {
 };
 
 describe('hasShelfFilters', () => {
-  it('returns true when category or petType is set', () => {
-    expect(hasShelfFilters({ category: 'treats' })).toBe(true);
+  it('returns true when categories or petType is set', () => {
+    expect(hasShelfFilters({ categories: ['treats'] })).toBe(true);
     expect(hasShelfFilters({ petType: 'cat' })).toBe(true);
+    expect(hasShelfFilters({ categories: [] })).toBe(false);
     expect(hasShelfFilters({ search: 'food' })).toBe(false);
   });
 });
@@ -108,12 +113,40 @@ describe('productMatchesSearch', () => {
 describe('productMatchesShelfFilters', () => {
   it('respects category and pet type filters', () => {
     expect(
-      productMatchesShelfFilters(sampleProduct, { category: 'treats' }),
+      productMatchesShelfFilters(sampleProduct, { categories: ['treats'] }),
     ).toBe(true);
     expect(
-      productMatchesShelfFilters(sampleProduct, { category: 'food' }),
+      productMatchesShelfFilters(sampleProduct, { categories: ['food'] }),
     ).toBe(false);
     expect(productMatchesShelfFilters(sampleProduct, { petType: 'dog' })).toBe(
+      true,
+    );
+  });
+
+  it('matches when the product belongs to any selected category (multi-select)', () => {
+    const multi: Product = {
+      ...sampleProduct,
+      category: 'food',
+      categories: ['food', 'treats'],
+    };
+    // Product is in DOG food + treats — a treats-only filter still matches.
+    expect(productMatchesShelfFilters(multi, { categories: ['treats'] })).toBe(
+      true,
+    );
+    expect(
+      productMatchesShelfFilters(multi, { categories: ['accessories'] }),
+    ).toBe(false);
+    // Any-of semantics across a multi-value filter.
+    expect(
+      productMatchesShelfFilters(multi, {
+        categories: ['accessories', 'food'],
+      }),
+    ).toBe(true);
+  });
+
+  it('matches everything when the category filter is empty or unset', () => {
+    expect(productMatchesShelfFilters(sampleProduct, {})).toBe(true);
+    expect(productMatchesShelfFilters(sampleProduct, { categories: [] })).toBe(
       true,
     );
   });
@@ -122,7 +155,7 @@ describe('productMatchesShelfFilters', () => {
 describe('filterAndPaginateProducts', () => {
   it('filters catalogue by category and search together', () => {
     const result = filterAndPaginateProducts(TEST_CATALOGUE, {
-      category: 'treats',
+      categories: ['treats'],
       search: 'dog',
       page: 1,
       pageSize: 12,

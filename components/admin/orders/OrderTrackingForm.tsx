@@ -14,14 +14,27 @@ interface OrderTrackingFormProps {
   order: AdminOrderSummary;
 }
 
+// Backend `adminUpdateTrackingSchema` requires BOTH `trackingNumber` and
+// `carrier` (min 1); `trackingUrl` is app-only (no backend column).
 const trackingFormSchema = z.object({
   trackingNumber: z
     .string()
     .trim()
+    .min(1, 'Tracking number is required')
     .max(64, 'Tracking number must be 64 characters or fewer')
-    .regex(/^[A-Za-z0-9 \-]*$/, 'Use letters, numbers, dashes, and spaces only')
-    .optional()
-    .or(z.literal('')),
+    .regex(
+      /^[A-Za-z0-9 \-]+$/,
+      'Use letters, numbers, dashes, and spaces only',
+    ),
+  carrier: z
+    .string()
+    .trim()
+    .min(1, 'Carrier is required')
+    .max(64, 'Carrier must be 64 characters or fewer')
+    .regex(
+      /^[A-Za-z0-9 .\-]+$/,
+      'Use letters, numbers, dashes, dots, and spaces only',
+    ),
   trackingUrl: z
     .string()
     .trim()
@@ -73,6 +86,7 @@ export function OrderTrackingForm({ order }: OrderTrackingFormProps) {
     resolver: zodResolver(trackingFormSchema),
     defaultValues: {
       trackingNumber: order.trackingNumber ?? '',
+      carrier: order.carrier ?? '',
       trackingUrl: order.trackingUrl ?? '',
     },
   });
@@ -80,20 +94,23 @@ export function OrderTrackingForm({ order }: OrderTrackingFormProps) {
   useEffect(() => {
     reset({
       trackingNumber: order.trackingNumber ?? '',
+      carrier: order.carrier ?? '',
       trackingUrl: order.trackingUrl ?? '',
     });
-  }, [order.trackingNumber, order.trackingUrl, reset]);
+  }, [order.trackingNumber, order.carrier, order.trackingUrl, reset]);
 
   const submit = handleSubmit(async (values) => {
     setSubmitError(null);
     setSuccess(null);
-    const trackingNumber = (values.trackingNumber ?? '').trim();
+    const trackingNumber = values.trackingNumber.trim();
+    const carrier = values.carrier.trim();
     const trackingUrl = (values.trackingUrl ?? '').trim();
     try {
       await mutation.mutateAsync({
         id: order.id,
         input: {
-          trackingNumber: trackingNumber.length > 0 ? trackingNumber : null,
+          trackingNumber,
+          carrier,
           trackingUrl: trackingUrl.length > 0 ? trackingUrl : null,
         },
       });
@@ -154,6 +171,32 @@ export function OrderTrackingForm({ order }: OrderTrackingFormProps) {
             className="mt-1 font-body text-xs text-danger-solid"
           >
             {errors.trackingNumber.message}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label
+          htmlFor={`tracking-carrier-${order.id}`}
+          className="mb-1.5 block font-body text-micro uppercase text-ink"
+        >
+          Carrier
+        </label>
+        <input
+          id={`tracking-carrier-${order.id}`}
+          type="text"
+          placeholder="UPS"
+          {...register('carrier')}
+          {...fieldErrorProps(`tracking-carrier-${order.id}`, errors.carrier)}
+          className={cn(inputBase, errors.carrier && inputError)}
+        />
+        {errors.carrier && (
+          <p
+            id={`tracking-carrier-${order.id}-error`}
+            role="alert"
+            className="mt-1 font-body text-xs text-danger-solid"
+          >
+            {errors.carrier.message}
           </p>
         )}
       </div>

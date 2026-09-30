@@ -66,8 +66,12 @@ export interface AdminAnalyticsSubscriptions {
 export interface AdminAnalyticsDiscountRow {
   code: string;
   uses: number;
-  revenueCents: number;
-  discountCents: number;
+  /**
+   * Discount given / revenue foregone over the range (backend
+   * `DiscountStatRow.revenueImpactCents`). The wire carries no gross-revenue
+   * figure for a discount, so this is the only money value available.
+   */
+  revenueImpactCents: number;
 }
 
 /** GET /admin/analytics/discounts */

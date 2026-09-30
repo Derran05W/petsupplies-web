@@ -38,8 +38,7 @@ export function DiscountStatsPanel({
             <tr className="border-b border-line text-left font-body text-micro uppercase text-ink-muted">
               <th className="px-5 py-3">Code</th>
               <th className="px-5 py-3 text-right">Uses</th>
-              <th className="px-5 py-3 text-right">Revenue</th>
-              <th className="px-5 py-3 text-right">Discounts</th>
+              <th className="px-5 py-3 text-right">Revenue impact</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -53,10 +52,7 @@ export function DiscountStatsPanel({
                   {row.uses}
                 </td>
                 <td className="px-5 py-3 text-right font-display tabular-nums text-ink">
-                  {formatPrice(row.revenueCents, currency)}
-                </td>
-                <td className="px-5 py-3 text-right font-display tabular-nums text-ink">
-                  {formatPrice(row.discountCents, currency)}
+                  {formatPrice(row.revenueImpactCents, currency)}
                 </td>
               </tr>
             ))}

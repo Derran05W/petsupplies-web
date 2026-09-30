@@ -20,6 +20,7 @@ const FIXTURE_CATALOGUE: Product[] = [
     priceCents: 2999,
     compareAtPriceCents: 3499,
     category: 'food',
+    categories: ['food', 'treats'],
     petType: 'dog',
     images: [
       {
@@ -42,6 +43,7 @@ const FIXTURE_CATALOGUE: Product[] = [
     description: 'Irresistible tuna-flavoured treats for cats.',
     priceCents: 899,
     category: 'treats',
+    categories: ['treats'],
     petType: 'cat',
     images: [],
     inStock: false,
@@ -56,6 +58,7 @@ const FIXTURE_CATALOGUE: Product[] = [
     description: 'Nutritious seed blend for pet birds.',
     priceCents: 1299,
     category: 'food',
+    categories: ['food'],
     petType: 'bird',
     images: [],
     inStock: true,

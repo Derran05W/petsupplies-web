@@ -49,9 +49,14 @@ export interface Product {
   description: string;
   priceCents: number;
   compareAtPriceCents?: number;
+  /** Primary category — always equal to `categories[0]`, kept for display fallbacks. */
   category: Category;
+  /** Authoritative list of categories this product belongs to. */
+  categories: Category[];
   petType: PetType;
   images: ProductImage[];
+  /** Optional free-text ingredients list (standalone; distinct from NutritionalInfo). */
+  ingredients?: string;
   nutritionalInfo?: NutritionalInfo;
   inStock: boolean;
   stockCount: number;
@@ -71,7 +76,8 @@ export interface ProductListResponse {
 }
 
 export interface ProductFilters {
-  category?: Category;
+  /** Multi-select category filter — a product matches if it belongs to any of these. */
+  categories?: Category[];
   petType?: PetType;
   minPriceCents?: number;
   maxPriceCents?: number;

@@ -44,4 +44,41 @@ describe('mapCatalogProduct', () => {
     const product = mapCatalogProduct(apiProduct);
     expect(product.rating).toEqual({ avg: 4.5, count: 12 });
   });
+
+  it('maps a null/absent ingredients field to undefined', () => {
+    expect(mapCatalogProduct(apiProduct).ingredients).toBeUndefined();
+    expect(
+      mapCatalogProduct({ ...apiProduct, ingredients: null }).ingredients,
+    ).toBeUndefined();
+    expect(
+      mapCatalogProduct({ ...apiProduct, ingredients: '   ' }).ingredients,
+    ).toBeUndefined();
+  });
+
+  it('passes through a populated ingredients field', () => {
+    const product = mapCatalogProduct({
+      ...apiProduct,
+      ingredients: 'Salmon, sweet potato, peas',
+    });
+    expect(product.ingredients).toBe('Salmon, sweet potato, peas');
+  });
+
+  it('falls back to the single inferred category when wire array is missing', () => {
+    const product = mapCatalogProduct(apiProduct);
+    // tags include "treat" so inference wins over the HEALTH api category.
+    expect(product.categories).toEqual(['treats']);
+    expect(product.category).toBe('treats');
+  });
+
+  it('maps and dedupes the wire categories array through inference', () => {
+    const product = mapCatalogProduct({
+      ...apiProduct,
+      tags: [],
+      category: 'DOG',
+      categories: ['DOG', 'CAT', 'ACCESSORIES'],
+    });
+    // DOG + CAT both infer to "food" and dedupe; ACCESSORIES stays distinct.
+    expect(product.categories).toEqual(['food', 'accessories']);
+    expect(product.category).toBe('food');
+  });
 });

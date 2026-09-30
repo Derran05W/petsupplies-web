@@ -47,7 +47,7 @@ export function CustomerSearchField({
         type="search"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Search by email or name"
+        placeholder="Search by email"
         className="w-full rounded-tile border border-line bg-paper py-2.5 pl-10 pr-3 font-body text-sm text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none md:max-w-md"
       />
     </div>

@@ -22,6 +22,7 @@ interface AdminProductsPageProps {
     page?: string;
     search?: string;
     stock?: string;
+    deleted?: string;
   };
 }
 
@@ -49,6 +50,24 @@ export default function AdminProductsPage({
           </Link>
         }
       />
+      {searchParams.deleted === 'soft' && (
+        <p
+          role="status"
+          className="mb-4 rounded-tile border border-line bg-panel px-4 py-3 font-body text-sm text-ink-secondary"
+        >
+          This product has order or subscription history, so it was archived
+          instead of permanently deleted — it&apos;s now a Draft and hidden from
+          the storefront.
+        </p>
+      )}
+      {searchParams.deleted === 'hard' && (
+        <p
+          role="status"
+          className="mb-4 rounded-tile border border-line bg-panel px-4 py-3 font-body text-sm text-ink-secondary"
+        >
+          Product permanently deleted.
+        </p>
+      )}
       <AdminProductsToolbar />
       <Suspense
         key={suspenseKey}

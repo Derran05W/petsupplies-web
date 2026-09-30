@@ -152,7 +152,7 @@ describe('lib/api/pets', () => {
     expect(body.species).toBe('DOG');
   });
 
-  it('PATCH serialises the uppercase-species payload', async () => {
+  it('PATCH serialises the uppercase-species payload and nulls the absent optional', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () =>
@@ -160,6 +160,8 @@ describe('lib/api/pets', () => {
       ),
     );
 
+    // profilePhotoUrl is absent from the patch: on the UPDATE path that means
+    // the user cleared it, so the body carries an explicit `null` to clear it.
     const patchBody = {
       name: 'Updated',
       species: 'cat' as const,
@@ -182,9 +184,92 @@ describe('lib/api/pets', () => {
           birthDate: '2020-01-15',
           weightGrams: 4500,
           dietaryNotes: 'Grain-free preferred',
+          profilePhotoUrl: null,
         }),
       }),
     );
+  });
+
+  it('PATCH sends null for every optional the user cleared (null-to-clear)', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        Response.json({ ...API_PET, name: 'Cleared' }, { status: 200 }),
+      ),
+    );
+
+    // Only name + species survive editing; every optional was emptied. The
+    // edit form submits the complete profile, so each absent optional must
+    // reach the backend as `null` (clear), not be omitted (which silently
+    // left the old value in place — the bug this guards).
+    await updatePet(
+      'pet-1',
+      { name: 'Cleared', species: 'cat' },
+      { accessToken: 't' },
+    );
+
+    const body = JSON.parse(
+      vi.mocked(fetch).mock.calls[0]![1]!.body as string,
+    ) as Record<string, unknown>;
+    expect(body).toEqual({
+      name: 'Cleared',
+      species: 'CAT',
+      breed: null,
+      birthDate: null,
+      weightGrams: null,
+      dietaryNotes: null,
+      profilePhotoUrl: null,
+    });
+  });
+
+  it('PATCH keeps populated optionals and nulls only the cleared ones (omit-unchanged vs clear)', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Response.json({ ...API_PET }, { status: 200 })),
+    );
+
+    // breed is still populated (unchanged), the rest were cleared.
+    await updatePet(
+      'pet-1',
+      { name: 'Luna', species: 'cat', breed: 'Domestic' },
+      { accessToken: 't' },
+    );
+
+    const body = JSON.parse(
+      vi.mocked(fetch).mock.calls[0]![1]!.body as string,
+    ) as Record<string, unknown>;
+    expect(body.breed).toBe('Domestic');
+    expect(body.birthDate).toBeNull();
+    expect(body.weightGrams).toBeNull();
+    expect(body.dietaryNotes).toBeNull();
+    expect(body.profilePhotoUrl).toBeNull();
+  });
+
+  it('POST omits absent optionals — never sends null on create', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        Response.json(
+          { ...API_PET, name: 'Rex', species: 'DOG', breed: 'Husky' },
+          { status: 201 },
+        ),
+      ),
+    );
+
+    await createPet(
+      { name: 'Rex', species: 'dog', breed: 'Husky' },
+      { accessToken: 't' },
+    );
+
+    const body = JSON.parse(
+      vi.mocked(fetch).mock.calls[0]![1]!.body as string,
+    ) as Record<string, unknown>;
+    // The provided optional is sent; the absent ones are omitted, not nulled.
+    expect(body).toEqual({ name: 'Rex', species: 'DOG', breed: 'Husky' });
+    expect(body).not.toHaveProperty('birthDate');
+    expect(body).not.toHaveProperty('weightGrams');
+    expect(body).not.toHaveProperty('dietaryNotes');
+    expect(body).not.toHaveProperty('profilePhotoUrl');
   });
 
   it('DELETE returns void on 204', async () => {

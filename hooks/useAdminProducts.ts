@@ -22,6 +22,7 @@ import type {
   AdminProductListResponse,
   StockState,
 } from '@/types/admin';
+import type { ApiAdminProductDeleteResponse } from '@/types/admin-product-api';
 
 const ADMIN_PRODUCTS_ROOT = ['admin', 'products'] as const;
 
@@ -131,7 +132,7 @@ export function useUpdateAdminProductMutation(): UseMutationResult<
 }
 
 export function useDeleteAdminProductMutation(): UseMutationResult<
-  void,
+  ApiAdminProductDeleteResponse,
   Error,
   string
 > {
@@ -139,7 +140,7 @@ export function useDeleteAdminProductMutation(): UseMutationResult<
   return useMutation({
     mutationFn: async (id) => {
       const accessToken = await getBrowserAccessToken();
-      await adminDeleteProduct(id, accessToken ? { accessToken } : {});
+      return adminDeleteProduct(id, accessToken ? { accessToken } : {});
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ADMIN_PRODUCTS_ROOT });

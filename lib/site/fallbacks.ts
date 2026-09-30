@@ -48,6 +48,7 @@ export const SITE_SETTINGS_FALLBACK: SiteSettingsPublic = {
       icon: 'stethoscope',
     },
   ],
+  rewardTiers: [],
 };
 
 export { FREE_SHIPPING_DEFAULT_CENTS };

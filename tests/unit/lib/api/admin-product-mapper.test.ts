@@ -15,6 +15,8 @@ const apiProduct: ApiAdminProduct = {
   stock: 3,
   active: true,
   category: 'DOG',
+  categories: ['DOG'],
+  ingredients: null,
   tags: ['treat'],
   imageUrl: null,
   images: [
@@ -56,6 +58,7 @@ describe('admin product mapper', () => {
       description: 'Tasty',
       priceCents: 1299,
       category: 'DOG',
+      categories: ['DOG'],
       images: apiProduct.images.map((img) => ({
         id: img.id,
         url: img.url,
@@ -71,8 +74,55 @@ describe('admin product mapper', () => {
       stock: 3,
       active: true,
       category: 'DOG',
+      categories: ['DOG'],
+      // No ingredients provided → wire body sends explicit null.
+      ingredients: null,
       imageUrl: 'https://cdn.example.com/a.jpg',
     });
+  });
+
+  it('sends categories + primary category and trims ingredients on the wire', () => {
+    const body = toCreateBody({
+      name: 'Salmon Treats',
+      slug: 'salmon-treats',
+      description: 'Tasty',
+      priceCents: 1299,
+      category: 'CAT',
+      categories: ['DOG', 'CAT'],
+      ingredients: '  Salmon, peas  ',
+      images: apiProduct.images.map((img) => ({
+        id: img.id,
+        url: img.url,
+        alt: 'Bag',
+        isPrimary: true,
+      })),
+      stockCount: 3,
+      tags: ['treat'],
+      isPublished: true,
+    });
+    expect(body.categories).toEqual(['DOG', 'CAT']);
+    // category always equals categories[0] for back-compat.
+    expect(body.category).toBe('DOG');
+    expect(body.ingredients).toBe('Salmon, peas');
+  });
+
+  it('maps ingredients + multi-category through mapApiProduct', () => {
+    const mapped = mapApiProduct({
+      ...apiProduct,
+      categories: ['DOG', 'CAT'],
+      ingredients: 'Salmon',
+    });
+    expect(mapped.categories).toEqual(['DOG', 'CAT']);
+    expect(mapped.ingredients).toBe('Salmon');
+
+    // Null ingredients → undefined app-side; missing categories → [category].
+    const legacy = mapApiProduct({
+      ...apiProduct,
+      categories: [],
+      ingredients: null,
+    });
+    expect(legacy.categories).toEqual(['DOG']);
+    expect(legacy.ingredients).toBeUndefined();
   });
 
   it('filters low stock client-side', () => {

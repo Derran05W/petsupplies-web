@@ -47,9 +47,12 @@ describe('buildRootMetadata', () => {
     expect(meta.metadataBase?.toString()).toBe('https://shop.example.com/');
   });
 
-  it('adds canonical, openGraph, and twitter defaults', () => {
+  it('adds openGraph and twitter defaults without a sitewide canonical', () => {
     const meta = buildRootMetadata(testBrand);
-    expect(meta.alternates?.canonical).toBe('/');
+    // Root metadata is inherited by every page, so a canonical (or og:url)
+    // here would mark all pages as duplicates of the homepage.
+    expect(meta.alternates).toBeUndefined();
+    expect(meta.openGraph).not.toHaveProperty('url');
     expect(meta.openGraph).toMatchObject({
       type: 'website',
       siteName: 'Test Store',
